@@ -8,26 +8,26 @@ var driversWithdrawnPerCommandLiga2 = [];
 var driversSubInPerCommandLiga2 = [];
 var flag = null;
 
-// Mercedes-Team: Rocky / Helim
-var mercedesDriversLiga2 = ['176331806839275520', '404664138103652362'];
-// Red Bull-Team: Hico / DarkNight
-var redBullDriversLiga2 = ['442694360652447755', '756083277512835082'];
-// Ferrari-Team: Keto / Zani
-var ferrariDriversLiga2 = ['243771257877823488', '751461016583274516']
-// McLaren-Team: Finn / kk
-var mcLarenDriversLiga2 = ['272073232893345792', '688006080109740070']
-// Aston Martin-Team: Cvbby / Scofield
-var astonMartinDriversLiga2 = ['259366764121423872', '378256164196188160']
-// Alpine-Team: Karrotenzieher / SHDGames
-var alpineDriversLiga2 = ['409058381870137371', '284981237645312000']
-// Alpha Tauri-Team: PeterFritz / PlayHak
-var alphaTauriDriversLiga2 = ['861930115809280041', '299534780595175424']
-// Alfa Romeo-Team: Star Rexx / Neigo
-var alfaRomeoDriversLiga2 = ['510933838868905995', '311868092840017921']
-// Williams-Team: smittyy / MrGolfvirus
-var williamsDriversLiga2 = ['154609243033436160', '402107633915658243']
-// Haas-Team: Buddy / Dokinix
-var haasDriversLiga2 = ['177733474713600000', '790536187587985429']
+// Mercedes-Team: Helim / Finn
+var mercedesDriversLiga2 = ['404664138103652362', '272073232893345792'];
+// Red Bull-Team: Scof / Adman
+var redBullDriversLiga2 = ['378256164196188160', '269499201702854667'];
+// Ferrari-Team: Playhak / Mandalon
+var ferrariDriversLiga2 = ['299534780595175424', '764434676588740638']
+// McLaren-Team: Lyrex / Buddy
+var mcLarenDriversLiga2 = ['216889083463598080', '177733474713600000']
+// Aston Martin-Team: Josia / Delacium
+var astonMartinDriversLiga2 = ['469239617590132737', '689532105029713943']
+// Alpine-Team: Zani / Tim
+var alpineDriversLiga2 = ['751461016583274516', '653676539174453258']
+// Alpha Tauri-Team: Darknight / Hico
+var alphaTauriDriversLiga2 = ['756083277512835082', '442694360652447755']
+// Alfa Romeo-Team: Cvbby / Starrex
+var alfaRomeoDriversLiga2 = ['259366764121423872', '510933838868905995']
+// Williams-Team: Klaus / Fearless
+var williamsDriversLiga2 = ['595695198596759593', '645299363375087616']
+// Haas-Team: slxwness / riiqzy
+var haasDriversLiga2 = ['287309914508886016', '376412804288348160']
 
 var currentLineupLiga2 = new Map();
 var regularDriversLiga2 = new Map();
