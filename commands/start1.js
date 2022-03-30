@@ -8,26 +8,26 @@ var driversWithdrawnPerCommandLiga1 = [];
 var driversSubInPerCommandLiga1 = [];
 var flag = null;
 
-// Mercedes-Team: Sven / Wie-Sie
-var mercedesDriversLiga1 = ['427116609128103947', '382914407153401857'];
-// Red Bull-Team: Broncos / Rocketship
-var redBullDriversLiga1 = ['604645537882308609', '281100297051570177'];
-// Ferrari-Team: Kante / Berkan
-var ferrariDriversLiga1 = ['315803566591967243', '390515454583635969'];
-// McLaren-Team: Kibu / Pascalus
-var mcLarenDriversLiga1 = ['173416598101688320', '254292883492831232'];
-// Aston Martin-Team: Charizz / Noryl
-var astonMartinDriversLiga1 = ['469926134700703748', '289036587159912448'];
-// Alpine-Team: Eriksen / Pala
-var alpineDriversLiga1 = ['263760051515293696', '265537845081407489'];
-// Alpha Tauri-Team: MRVN / Adman
-var alphaTauriDriversLiga1 = ['495721676848496640', '269499201702854667'];
-// Alfa Romeo-Team: Achimedes / Korky
-var alfaRomeoDriversLiga1 = ['336841703816429570', '380076906172645390'];
-// Williams-Team: Bado / Nyrox
-var williamsDriversLiga1 = ['449253231621832706', '336885878029025280'];
-// Haas-Team: GreatWolf / slowness
-var haasDriversLiga1 = ['261399508812955648', '287309914508886016'];
+// Mercedes-Team: Sven / Kante
+var mercedesDriversLiga1 = ['427116609128103947', '315803566591967243'];
+// Red Bull-Team: Kibu / Pascal
+var redBullDriversLiga1 = ['173416598101688320', '254292883492831232'];
+// Ferrari-Team: WieSie / Marvin
+var ferrariDriversLiga1 = ['382914407153401857', '495721676848496640'];
+// McLaren-Team: Reflex / Rocky
+var mcLarenDriversLiga1 = ['251905736529936384', '176331806839275520'];
+// Aston Martin-Team: Bado / Noryl
+var astonMartinDriversLiga1 = ['449253231621832706', '289036587159912448'];
+// Alpine-Team: Achi / Korky
+var alpineDriversLiga1 = ['336841703816429570', '380076906172645390'];
+// Alpha Tauri-Team: SHD / Karotte
+var alphaTauriDriversLiga1 = ['284981237645312000', '409058381870137371'];
+// Alfa Romeo-Team: Eriksen / Pala
+var alfaRomeoDriversLiga1 = ['263760051515293696', '265537845081407489'];
+// Williams-Team: Smittyy / Demiyoo
+var williamsDriversLiga1 = ['154609243033436160', '356721136467443722'];
+// Haas-Team: Rocket / Nyrox
+var haasDriversLiga1 = ['281100297051570177', '336885878029025280'];
 
 var currentLineupLiga1 = new Map();
 var regularDriversLiga1 = new Map();
@@ -257,7 +257,7 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
     console.log(`Prüfsumme für Liga 1, Methode checkSubCanBeMade. Das Auto was gerade belegt wird hat ID ${carToTake}, der 
                 Fahrer der es nimmt hat die ID ${driverToStart}. Beides darf nicht null oder undefined sein. -- ${date}`);
 
-    if(withdrawnDriversLiga1.length > 0 && !fromForceRemove &&
+    if(!fromForceRemove &&
       client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(stammfahrerRolleIDLiga1) &&
       checkIfCarIsFree(client, carToTake)){
 
@@ -280,9 +280,9 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
       } else if(currentLineupLiga1.get(mainTeamNameString)[1] == 'nicht besetzt'){
         subDriverPosition = 1
         seatOpen = true
-      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamIDString)[0]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
+      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamNameString)[0]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
         subDriverPosition = 0
-      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamIDString)[1]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
+      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamNameString)[1]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
         subDriverPosition = 1
       }
 
@@ -826,12 +826,11 @@ module.exports = {
 
           let embedAnmeldung = new MessageEmbed()
           .setColor('#0064fd')
-          .setTitle('Anmeldung für Ersatzfahrer und Fahrer auf der Warteliste')
-          .setDescription(`Diese Nachricht ist NUR für Ersatzfahrer und Fahrer auf der Warteliste relevant. Um euch anzumelden für das Ligarennen in ${flag} bitte mit ` +
-                        `dem ✅ unter dieser Nachricht reagieren, falls ihr mitfahren wollt. Das gilt für Ersatzfahrer und Fahrer auf der Warteliste, Ersatzfahrer ` +
-                        `können sich ab sofort anmelden, die Warteliste erst ab dem Moment, in dem sie freigeschaltet. Wenn die Warteliste aktiviert wurde, wird sie im Anmeldechannel markiert. ` +
-                        `Die Ersatzfahrer werden, sobald ein Cockpit frei wird, eingefügt. ` +
-                        `Für die Warteliste gilt das Gleiche, sobald sie freigeschaltet wurde. Wenn ihr ein Cockpit habt, kriegt ihr vom Bot eine Privatnachricht. Trotzdem bitte hin ` +
+          .setTitle('Anmeldung für Ersatzfahrer')
+          .setDescription(`Diese Nachricht ist NUR für Ersatzfahrer relevant. Um euch anzumelden für das Ligarennen in ${flag} bitte mit ` +
+                        `dem ✅ unter dieser Nachricht reagieren, falls ihr mitfahren wollt. `+
+                        `Die Ersatzfahrer werden, sobald ein Cockpit frei wird, eingefügt. Hier gilt, wer sich zuerst anmeldet kriegt zuerst ein Cockpit. ` +
+                        `Wenn ihr ein Cockpit habt, kriegt ihr vom Bot eine Privatnachricht. Trotzdem bitte hin ` +
                         `und wieder mal auf den Discord schauen. Wenn ihr ein Cockpit habt wird euer Name ins Lineup, im Infochannel, eingetragen. \n \n` +
                         `Wenn ihr doch keine Zeit habt, könnt ihr ganz einfach eure Reaktion unter dieser Nachricht wieder entfernen ` +
                         `und seid nicht mehr angemeldet. Ihr könnt NICHT im Abmelde-Channel reagieren. \n \n Bei Unklarheit bitte den %help-Command ausführen. Falls ihr nicht ` +

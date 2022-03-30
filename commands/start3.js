@@ -11,30 +11,28 @@ var withdrawnDriversLiga3 = [];
 // contains all drivers who the "Ligaleiter" made step down from their cockpit because they couldnt
 var driversWithdrawnPerCommandLiga3 = [];
 var driversSubInPerCommandLiga3 = [];
-var confirmedSubsMadeLiga3 = new Map();
-var confirmedSubsMadeInvLiga3 = new Map();
 var flag = null;
 
-// Mercedes-Team: Duffy / Ghostvali 
-var mercedesDriversLiga3 = ['345671793924767754', '650625652407402496'];
-// Red Bull-Team: fire(AVIX) / Tim White  
-var redBullDriversLiga3 = ['671353767232274442', '653676539174453258'];
-// Ferrari-Team: arango / faxbxo 
-var ferrariDriversLiga3 = ['645299363375087616','480222830466695180'];
-// McLaren-Team: Delacium / Matters 
-var mcLarenDriversLiga3 = ['689532105029713943','339842173065232387'];
-// Aston Martin-Team: Jojo / Tobii  
-var astonMartinDriversLiga3 = ['695583838042325042','470950121564143616'];
-// Alpine-Team: Shepard / rdck  
-var alpineDriversLiga3 = ['636122554796474368','336169879013163008'];
-// Alpha Tauri-Team: Fleischwolf / Klaus 
-var alphaTauriDriversLiga3 = ['598253459216662634','595695198596759593'];
-// Alfa Romeo-Team: frosti / josia  
-var alfaRomeoDriversLiga3 = ['663084750256209950','469239617590132737'];
-// Williams-Team: Demiyoo / Martin 
-var williamsDriversLiga3 = ['356721136467443722','268398200749031425'];
-// Haas-Team: Frosdedje / Vaskoo  
-var haasDriversLiga3 = ['245617912436490241','251905736529936384'];
+// Mercedes-Team: Felix / Andre 
+var mercedesDriversLiga3 = ['471758946651078657', '548524356855136268'];
+// Red Bull-Team: John / Dokinix  
+var redBullDriversLiga3 = ['396155559344078849', '790536187587985429'];
+// Ferrari-Team: Tobi / Jojo 
+var ferrariDriversLiga3 = ['470950121564143616','695583838042325042'];
+// McLaren-Team: Frosti / Nerlan 
+var mcLarenDriversLiga3 = ['663084750256209950','329353284273831937'];
+// Aston Martin-Team: wwwlion / senfy  
+var astonMartinDriversLiga3 = ['318397070811594753','497014626589081602'];
+// Alpine-Team: faxbxo / Brightgamer  
+var alpineDriversLiga3 = ['480222830466695180','706792145654120468'];
+// Alpha Tauri-Team: Marius / Mangoe 
+var alphaTauriDriversLiga3 = ['470548642802040843','511933778806177813'];
+// Alfa Romeo-Team: Avestro / Hairylegs  
+var alfaRomeoDriversLiga3 = ['671353767232274442','605199089793236996'];
+// Williams-Team: Wunschloser / Ghostvali 
+var williamsDriversLiga3 = ['495992539829108746','650625652407402496'];
+// Haas-Team: Matters / Heinz  
+var haasDriversLiga3 = ['339842173065232387','285759242332405760'];
 
 var currentLineupLiga3 = new Map();
 var regularDrivers = new Map();
@@ -49,7 +47,6 @@ const teamsChannelID = '866950218887987221';
 const discordID = '479053264537649153'; 
 
 const ersatzfahrerRolleIDLiga3 = '843567323981938770';  
-const wartelisteRolleIDLiga3 = '869931237177954365';
 const stammfahrerRolleIDLiga3 = '843566505840214016';  
 const rennleiterRolleID = '479053658135461903'; 
 const ersatzfahrerRolleIDLiga2 = '734888172097503323';
@@ -73,7 +70,7 @@ const abmeldenEmoji = '❌';
 var freeCarMsgIDLiga3 = null;
 var waitListMsgIDLiga3 = null;
 var msgLineupLiga3 = null;
-var reservesActivatedLiga3 = false;
+
 var currentRegularDrivers = null;
 
 let messageEmbededAnmeldenID = null;
@@ -119,8 +116,7 @@ let messageEmbededAbmeldenID = null;
       let date = new Date().toLocaleString();
       console.log(`Fehler beim Entfernen ${user.username} aus dem Lineup -- ${date}`)
     }
-    confirmedSubsMadeLiga3.delete(user.id);
-    confirmedSubsMadeInvLiga3.delete(teamID);
+
   }
 }
 
@@ -136,37 +132,32 @@ let messageEmbededAbmeldenID = null;
  * @param {String} mainTeamIDString 
  * @param {int} driverToStart 
  */
-async function changeLineupTripleChange(client, message, subDriverID, carToTake, mainTeamIDString, driverToStart){
-  let mainTeamNameString = await client.guilds.cache.get(discordID).roles.cache.get(mainTeamIDString).name;
+async function regularDriverBack(client, subDriverID, carToTake, mainTeamIDString, driverToStart, seatOpen, subDriverPosition){
 
-  let positionOfSubDriver;
+  if(seatOpen == false){
+    let mainTeamNameString = await client.guilds.cache.get(discordID).roles.cache.get(mainTeamIDString).name;
 
-  if(currentLineupLiga3.get(mainTeamNameString)[0] == subDriverID){
-    positionOfSubDriver = 0;
-  }else if(currentLineupLiga3.get(mainTeamNameString)[1] == subDriverID){
-    positionOfSubDriver = 1;
-  } else {
-    let date = new Date().toLocaleString();
-    console.log(`Die Position von Ersatzfahrers im alten Team konnte nicht ermittelt werden -- ${date}`);
-  }
+    currentLineupLiga3.get(mainTeamNameString)[positionOfSubDriver] = driverToStart;
 
-  let carToTakeNameString;
-  client.guilds.cache.get(discordID).roles.cache.find(role => {
-    if(role.id == carToTake){
-      carToTakeNameString = role.name;             
+    let carToTakeNameString = await client.guilds.cache.get(discordID).roles.cache.get(carToTake).name;
+
+    if(currentLineupLiga3.get(carToTakeNameString)[0] == `nicht besetzt`){
+      currentLineupLiga3.get(carToTakeNameString)[0] = subDriverID;
+    }else if(currentLineupLiga3.get(carToTakeNameString)[1] == `nicht besetzt`){
+      currentLineupLiga3.get(carToTakeNameString)[1] = subDriverID;
+    } else {
+      let date = new Date().toLocaleString();
+      console.log(`Die Position von Ersatzfahrers im neuen Team konnte nicht ermittelt werden -- ${date}`);
     }
-  });
 
-  if(currentLineupLiga3.get(carToTakeNameString)[0] == `nicht besetzt`){
-    currentLineupLiga3.get(carToTakeNameString)[0] = subDriverID;
-  }else if(currentLineupLiga3.get(carToTakeNameString)[1] == `nicht besetzt`){
-    currentLineupLiga3.get(carToTakeNameString)[1] = subDriverID;
+    
   } else {
-    let date = new Date().toLocaleString();
-    console.log(`Die Position von Ersatzfahrers im neuen Team konnte nicht ermittelt werden -- ${date}`);
+    let mainTeamNameString = await client.guilds.cache.get(discordID).roles.cache.get(mainTeamIDString).name;
+
+    currentLineupLiga3.get(mainTeamNameString)[subDriverPosition] = driverToStart;
   }
 
-  currentLineupLiga3.get(mainTeamNameString)[positionOfSubDriver] = driverToStart;
+  
 }
 
 /**
@@ -191,56 +182,6 @@ function changeLineupNormalSub(client, message, driverToStart, carToTake){
   }
 }
 
-/**
- * Is called if a regualr Driver goes out, another regular one goes in and he gets his spot back
- * 
- * @param {Client} client 
- * @param {Message} message 
- * @param {int} driverToStart 
- * @param {int} carToTake 
- */
-function changeLineupReownSpot(client, message, driverToStart, carToTake){
-
-  let carToTakeNameString = client.guilds.cache.get(discordID).roles.cache.get(carToTake).name;
-  
-
-  if(currentLineupLiga3.get(carToTakeNameString)[0] == `nicht besetzt`){
-    currentLineupLiga3.get(carToTakeNameString)[0] = driverToStart;
-  } else  if(currentLineupLiga3.get(carToTakeNameString)[1] == `nicht besetzt`){
-    currentLineupLiga3.get(carToTakeNameString)[1] = driverToStart;
-  } else {
-    let date = new Date().toLocaleString();
-    console.log(`Der Tausch im Lineup konnte nicht durchgeführt werden; Reown Spot-- ${date}`);
-  }
-}
-
-/**
- * Regualr driver goes back in without his place beeing taken
- * 
- * @param {Client} client 
- * @param {Message} message 
- * @param {int} driverToStart 
- * @param {int} carToTake 
- */
-function regularDriverBackCockpitFree(client, message, driverToStart, carToTake){
-
-  let teamNameMainDriver = findMainTeamString(client.guilds.cache.get(discordID).members.cache.get(driverToStart))
-
-  let positionOfEmptySpot;
-
-  if(currentLineupLiga3.get(teamNameMainDriver)[0] == 'nicht besetzt'){
-    positionOfEmptySpot = 0;
-  }else if(currentLineupLiga3.get(teamNameMainDriver)[1] == 'nicht besetzt'){
-    positionOfEmptySpot = 1;
-  } else {
-    let date = new Date().toLocaleString();
-    console.log(`Die Position von Ersatzfahrers im alten Team konnte nicht ermittelt werden -- ${date}`);
-  }
-
-  currentLineupLiga3.get(teamNameMainDriver)[positionOfEmptySpot] = driverToStart;
-  freeCarsLiga3.unshift(carToTake);
-  freeCarsLiga3.splice(freeCarsLiga3.indexOf(client.guilds.cache.get(discordID).roles.cache.find(role => role.name == teamNameMainDriver).id),1);
-}
 
 function changeLineupAfterForceOpen(client, message, driverToStart, carToTake, positionForForce){
   currentLineupLiga3.get(findMainTeamString(carToTake))[positionForForce] = driverToStart;
@@ -352,12 +293,12 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
     console.log(`Prüfsumme für Liga 3, Methode checkSubCanBeMade. Das Auto was gerade belegt wird hat ID ${carToTake}, der 
                 Fahrer der es nimmt hat die ID ${driverToStart}. Beides darf nicht null oder undefined sein. -- ${date}`);
 
-    if(withdrawnDriversLiga3.length > 0 && !fromForceRemove &&
+    if(!fromForceRemove &&
       client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(stammfahrerRolleIDLiga3) &&
-      client.guilds.cache.get(discordID).members.cache.get(withdrawnDriversLiga3[withdrawnDriversLiga3.length - 1]).roles.cache.has(stammfahrerRolleIDLiga3) &&
-      currentLineupLiga3.get(findMainTeamString(client.guilds.cache.get(discordID).members.cache.get(driverToStart)))[0] != 'nicht besetzt' && 
-      currentLineupLiga3.get(findMainTeamString(client.guilds.cache.get(discordID).members.cache.get(driverToStart)))[1] != 'nicht besetzt' &&
       checkIfCarIsFree(client, carToTake)){
+
+      var seatOpen = false;
+
         // ID Team von Stammfahrer der wieder dazu kommt
       let mainTeamNameString = findMainTeamString(client.guilds.cache.get(discordID).members.cache.get(driverToStart));
 
@@ -368,15 +309,28 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
         }
       })
 
-      let subDriverID = confirmedSubsMadeInvLiga3.get(mainTeamIDString);
-      let subDriverToReplace = currentLineupLiga3.get(mainTeamNameString).indexOf(subDriverID);
-      currentLineupLiga3.get(mainTeamNameString)[subDriverToReplace] = driverToStart;
+      var subDriverPosition = null
+      if(currentLineupLiga3.get(mainTeamNameString)[0] == 'nicht besetzt'){
+        subDriverPosition = 0
+        seatOpen = true
+      } else if(currentLineupLiga3.get(mainTeamNameString)[1] == 'nicht besetzt'){
+        subDriverPosition = 1
+        seatOpen = true
+      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga3.get(mainTeamNameString)[0]).roles.cache.has(ersatzfahrerRolleID)){
+        subDriverPosition = 0
+      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga3.get(mainTeamNameString)[1]).roles.cache.has(ersatzfahrerRolleID)){
+        subDriverPosition = 1
+      }
 
-      confirmedSubsMadeLiga3.delete(subDriverID);
-      confirmedSubsMadeInvLiga3.delete(carToTake);
+      if(subDriverPosition != null){
+        var subDriverID = currentLineup.get(mainTeamNameString)[subDriverPosition];
+      } else {
+        let date = new Date()
+        console.log(`Methode: CheckSubCanBeMade, Fall: 1 => Stammfahrer kommt zurück, subDriverPosition war null -- ${date}`)
+        return
+      }
 
-      confirmedSubsMadeLiga3.set(subDriverID.toString(), carToTake);
-      confirmedSubsMadeInvLiga3.set(carToTake.toString(), subDriverID);
+      await regularDriverBack(client, subDriverID, carToTake, mainTeamIDString, driverToStart, seatOpen, subDriverPosition);
 
       let mainDriverEmbed = new MessageEmbed()
       .setColor('AQUA')
@@ -385,40 +339,53 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
         {name: `Update im Lineup`, value: `<@${driverToStart}> bekommt seinen Stammplatz wieder`}
       )
 
-      let subDriverEmbed = new MessageEmbed()
-      .setColor('GREEN')
-      .setTitle('➡️')
+      if(seatOpen == false){
+        let subDriverEmbed = new MessageEmbed()
+        .setColor('GREEN')
+        .setTitle('➡️')
 
-      if(carToTake == mainTeamIDString){ 
-        subDriverEmbed.addFields(
-          {name: `Update im Lineup`, value: `<@${subDriverID}> bekommt den anderen <@&${carToTake}>`}
-        )
-      }else{
-        subDriverEmbed.addFields(
-          {name: `Update im Lineup`, value: `<@${subDriverID}> bekommt den <@&${carToTake}>`}
-        )
+        if(carToTake == mainTeamIDString){ 
+          subDriverEmbed.addFields(
+            {name: `Update im Lineup`, value: `<@${subDriverID}> bekommt den anderen <@&${carToTake}>`}
+          )
+        }else{
+          subDriverEmbed.addFields(
+            {name: `Update im Lineup`, value: `<@${subDriverID}> bekommt den <@&${carToTake}>`}
+          )
+        }
+
+        await client.channels.cache.get(anmeldeChannelIDLiga3).send({embeds : [subDriverEmbed]}).then(() => {
+          client.channels.cache.get(logChannelID).send({embeds : [subDriverEmbed]});
+          client.guilds.cache.get(discordID).members.cache.get(subDriverID).send(`Es ergab sich eine Verschiebung im Lineup, du fährst am Wochenende ` + 
+          `den ${client.guilds.cache.get(discordID).roles.cache.get(carToTake).name}`);
+        });
+
       }
 
-      changeLineupTripleChange(client, message, subDriverID, carToTake, mainTeamIDString, driverToStart);
+      
 
       await client.channels.cache.get(anmeldeChannelIDLiga3).send({embeds : [mainDriverEmbed]}).then(() => {
          client.channels.cache.get(logChannelID).send({embeds : [mainDriverEmbed]});
          client.guilds.cache.get(discordID).members.cache.get(driverToStart).send(`Gute Nachrichten, du hast deinen Stammplatz für diese Woche wieder! 😄`);
       });
-      await client.channels.cache.get(anmeldeChannelIDLiga3).send({embeds : [subDriverEmbed]}).then(() => {
-         client.channels.cache.get(logChannelID).send({embeds : [subDriverEmbed]});
-         client.guilds.cache.get(discordID).members.cache.get(subDriverID).send(`Es ergab sich eine Verschiebung im Lineup, du fährst am Wochenende ` + 
-        `den ${client.guilds.cache.get(discordID).roles.cache.get(carToTake).name}`);
-      });
+      
 
       let date = new Date().toLocaleString();
-      console.log(`${client.guilds.cache.get(discordID).members.cache.get(subDriverID).user.username} übernimmt einen ` + 
-                      `${client.guilds.cache.get(discordID).roles.cache.get(carToTake).name} und ` + 
-                      `${client.guilds.cache.get(discordID).members.cache.get(driverToStart).user.username} bekommt seinen Stammplatz wieder -- ${date}`);
+      if(subDriverID && subDriverID != 'nicht besetzt'){
+        console.log(`${client.guilds.cache.get(discordID).members.cache.get(subDriverID).user.username} übernimmt einen ` + 
+        `${client.guilds.cache.get(discordID).roles.cache.get(carToTake).name} und ` + 
+        `${client.guilds.cache.get(discordID).members.cache.get(driverToStart).user.username} bekommt seinen Stammplatz wieder -- ${date}`);
+      } else {
+        console.log(`${client.guilds.cache.get(discordID).members.cache.get(driverToStart).user.username} bekommt seinen Stammplatz wieder -- ${date}`);
+      }
+     
     } else  if(withdrawnDriversLiga3.length > 0 && !fromForceRemove &&
-    !(client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(stammfahrerRolleIDLiga3)) &&
-    client.guilds.cache.get(discordID).members.cache.get(withdrawnDriversLiga3[withdrawnDriversLiga3.length - 1]).roles.cache.has(stammfahrerRolleIDLiga3) &&
-    checkIfCarIsFree(client, carToTake)){
+              client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(ersatzfahrerRolleIDLiga3) &&
+              (client.guilds.cache.get(discordID).members.cache.get(withdrawnDrivers[withdrawnDrivers.length - 1]).roles.cache.has(stammfahrerRolleIDLiga3) ||
+              client.guilds.cache.get(discordID).members.cache.get(withdrawnDrivers[withdrawnDrivers.length - 1]).roles.cache.has(ersatzfahrerRolleIDLiga3)) &&
+              checkIfCarIsFree(client, carToTake)){
+
+      changeLineupNormalSub(client, message, driverToStart, carToTake);
 
       let subDriverEmbed = new MessageEmbed()
       .setColor('GREEN')
@@ -427,88 +394,18 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
         {name: `Update im Lineup`, value: `<@${driverToStart}> bekommt den <@&${carToTake}>`}
       );
 
-      confirmedSubsMadeLiga3.set(driverToStart.toString(), carToTake);
-      confirmedSubsMadeInvLiga3.set(carToTake.toString(), driverToStart);
-
       await client.channels.cache.get(anmeldeChannelIDLiga3).send({embeds : [subDriverEmbed]}).then(() => {
          client.channels.cache.get(logChannelID).send({embeds : [subDriverEmbed]});
          client.guilds.cache.get(discordID).members.cache.get(driverToStart).send(`Gute Nachrichten, du fährst diese Woche den ` + 
         `${client.guilds.cache.get(discordID).roles.cache.get(carToTake).name}! Viel Glück beim Rennen 🍀`);
       });
 
-      changeLineupNormalSub(client, message, driverToStart, carToTake);
+      
 
       let date = new Date().toLocaleString();
       console.log(`${client.guilds.cache.get(discordID).members.cache.get(driverToStart).user.username} bekommt` + 
                   ` den ${client.guilds.cache.get(discordID).roles.cache.get(carToTake).name} -- ${date}`);
-    } else if(withdrawnDriversLiga3.length > 0 && !fromForceRemove &&
-    client.guilds.cache.get(discordID).members.cache.get(driverToStart) == 
-    client.guilds.cache.get(discordID).members.cache.get(withdrawnDriversLiga3[withdrawnDriversLiga3.length - 1]) &&
-    checkIfCarIsFree(client, carToTake)){
-        
-      let mainDriverEmbed = new MessageEmbed()
-      .setColor('AQUA')
-      .setTitle('🔄')
-      .addFields(
-        {name: `Update im Lineup`, value: `<@${driverToStart}> bekommt seinen Stammplatz wieder`}
-      )
-
-      changeLineupReownSpot(client, message, driverToStart, carToTake);
-
-      await client.channels.cache.get(anmeldeChannelIDLiga3).send({embeds : [mainDriverEmbed]}).then(() => {
-         client.channels.cache.get(logChannelID).send({embeds : [mainDriverEmbed]});
-         client.guilds.cache.get(discordID).members.cache.get(driverToStart).send(`Gute Nachrichten, du hast deinen Stammplatz für diese Woche wieder! 😄`);
-      });
-
-      let date = new Date().toLocaleString();
-      console.log(`${client.guilds.cache.get(discordID).members.cache.get(driverToStart).user.username} bekommt seinen Stammplatz wieder -- ${date}`);
-    } else if(client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(stammfahrerRolleIDLiga3) && !fromForceRemove &&
-    (currentLineupLiga3.get(findMainTeamString(client.guilds.cache.get(discordID).members.cache.get(driverToStart)))[0] != 'nicht besetzt' ||
-    currentLineupLiga3.get(findMainTeamString(client.guilds.cache.get(discordID).members.cache.get(driverToStart)))[1] != 'nicht besetzt' )){
-
-      let mainDriverEmbed = new MessageEmbed()
-      .setColor('AQUA')
-      .setTitle('🔄')
-      .addFields(
-        {name: `Update im Lineup`, value: `<@${driverToStart}> bekommt seinen Stammplatz wieder`}
-      )
-      regularDriverBackCockpitFree(client, message, driverToStart, carToTake);
-            
-      await client.channels.cache.get(anmeldeChannelIDLiga3).send({embeds : [mainDriverEmbed]}).then(() => {
-         client.channels.cache.get(logChannelID).send({embeds : [mainDriverEmbed]});
-         client.guilds.cache.get(discordID).members.cache.get(driverToStart).send(`Gute Nachrichten, du hast deinen Stammplatz für diese Woche wieder! 😄`);
-      });
-
-      let date = new Date().toLocaleString();
-      console.log(`${client.guilds.cache.get(discordID).members.cache.get(driverToStart).user.username} bekommt` + 
-                  ` seinen Stammplatz wieder -- ${date}`);
-    }  else if((client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(stammfahrerRolleIDLiga3) ||
-                  client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(ersatzfahrerRolleIDLiga3) ||
-                  client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(wartelisteRolleIDLiga3))
-                  && withdrawnDriversLiga3.length == 0 && !fromForceRemove){
-
-      let subDriverEmbed = new MessageEmbed()
-      .setColor('GREEN')
-      .setTitle('➡️')
-      .addFields(
-      {name: `Update im Lineup`, value: `<@${driverToStart}> bekommt den <@&${carToTake}>`}
-      );
-
-      confirmedSubsMade.set(driverToStart.toString(), carToTake);
-      confirmedSubsMadeInv.set(carToTake.toString(), driverToStart);
-
-      await client.channels.cache.get(anmeldeChannelIDLiga3).send({embeds : [subDriverEmbed]}).then(() => {
-      client.channels.cache.get(logChannelID).send({embeds : [subDriverEmbed]});
-      client.guilds.cache.get(discordID).members.cache.get(driverToStart).send(`Gute Nachrichten, du fährst diese Woche den ` + 
-      `${client.guilds.cache.get(discordID).roles.cache.get(carToTake).name}! Viel Glück beim Rennen 🍀`);
-      });
-
-      changeLineupNormalSub(client, message, driverToStart, carToTake);
-
-      let date = new Date().toLocaleString();
-      console.log(`${client.guilds.cache.get(discordID).members.cache.get(driverToStart).user.username} bekommt` + 
-              ` den ${client.guilds.cache.get(discordID).roles.cache.get(carToTake).name} -- ${date}`);
-
+    
     } else if(fromForceRemove && driverForForce == null && carForForce == null){
       let subDriverEmbed = new MessageEmbed()
       .setColor('GREEN')
@@ -552,8 +449,8 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
     }
     
   }
-  setWaitListMsgContent(client); 
-  printLineup(client, message);
+  await setWaitListMsgContent(client); 
+  await printLineup(client, message);
 }
 
 /**
@@ -731,10 +628,7 @@ function initVariables(flag){
   withdrawnDriversLiga3 = [];
   driversWithdrawnPerCommandLiga3 = [];
   driversSubInPerCommandLiga3 = [];
-  confirmedSubsMadeLiga3 = new Map();
-  confirmedSubsMadeInvLiga3 = new Map();
   msgLineupLiga3 = null;
-  reservesActivatedLiga3 = false;
   return flag;
 }
 
@@ -979,7 +873,7 @@ async function findCurrentCockpitOfSub(driverObject){
 
 module.exports = {
   name: 'start3',
-  aliases: ['anmelden3', 'abmelden3', 'removeanmeldung3', 'removeabmeldung3', 'activatereserves3', 'forceremove3',
+  aliases: ['anmelden3', 'abmelden3', 'removeanmeldung3', 'removeabmeldung3', 'forceremove3',
            'forcein3', 'forcefree3', 'end3', 'removefromwaitlist3'],
   description: 'Can manage driverswaps for F1 league races. Used for IRC League 3',
   async execute(client, message, cmd, args, Discord){
@@ -1002,12 +896,11 @@ module.exports = {
 
         let embedAnmeldung = new MessageEmbed()
         .setColor('#0064fd')
-        .setTitle('Anmeldung für Ersatzfahrer und Fahrer auf der Warteliste')
-        .setDescription(`Diese Nachricht ist NUR für Ersatzfahrer und Fahrer auf der Warteliste relevant. Um euch anzumelden für das Ligarennen in ${flag} bitte mit ` +
-                        `dem ✅ unter dieser Nachricht reagieren, falls ihr mitfahren wollt. Das gilt für Ersatzfahrer und Fahrer auf der Warteliste, Ersatzfahrer ` +
-                        `können sich ab sofort anmelden, die Warteliste erst ab dem Moment, in dem sie freigeschaltet. Wenn die Warteliste aktiviert wurde, wird sie im Anmeldechannel markiert. ` +
-                        `Die Ersatzfahrer werden, sobald ein Cockpit frei wird, eingefügt. ` +
-                        `Für die Warteliste gilt das Gleiche, sobald sie freigeschaltet wurde. Wenn ihr ein Cockpit habt, kriegt ihr vom Bot eine Privatnachricht. Trotzdem bitte hin ` +
+        .setTitle('Anmeldung für Ersatzfahrer')
+        .setDescription(`Diese Nachricht ist NUR für Ersatzfahrer relevant. Um euch anzumelden für das Ligarennen in ${flag} bitte mit ` +
+                        `dem ✅ unter dieser Nachricht reagieren, falls ihr mitfahren wollt. `+
+                        `Die Ersatzfahrer werden, sobald ein Cockpit frei wird, eingefügt. Hier gilt, wer sich zuerst anmeldet kriegt zuerst ein Cockpit. ` +
+                        `Wenn ihr ein Cockpit habt, kriegt ihr vom Bot eine Privatnachricht. Trotzdem bitte hin ` +
                         `und wieder mal auf den Discord schauen. Wenn ihr ein Cockpit habt wird euer Name ins Lineup, im Infochannel, eingetragen. \n \n` +
                         `Wenn ihr doch keine Zeit habt, könnt ihr ganz einfach eure Reaktion unter dieser Nachricht wieder entfernen ` +
                         `und seid nicht mehr angemeldet. Ihr könnt NICHT im Abmelde-Channel reagieren. \n \n Bei Unklarheit bitte den %help-Command ausführen. Falls ihr nicht ` +
@@ -1062,17 +955,8 @@ module.exports = {
             // Ersatzfahrer meldet sich an
             if(reaction.emoji.name === anmeldenEmoji && !(driversSubInPerCommandLiga3.includes(user.id)) && 
                 reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleIDLiga3)){
-              subDriverIn(client, reaction.message.guild.members.cache.get(user.id), message);
-            } else if (reaction.emoji.name === anmeldenEmoji && !(driversSubInPerCommandLiga3.includes(user.id)) &&
-                        (reaction.message.guild.members.cache.get(user.id).roles.cache.has(wartelisteRolleIDLiga3)) && 
-                        reservesActivatedLiga3){
-              subDriverIn(client, reaction.message.guild.members.cache.get(user.id), message);                
-            } else if(reaction.emoji.name === anmeldenEmoji && !(driversSubInPerCommandLiga3.includes(user.id)) &&
-                      reaction.message.guild.members.cache.get(user.id).roles.cache.has(wartelisteRolleIDLiga3) &&
-                      !(reservesActivatedLiga3)){
-              await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-              await reaction.message.guild.members.cache.get(user.id).user.send(`Die Warteliste wurde noch nicht aktiviert, erst wenn sie aktiviert wurde, kann ` +
-                                                                          `sich die Warteliste anmelden. Danke für deine Geduld.`);
+              subDriverIn(client, reaction.message.guild.members.cache.get(user.id), message);            
+            
             } else if(reaction.emoji.name != anmeldenEmoji) {
               await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
               let date = new Date().toLocaleString();
@@ -1143,8 +1027,7 @@ module.exports = {
           }
           // Entfernen von Anmeldung
           if(reaction.message.channel.id == anmeldeChannelIDLiga3){
-            if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleIDLiga3) ||
-              (reaction.message.guild.members.cache.get(user.id).roles.cache.has(wartelisteRolleIDLiga3) && reservesActivatedLiga3)){
+            if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleIDLiga3)){
               if(reaction.emoji.name == anmeldenEmoji){
                 // Fahrer ist noch auf Warteliste
                 if(driversSubInPerCommandLiga3.includes(user.id)){
@@ -1522,50 +1405,7 @@ module.exports = {
         }
       }
     }
-    if(cmd == 'activatereserves3' && message.member.roles.cache.has(rennleiterRolleID)){
-      if(reservesActivatedLiga3){
-        await message.reply(`Die Warteliste wurde schon aktiviert`);
-      } else {
-        let confirmMessage = await message.reply(`Bist du sicher, dass du die Abmeldung für die Warteliste öffnen möchtest? Der Vorgang lässt sich` + 
-                                              ` nicht rückgängig machen`);
-        confirmMessage.react(anmeldenEmoji);
-        confirmMessage.react(abmeldenEmoji);
-
-        const collectorConfirm = confirmMessage.createReactionCollector({ dispose: true});
-
-        collectorConfirm.on('collect', async (reaction, user) => {
-          if(reaction.message.partial){
-            await reaction.message.fetch();
-          }
-          if(reaction.partial){
-            await reaction.fetch();
-          }
-          if(user.bot){
-            return;
-          }
-          if(!(reaction.message.guild)){
-            return;
-          }
-          if(reaction.emoji.name == anmeldenEmoji){
-
-            reservesActivatedLiga3 = true;
-            await client.channels.cache.get(anmeldeChannelIDLiga3).send(`Die <@&${wartelisteRolleIDLiga3}> kann sich ab jetzt anmelden`);
-            confirmMessage.delete();
-          } else if(reaction.emoji.name == abmeldenEmoji){
-            await message.channel.send(`Der Vorgang wurde erfolgreich abgebrochen`);
-            confirmMessage.delete();
-          } else {
-            reaction.users.remove(user.id);
-          }
-        })
-      }
-    }
-    if(cmd == 'activatereserves3' && !(message.member.roles.cache.has(rennleiterRolleID))){
-      message.reply(`Der activeReserve Command kann nur von der Rennleitung ausgeführt werden`).then(() => {
-        let date = new Date().toLocaleString();
-        console.log(`${message.member.user.username} hat probiert den activeReserve remove Command auszuführen, hat aber keine Berechtigung dafür -- ${date}`);
-      })
-    }
+    
 
     /*
     
