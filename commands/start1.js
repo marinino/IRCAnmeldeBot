@@ -257,7 +257,7 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
     console.log(`Prüfsumme für Liga 1, Methode checkSubCanBeMade. Das Auto was gerade belegt wird hat ID ${carToTake}, der 
                 Fahrer der es nimmt hat die ID ${driverToStart}. Beides darf nicht null oder undefined sein. -- ${date}`);
 
-    if(withdrawnDriversLiga1.length > 0 && !fromForceRemove &&
+    if(!fromForceRemove &&
       client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(stammfahrerRolleIDLiga1) &&
       checkIfCarIsFree(client, carToTake)){
 
@@ -280,9 +280,9 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
       } else if(currentLineupLiga1.get(mainTeamNameString)[1] == 'nicht besetzt'){
         subDriverPosition = 1
         seatOpen = true
-      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamIDString)[0]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
+      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamNameString)[0]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
         subDriverPosition = 0
-      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamIDString)[1]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
+      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamNameString)[1]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
         subDriverPosition = 1
       }
 
