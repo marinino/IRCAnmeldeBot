@@ -257,7 +257,7 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
     console.log(`Prüfsumme für Liga 1, Methode checkSubCanBeMade. Das Auto was gerade belegt wird hat ID ${carToTake}, der 
                 Fahrer der es nimmt hat die ID ${driverToStart}. Beides darf nicht null oder undefined sein. -- ${date}`);
 
-    if(withdrawnDriversLiga1.length > 0 && !fromForceRemove &&
+    if(!fromForceRemove &&
       client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(stammfahrerRolleIDLiga1) &&
       checkIfCarIsFree(client, carToTake)){
 
@@ -280,9 +280,9 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
       } else if(currentLineupLiga1.get(mainTeamNameString)[1] == 'nicht besetzt'){
         subDriverPosition = 1
         seatOpen = true
-      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamIDString)[0]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
+      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamNameString)[0]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
         subDriverPosition = 0
-      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamIDString)[1]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
+      } else if(client.guilds.cache.get(discordID).members.cache.get(currentLineupLiga1.get(mainTeamNameString)[1]).roles.cache.has(ersatzfahrerRolleIDLiga1)){
         subDriverPosition = 1
       }
 
@@ -826,12 +826,11 @@ module.exports = {
 
           let embedAnmeldung = new MessageEmbed()
           .setColor('#0064fd')
-          .setTitle('Anmeldung für Ersatzfahrer und Fahrer auf der Warteliste')
-          .setDescription(`Diese Nachricht ist NUR für Ersatzfahrer und Fahrer auf der Warteliste relevant. Um euch anzumelden für das Ligarennen in ${flag} bitte mit ` +
-                        `dem ✅ unter dieser Nachricht reagieren, falls ihr mitfahren wollt. Das gilt für Ersatzfahrer und Fahrer auf der Warteliste, Ersatzfahrer ` +
-                        `können sich ab sofort anmelden, die Warteliste erst ab dem Moment, in dem sie freigeschaltet. Wenn die Warteliste aktiviert wurde, wird sie im Anmeldechannel markiert. ` +
-                        `Die Ersatzfahrer werden, sobald ein Cockpit frei wird, eingefügt. ` +
-                        `Für die Warteliste gilt das Gleiche, sobald sie freigeschaltet wurde. Wenn ihr ein Cockpit habt, kriegt ihr vom Bot eine Privatnachricht. Trotzdem bitte hin ` +
+          .setTitle('Anmeldung für Ersatzfahrer')
+          .setDescription(`Diese Nachricht ist NUR für Ersatzfahrer relevant. Um euch anzumelden für das Ligarennen in ${flag} bitte mit ` +
+                        `dem ✅ unter dieser Nachricht reagieren, falls ihr mitfahren wollt. `+
+                        `Die Ersatzfahrer werden, sobald ein Cockpit frei wird, eingefügt. Hier gilt, wer sich zuerst anmeldet kriegt zuerst ein Cockpit. ` +
+                        `Wenn ihr ein Cockpit habt, kriegt ihr vom Bot eine Privatnachricht. Trotzdem bitte hin ` +
                         `und wieder mal auf den Discord schauen. Wenn ihr ein Cockpit habt wird euer Name ins Lineup, im Infochannel, eingetragen. \n \n` +
                         `Wenn ihr doch keine Zeit habt, könnt ihr ganz einfach eure Reaktion unter dieser Nachricht wieder entfernen ` +
                         `und seid nicht mehr angemeldet. Ihr könnt NICHT im Abmelde-Channel reagieren. \n \n Bei Unklarheit bitte den %help-Command ausführen. Falls ihr nicht ` +
