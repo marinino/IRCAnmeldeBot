@@ -339,8 +339,8 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
       
     } else  if(withdrawnDriversLiga2.length > 0 && !fromForceRemove &&
               client.guilds.cache.get(discordID).members.cache.get(driverToStart).roles.cache.has(ersatzfahrerRolleIDLiga2) &&
-              (client.guilds.cache.get(discordID).members.cache.get(withdrawnDrivers[withdrawnDrivers.length - 1]).roles.cache.has(stammfahrerRolleIDLiga2) ||
-              client.guilds.cache.get(discordID).members.cache.get(withdrawnDrivers[withdrawnDrivers.length - 1]).roles.cache.has(ersatzfahrerRolleIDLiga2)) &&
+              (client.guilds.cache.get(discordID).members.cache.get(withdrawnDriversLiga2[withdrawnDriversLiga2.length - 1]).roles.cache.has(stammfahrerRolleIDLiga2) ||
+              client.guilds.cache.get(discordID).members.cache.get(withdrawnDriversLiga2[withdrawnDriversLiga2.length - 1]).roles.cache.has(ersatzfahrerRolleIDLiga2)) &&
               checkIfCarIsFree(client, carToTake)){
 
       changeLineupNormalSub(client, message, driverToStart, carToTake);
