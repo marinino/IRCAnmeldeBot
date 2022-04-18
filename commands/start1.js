@@ -8,6 +8,8 @@ var driversWithdrawnPerCommandLiga1 = [];
 var driversSubInPerCommandLiga1 = [];
 var flag = null;
 
+var reactedToSubIn = new Map()
+
 // Mercedes-Team: Sven / Kante
 var mercedesDriversLiga1 = ['427116609128103947', '315803566591967243'];
 // Red Bull-Team: Kibu / Pascal
@@ -67,8 +69,12 @@ var msgLineupLiga1 = null;
 
 var currentRegularDriversMsgIDLiga1 = null;
 
-let messageEmbededAnmeldenID = null;
-let messageEmbededAbmeldenID = null;
+let messageEmbededAnmeldenIDLiga1 = null;
+let messageEmbededAbmeldenIDLiga1 = null;
+let messageEmbededAnmeldenLiga1 = null
+let messageEmbededAbmeldenLiga1 = null
+
+var anmeldungActive = false;
 
 
 async function removeFromCurrentLineup(user, client, message, freeCar){
@@ -246,7 +252,7 @@ async function checkSubCanBeMade(client, message, fromForceRemove, positionForFo
     } 
     let carToTake = freeCarsLiga1.shift();
 
-    if(!(client.guilds.cache.get(discordID).members.cache.get(driverToStart))){
+    if(driverToStart == null){
       let date = new Date();
       console.log(`In Liga 1 wurde checkSubCanBeMade ausgeführt, aber der driverToStart war in irgendeiner Weise falsch. 
                   Hier die ID des driverToStart: ${driverToStart}-- ${date}`);
@@ -562,6 +568,7 @@ function checkIfCarIsFree(client, carToTake){
   driversWithdrawnPerCommandLiga1 = [];
   driversSubInPerCommandLiga1 = [];
   msgLineupLiga1 = null;
+  anmeldungActive = true
   return flag;
 }
 
@@ -706,6 +713,8 @@ async function subDriverRemoveSubInInLineup(client, driverObject, message){
   let date = new Date().toLocaleString();
   console.log(`${driverObject.user.username} wurde erfolgreich aus Lineup genommen -- ${date}`);
 
+  withdrawnDriversLiga1.push(driverObject.user.id)
+
   await checkSubCanBeMade(client, message);
 }
 
@@ -806,7 +815,8 @@ async function findCurrentCockpitOfSub(driverObject){
 module.exports = {
     name: 'start1',
     aliases: ['anmelden1', 'abmelden1', 'removeabmeldung1', 'removeanmeldung1', 'forceremove1',
-              'forcein1', 'forcefree1', 'end1', 'removefromwaitlist1'],
+              'forcein1', 'forcefree1', 'end1', 'removefromwaitlist1', 'changecockpit1', 'shufflewaitlistup1', 'shufflewaitlistdown1', 
+              'shufflewaitlistlast1', 'shufflewaitlistfirst1', 'placedriveronwaitlist1'],
     description: 'Can manage driverswaps for F1 league races. Used for IRC League 2',
     async execute(client, message, cmd, args, Discord){
       // Starts the main command of the bot
@@ -847,24 +857,24 @@ module.exports = {
           .setFooter('Bei weiteren Fragen bitte den %help-Command ausführen');
       
           
-          let messageEmbededAnmelden = null
+          
           await client.channels.cache.get(anmeldeChannelIDLiga1).send({ embeds: [embedAnmeldung] }).then((msg) => {
-            messageEmbededAnmelden = msg;
-            messageEmbededAnmeldenID = msg.id;
+            messageEmbededAnmeldenLiga1 = msg;
+            messageEmbededAnmeldenIDLiga1 = msg.id;
           });
 
-          let messageEmbededAbmelden = null
+
           await client.channels.cache.get(abmeldeChannelIDLiga1).send({ embeds: [embedAbmeldung] }).then((msg) => {
-            messageEmbededAbmelden = msg;
-            messageEmbededAbmeldenID = msg.id;
+            messageEmbededAbmeldenLiga1 = msg;
+            messageEmbededAbmeldenIDLiga1 = msg.id;
           });
             
-          messageEmbededAnmelden.react(anmeldenEmoji);
-          messageEmbededAbmelden.react(abmeldenEmoji);
+          messageEmbededAnmeldenLiga1.react(anmeldenEmoji);
+          messageEmbededAbmeldenLiga1.react(abmeldenEmoji);
 
-          const collectorSubIn = messageEmbededAnmelden.createReactionCollector({ dispose: true});
+          const collectorSubIn = messageEmbededAnmeldenLiga1.createReactionCollector({ dispose: true});
 
-          const collectorWithdraw = messageEmbededAbmelden.createReactionCollector({ dispose: true});
+          const collectorWithdraw = messageEmbededAbmeldenLiga1.createReactionCollector({ dispose: true});
 
           // Hinzufügen von Rolle
           collectorSubIn.on('collect', async (reaction, user) => {
@@ -882,57 +892,77 @@ module.exports = {
             }
             // Anmeldevorgang
             if(reaction.message.channel.id == anmeldeChannelIDLiga1){
-              if(reaction.emoji.name === anmeldenEmoji && !(driversSubInPerCommandLiga1.includes(user.id)) && 
+              if(anmeldungActive == true){
+                if(reaction.emoji.name === anmeldenEmoji && !(driversSubInPerCommandLiga1.includes(user.id)) && 
                   reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleIDLiga1)){
                 subDriverIn(client, reaction.message.guild.members.cache.get(user.id), message);
-              } else if(reaction.emoji.name != anmeldenEmoji) {
+
+                if(!(reactedToSubIn.has(user.id))){
+                  reactedToSubIn.set(user.id, reaction);
+                } else {
+                  reactedToSubIn.delete(user.id);
+                  reactedToSubIn.set(user.id, reaction);
+                }
+
+                } else if(reaction.emoji.name != anmeldenEmoji) {
+                  await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                  let date = new Date().toLocaleString();
+                  console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert -- ${date}`);
+                } else if(!(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleIDLiga1))) {
+                  await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                  let date = new Date().toLocaleString();
+                  console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat probiert sich anzumelden, hat aber die richtige ` +
+                  `Rolle nicht -- ${date}`);
+                } else {
+                  await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                  let date = new Date().toLocaleString();
+                  console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wurde schon per Befehl hinzugefügt -- ${date}`);
+                }             
+              }else{
                 await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                let date = new Date().toLocaleString();
-                console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert -- ${date}`);
-              } else if(!(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleIDLiga1))) {
-                await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                let date = new Date().toLocaleString();
-                console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat probiert sich anzumelden, hat aber die richtige ` +
-                `Rolle nicht -- ${date}`);
-              } else {
-                await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                let date = new Date().toLocaleString();
-                console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wurde schon per Befehl hinzugefügt -- ${date}`);
-              }             
+                console.log(`Anmeldung beendet`)
+              }
+              
             }
           });
             // Abmeldevorgang
           collectorWithdraw.on('collect', async (reaction, user) => {
             if(reaction.message.channel.id == abmeldeChannelIDLiga1){
-              if(reaction.message.partial){
-                await reaction.message.fetch();
-              }
-              if(reaction.partial){
-                await reaction.fetch();
-              }
-              if(user.bot){
-                return;
-              }
-              if(!(reaction.message.guild)){
-                return;
-              }
-              if(reaction.emoji.name === abmeldenEmoji && !(driversWithdrawnPerCommandLiga1.includes(user.id)) &&
-                    reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleIDLiga1)){
-                regularDriverWithdraw(client, reaction.message.guild.members.cache.get(user.id), message);                          
-              } else if(reaction.emoji.name !== abmeldenEmoji) {
+              if(anmeldungActive == true){
+                if(reaction.message.partial){
+                  await reaction.message.fetch();
+                }
+                if(reaction.partial){
+                  await reaction.fetch();
+                }
+                if(user.bot){
+                  return;
+                }
+                if(!(reaction.message.guild)){
+                  return;
+                }
+                if(reaction.emoji.name === abmeldenEmoji && !(driversWithdrawnPerCommandLiga1.includes(user.id)) &&
+                      reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleIDLiga1)){
+                  regularDriverWithdraw(client, reaction.message.guild.members.cache.get(user.id), message);                          
+                } else if(reaction.emoji.name !== abmeldenEmoji) {
+                  await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                  let date = new Date().toLocaleString();
+                  console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert -- ${date}`);
+                } else if(!(reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleIDLiga1))) {
+                  await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                  let date = new Date().toLocaleString();
+                  console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat probiert sich abzumelden, hat aber die richtige ` + 
+                  `Rolle nicht -- ${date}`);
+                } else {
+                  await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                  let date = new Date().toLocaleString();
+                  console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wurde schon per Befehl abgemeldet -- ${date}`);
+                }
+              }else{
                 await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                let date = new Date().toLocaleString();
-                console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert -- ${date}`);
-              } else if(!(reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleIDLiga1))) {
-                await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                let date = new Date().toLocaleString();
-                console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat probiert sich abzumelden, hat aber die richtige ` + 
-                `Rolle nicht -- ${date}`);
-              } else {
-                await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                let date = new Date().toLocaleString();
-                console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wurde schon per Befehl abgemeldet -- ${date}`);
+                console.log(`Schon beendet`)
               }
+              
                                    
             }
           });
@@ -953,53 +983,78 @@ module.exports = {
             }
             // Entfernen von Anmeldung
             if(reaction.message.channel.id == anmeldeChannelIDLiga1){
-              if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleIDLiga1)){
-                if(reaction.emoji.name == anmeldenEmoji){
-                  // Fahrer ist noch auf Warteliste
-                  if(driversSubInPerCommandLiga1.includes(user.id)){
-                    let date = new Date().toLocaleString();
-                    console.log(`${user.username} wurde die Reaktion verweigert, da er per Command abgemeldet ist -- ${date}`);
+              if(anmeldungActive == true){
+                if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleIDLiga1)){
+                  if(reaction.emoji.name == anmeldenEmoji){
+                    reactedToSubIn.delete(user.id)
+                    // Fahrer ist noch auf Warteliste
+                    if(driversSubInPerCommandLiga1.includes(user.id)){
+                      let date = new Date().toLocaleString();
+                      console.log(`${user.username} wurde die Reaktion verweigert, da er per Command abgemeldet ist -- ${date}`);
+                    } else {
+                      if(subPersonListLiga1.includes(reaction.message.guild.members.cache.get(user.id).user.id)){
+                        subDriverRemoveSubInOnWaitlist(client, reaction.message.guild.members.cache.get(user.id), message);
+                      }
+                      // Fahrer ist nicht mehr auf Warteliste
+                      else {
+                        subDriverRemoveSubInInLineup(client, reaction.message.guild.members.cache.get(user.id), message);
+                      } 
+                    }                  
                   } else {
-                    if(subPersonListLiga1.includes(reaction.message.guild.members.cache.get(user.id).user.id)){
-                      subDriverRemoveSubInOnWaitlist(client, reaction.message.guild.members.cache.get(user.id), message);
-                    }
-                    // Fahrer ist nicht mehr auf Warteliste
-                    else {
-                      subDriverRemoveSubInInLineup(client, reaction.message.guild.members.cache.get(user.id), message);
-                    } 
-                  }                  
+                    await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                    let date = new Date().toLocaleString();
+                    console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert -- ${date}`);              
+                  }
                 } else {
-                  await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
                   let date = new Date().toLocaleString();
-                  console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert -- ${date}`);              
+                  console.log(`Die Reaktion von ${user.username} wurde entfernt, allerdings hat er nicht die richtige Rolle gehabt -- ${date}`)
                 }
-              } else {
-                let date = new Date().toLocaleString();
-                console.log(`Die Reaktion von ${user.username} wurde entfernt, allerdings hat er nicht die richtige Rolle gehabt -- ${date}`)
+              }else{
+                await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                console.log(`Anmeldung beendet`)
               }
+              
                 
             }
           });  
           // Entfernen von Abmeldung
           collectorWithdraw.on('remove', async (reaction, user) => {
+            if(reaction.message.partial){
+              await reaction.message.fetch();
+            }
+            if(reaction.partial){
+              await reaction.fetch();
+            }
+            if(user.bot){
+              return;
+            }
+            if(!(reaction.message.guild)){
+              return;
+            }
             if(reaction.message.channel.id == abmeldeChannelIDLiga1){
-              if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleIDLiga1)){
-                if(reaction.emoji.name == abmeldenEmoji){
-                  if(!(driversWithdrawnPerCommandLiga1.includes(user.id))){
-                    regularDriverRemoveWithdraw(client, reaction.message.guild.members.cache.get(user.id), message);
-                  } else {
+              if(anmeldungActive == true){
+                if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleIDLiga1)){
+                  if(reaction.emoji.name == abmeldenEmoji){
+                    if(!(driversWithdrawnPerCommandLiga1.includes(user.id))){
+                      regularDriverRemoveWithdraw(client, reaction.message.guild.members.cache.get(user.id), message);
+                    } else {
+                      let date = new Date().toLocaleString();
+                      console.log(`${user.username} wurde die Reaktion verweigert, da er schon per Command abgemeldet wurde -- ${date}`);
+                    }
+                  }else {
+                    await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
                     let date = new Date().toLocaleString();
-                    console.log(`${user.username} wurde die Reaktion verweigert, da er schon per Command abgemeldet wurde -- ${date}`);
-                  }
-                }else {
-                  await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                    console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert -- ${date}`);   
+                  }      
+                } else {
                   let date = new Date().toLocaleString();
-                  console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert -- ${date}`);   
-                }      
-              } else {
-                let date = new Date().toLocaleString();
-                console.log(`Die Reaktion von ${user.username} wurde entfernt, allerdings hat er nicht die richtige Rolle gehabt -- ${date}`)
+                  console.log(`Die Reaktion von ${user.username} wurde entfernt, allerdings hat er nicht die richtige Rolle gehabt -- ${date}`)
+                }
+              }else{
+                await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
+                console.log(`Anmeldung beendet`)
               }
+              
             }
           });
         }
@@ -1017,9 +1072,12 @@ module.exports = {
         // ELSE if defined
         if(!args[0]){
           message.reply('Bitte gebe den User an')
+        }else if(driversSubInPerCommandLiga1.includes(args[0].slice(2,20))){
+          message.reply('Wurde schon angemeldet')
+        
         }else{
 
-          let markedUserID = args[0].slice(3, 21);
+          let markedUserID = args[0].slice(2, 20);
 
           let markedUserObjectSubIn = await client.guilds.cache.get(discordID).members.cache.get(markedUserID);
 
@@ -1031,6 +1089,18 @@ module.exports = {
           const collectorConfirm = confirmMessage.createReactionCollector({ dispose: true});          
 
           collectorConfirm.on('collect', async (reaction, user) => {
+            if(reaction.message.partial){
+              await reaction.message.fetch();
+            }
+            if(reaction.partial){
+              await reaction.fetch();
+            }
+            if(user.bot){
+              return;
+            }
+            if(!(reaction.message.guild)){
+              return;
+            }
             if(reaction.emoji.name == anmeldenEmoji){
 
 
@@ -1079,9 +1149,12 @@ module.exports = {
       if(cmd === 'abmelden1' && message.member.roles.cache.has(rennleiterRolleID)){
         if(!args[0]){
           message.reply('Bitte gebe den User an')
+        }else if(driversWithdrawnPerCommandLiga1.includes(args[0].slice(2,20))){
+          message.reply('Wurde schon abgemeldet')
+        
         }else{
 
-          let markedUserID = args[0].slice(3, 21);
+          let markedUserID = args[0].slice(2, 20);
 
           let markedUserObjectWithdraw = client.guilds.cache.get(discordID).members.cache.get(markedUserID);
 
@@ -1168,7 +1241,7 @@ module.exports = {
           message.reply('Bitte gebe den User an')
         }else{
 
-          let markedUserIDSubInRemove = args[0].slice(3, 21);
+          let markedUserIDSubInRemove = args[0].slice(2, 20);
 
           let markedUserObjectSubInRemove = null;
             client.guilds.cache.get(discordID).members.cache.find(member => {
@@ -1271,7 +1344,7 @@ module.exports = {
             if(reaction.emoji.name == anmeldenEmoji){
 
               
-              let markedUserIDRemove = args[0].slice(3, 21);
+              let markedUserIDRemove = args[0].slice(2, 20);
 
               let markedUserObjectWithdrawRemove = null;
               client.guilds.cache.get(discordID).members.cache.find(member => {
@@ -4900,7 +4973,7 @@ module.exports = {
       if(cmd == 'forcein1' && message.member.roles.cache.has(rennleiterRolleID)){
         if(args[0] && args[1]){
           let teamID = args[0].slice(3, 21);
-          let driverID = args[1].slice(3, 21);
+          let driverID = args[1].slice(2, 20);
   
           let teamObject = null;
           client.guilds.cache.get(discordID).roles.cache.find(role => {
@@ -5073,17 +5146,13 @@ module.exports = {
       }
 
       if(cmd == 'end1' && message.member.roles.cache.has(rennleiterRolleID)){
-        await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).messages.fetch(messageEmbededAnmeldenID).then((msg) => {
-          msg.delete();
-        });
-  
+       
+        anmeldungActive = false
+
         await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send(`Die Anmeldung für das Rennen in ${flag} wurde beendet`).then(() => {
           console.log(`Die Anmeldung in Liga 1 wurde beendet`);
         })
   
-        await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).messages.fetch(messageEmbededAbmeldenID).then((msg) => {
-          msg.delete();
-        });
   
         await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send(`Die Abmeldung für das Rennen in ${flag} wurde beendet`).then(() => {
           console.log(`Die Abmeldung in Liga 1 wurde beendet`);
@@ -5106,28 +5175,2195 @@ module.exports = {
   
       if(cmd == 'removefromwaitlist1' && (message.member.roles.cache.has(rennleiterRolleID))){
         if(args[0]){
-          var positionToRemove = args[0];
-          var lengthSubs = subPersonListLiga1.length;
-          var lengthReinstated = subPersonListReinstatedDriversLiga1.length;
-          console.log(lengthReinstated + lengthSubs)
-          if(positionToRemove <= lengthReinstated + lengthSubs){
-            if(positionToRemove <= lengthReinstated && lengthReinstated > 0){
-              subPersonListReinstatedDriversLiga1.splice(positionToRemove - 1, 1);
-            } else {
-              positionToRemove = positionToRemove - lengthReinstated;
-              subPersonListLiga1.splice(positionToRemove - 1, 1)
-            }
-            console.log(lengthReinstated + lengthSubs)
-            await setWaitListMsgContent(client)
-          }else {
-            console.log(positionToRemove)
+          let userToRemoveID = null
+          if(args[0] - 1 < subPersonListReinstatedDriversLiga1.length){
+            userToRemoveID = subPersonListReinstatedDriversLiga1[args[0] - 1]
+          }else if(args[0] - 1 < subPersonListReinstatedDriversLiga1.length + subPersonListLiga1.length) {
+            userToRemoveID = subPersonListLiga1[args[0] - subPersonListReinstatedDriversLiga1.length - 1]
+          }else{
             message.reply('Die Position existiert nicht')
+            return
           }
+          
+
+          let confirmMessage = await message.channel.send(`Bist du sicher, dass du <@${userToRemoveID}> von der Warteliste nehmen möchtest?`);
+          confirmMessage.react(anmeldenEmoji);
+          confirmMessage.react(abmeldenEmoji);
+
+          const collectorRemoveFromWaitlist = confirmMessage.createReactionCollector({ dispose: true});
+
+          collectorRemoveFromWaitlist.on('collect', async (reaction, user) => {
+            if(reaction.message.partial){
+              await reaction.message.fetch();
+            }
+            if(reaction.partial){
+              await reaction.fetch();
+            }
+            if(user.bot){
+              return;
+            }
+            if(!(reaction.message.guild)){
+              return;
+            }
+            if(reaction.emoji.name == anmeldenEmoji){
+              var positionToRemove = args[0];
+              var lengthSubs = subPersonListLiga1.length;
+              var lengthReinstated = subPersonListReinstatedDriversLiga1.length;
+              console.log(lengthReinstated + lengthSubs)
+              if(positionToRemove <= lengthReinstated + lengthSubs){
+                if(positionToRemove <= lengthReinstated && lengthReinstated > 0){
+                  subPersonListReinstatedDriversLiga1.splice(positionToRemove - 1, 1);
+                } else {
+                  positionToRemove = positionToRemove - lengthReinstated;
+                  subPersonListLiga1.splice(positionToRemove - 1, 1)
+                }
+          
+                await setWaitListMsgContent(client)
+
+                let embedRemoveWaitlist = new MessageEmbed()
+                .setColor('RED')
+                .setTitle('↩')
+                .addFields({name:'Update', value:`<@${userToRemoveID}> wurde von der Warteliste enfernt`});
+
+                await client.channels.cache.get(logChannelID).send({ embeds: [embedRemoveWaitlist] }).then(() => {
+                  let date = new Date().toLocaleString();
+                  console.log(`Der manuelle Wartelistenentfernungsprozess wurde gestartet und der Fahrer mit der ID ${userToRemoveID} `+
+                              `wurde entfernt -- ${date}`)
+                })
+                console.log(reactedToSubIn.get(userToRemoveID))
+                if(reactedToSubIn.has(userToRemoveID)){
+                  messageEmbededAnmeldenLiga1.reactions.resolve(reactedToSubIn.get(userToRemoveID)).users.remove(userToRemoveID)
+                }
+                
+              }else {
+      
+                message.reply('Die Position existiert nicht')
+                return
+              }
+              
+            }else if(reaction.emoji.name == abmeldenEmoji){
+              confirmMessage.reply('Der Vorgang wurde erfolgreich abgebrochen!').then(() => {
+                let date = new Date().toLocaleString();
+                console.log(`Der manuelle Wartelistenentfernungsprozess wurde gestartet und abgebrochen -- ${date}`)
+              });
+              await confirmMessage.delete();
+            }else{
+              confirmMessage.reply('Es wurde mit dem falschen Emoji reagiert').then(() => {
+                let date = new Date().toLocaleString();
+                console.log(`Der manuelle Wartelistenentfernungsprozess wurde gestartet und es wurde mit dem falschen Emoji reagiert -- ${date}`)
+                reaction.users.remove(user.id);
+              })
+            }
+          })
           
         }else{
           message.reply('Es muss eine Position übergeben werden')
         }
         
+      }
+      if(cmd == 'changecockpit1' && message.member.roles.cache.has(rennleiterRolleID)){
+        let clearCockpitTeamEmbed = new MessageEmbed()
+        .setColor('#fd5100')
+        .setTitle('Bitte wähle das Team aus')
+        .setDescription('Hier wird das Team gewählt aus welchem ein Cockpit frei gemacht werden soll')
+        .addFields(
+          {name: 'Row 1', value: `0️⃣ - <@&${mercedesRoleIDLiga1}> und 1️⃣ - <@&${redBullRoleIDLiga1}>`},
+          {name: 'Row 2', value: `2️⃣ - <@&${ferrariRoleIDLiga1}> und 3️⃣ - <@&${mcLarenRoleIDLiga1}>`},
+          {name: 'Row 3', value: `4️⃣ - <@&${astonMartinRoleIDLiga1}> und 5️⃣ - <@&${alpineRoleIDLiga1}>`},
+          {name: 'Row 4', value: `6️⃣ - <@&${alphaTauriRoleIDLiga1}> und 7️⃣ - <@&${alfaRomeoRoleIDLiga1}>`},
+          {name: 'Row 5', value: `8️⃣ - <@&${williamsRoleIDLiga1}> und 9️⃣ - <@&${haasRoleIDLiga1}>`},
+          {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+        )
+  
+        let messageForceRemoveTeamEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [clearCockpitTeamEmbed] });
+  
+        await messageForceRemoveTeamEmbed.react('0️⃣');
+        await messageForceRemoveTeamEmbed.react('1️⃣');
+        await messageForceRemoveTeamEmbed.react('2️⃣');
+        await messageForceRemoveTeamEmbed.react('3️⃣');
+        await messageForceRemoveTeamEmbed.react('4️⃣');
+        await messageForceRemoveTeamEmbed.react('5️⃣');
+        await messageForceRemoveTeamEmbed.react('6️⃣');
+        await messageForceRemoveTeamEmbed.react('7️⃣');
+        await messageForceRemoveTeamEmbed.react('8️⃣');
+        await messageForceRemoveTeamEmbed.react('9️⃣');
+        await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+
+        const collectorConfirm = messageForceRemoveTeamEmbed.createReactionCollector({ dispose: true});
+
+        collectorConfirm.on('collect', async (reaction, user) => {
+          if(reaction.message.partial){
+            await reaction.message.fetch();
+          }
+          if(reaction.partial){
+            await reaction.fetch();
+          }
+          if(user.bot){
+            return;
+          }
+          if(!(reaction.message.guild)){
+            return;
+          }
+          /**
+           * Team Mercedes
+           */
+          if(reaction.emoji.name == '0️⃣'){
+  
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${mercedesRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('Mercedes')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('Mercedes')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+  
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+  
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+  
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+  
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team Mercedes, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Mercedes')[0]
+
+                  currentLineupLiga1.get('Mercedes')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Mercedes`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Mercedes! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Mercedes')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(mercedesRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, mercedesRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team Mercedes, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Mercedes')[1]
+
+                  currentLineupLiga1.get('Mercedes')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Mercedes`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Mercedes! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Mercedes')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(mercedesRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, mercedesRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          }
+          /**
+           * Team Red Bull
+           */
+          else if(reaction.emoji.name == '1️⃣'){
+  
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${redBullRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('Red Bull')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('Red Bull')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+  
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+  
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+  
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+  
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team Red Bull, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Red Bull')[0]
+
+                  currentLineupLiga1.get('Red Bull')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Red Bull`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Red Bull! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Red Bull')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(redBullRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, redBullRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team Red Bull, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Red Bull')[1]
+
+                  currentLineupLiga1.get('Red Bull')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Red Bull`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Red Bull! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Red Bull')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(redBullRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, redBullRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          }
+          /**
+          * Team Ferrari
+          */
+          else if(reaction.emoji.name == '2️⃣'){
+
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${ferrariRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('Ferrari')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('Ferrari')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team Ferrari, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Ferrari')[0]
+
+                  currentLineupLiga1.get('Ferrari')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Ferrari`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Ferrari! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Ferrari')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(ferrariRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, ferrariRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team Ferrari, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Ferrari')[1]
+
+                  currentLineupLiga1.get('Ferrari')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Ferrari`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Ferrari! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Ferrari')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(ferrariRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, ferrariRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          }
+          /**
+          * Team McLaren
+          */
+           else if(reaction.emoji.name == '3️⃣'){
+
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${mcLarenRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('McLaren')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('McLaren')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team McLaren, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('McLaren')[0]
+
+                  currentLineupLiga1.get('McLaren')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den McLaren`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `McLaren! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('McLaren')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(mcLarenRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, mcLarenRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team McLaren, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('McLaren')[1]
+
+                  currentLineupLiga1.get('McLaren')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den McLaren`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `McLaren! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('McLaren')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(mcLarenRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, mcLarenRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          }
+          /**
+          * Team Aston Martin
+          */
+          else if(reaction.emoji.name == '4️⃣'){
+
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${astonMartinRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('Aston Martin')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('Aston Martin')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team Aston Martin, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Aston Martin')[0]
+
+                  currentLineupLiga1.get('Aston Martin')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Aston Martin`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Aston Martin! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Aston Martin')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(astonMartinRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, astonMartinRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team Aston Martin, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Aston Martin')[1]
+
+                  currentLineupLiga1.get('Aston Martin')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Aston Martin`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Aston Martin! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Aston Martin')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(astonMartinRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, astonMartinRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          }
+          /**
+          * Team Alpine
+          */
+           else if(reaction.emoji.name == '5️⃣'){
+
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${alpineRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('Alpine')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('Alpine')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team Alpine, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Alpine')[0]
+
+                  currentLineupLiga1.get('Alpine')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Alpine`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Alpine! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Alpine')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(alpineRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, alpineRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team Alpine, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Alpine')[1]
+
+                  currentLineupLiga1.get('Alpine')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Alpine`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Alpine! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Alpine')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(alpineRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, alpineRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          }
+          /**
+          * Team Alpha Tauri
+          */
+           else if(reaction.emoji.name == '6️⃣'){
+
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${alphaTauriRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('Alpha Tauri')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('Alpha Tauri')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team Alpha Tauri, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Alpha Tauri')[0]
+
+                  currentLineupLiga1.get('Alpha Tauri')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Alpha Tauri`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Alpha Tauri! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Alpha Tauri')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(alphaTauriRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, alphaTauriRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team Alpha Tauri, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Alpha Tauri')[1]
+
+                  currentLineupLiga1.get('Alpha Tauri')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Alpha Tauri`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Alpha Tauri! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Alpha Tauri')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(alphaTauriRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, alphaTauriRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          }
+          /**
+          * Team Alfa Romeo
+          */
+          else if(reaction.emoji.name == '7️⃣'){
+
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${alfaRomeoRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('Alfa Romeo')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('Alfa Romeo')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team Alfa Romeo, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Alfa Romeo')[0]
+
+                  currentLineupLiga1.get('Alfa Romeo')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Alfa Romeo`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Alfa Romeo! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Alfa Romeo')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(alfaRomeoRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, alfaRomeoRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team Alfa Romeo, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Alfa Romeo')[1]
+
+                  currentLineupLiga1.get('Alfa Romeo')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Alfa Romeo`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Alfa Romeo! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Alfa Romeo')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(alfaRomeoRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, alfaRomeoRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          }
+          /**
+          * Team Williams
+          */
+           else if(reaction.emoji.name == '8️⃣'){
+
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${williamsRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('Williams')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('Williams')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team Williams, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Williams')[0]
+
+                  currentLineupLiga1.get('Williams')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Williams`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Williams! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Williams')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(williamsRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, williamsRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team Williams, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Williams')[1]
+
+                  currentLineupLiga1.get('Williams')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Williams`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Williams! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Williams')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(williamsRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, williamsRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          }
+          /**
+          * Team Haas
+          */
+          else if(reaction.emoji.name == '9️⃣'){
+
+            let forceRemoveDriverEmbed = new MessageEmbed()
+            .setColor('#fd5100')
+            .setTitle('Bitte wähle den Fahrer aus')
+            .setDescription(`Du hast Team <@&${haasRoleIDLiga1}> gewählt. Welchen Fahrer willst du entfernen`)
+            .addFields(
+              {name: 'First Driver', value: `1️⃣ - <@${currentLineupLiga1.get('Haas')[0]}>`},
+              {name: `SecondDriver`, value: `2️⃣ - <@${currentLineupLiga1.get('Haas')[1]}>`},
+              {name: 'Abbrechen', value: `${abmeldenEmoji} - Um Vorgang abzubrechen`}
+            )
+
+            let messageForceRemoveDriverEmbed = await client.channels.cache.get(commandChannelID).send({ embeds: [forceRemoveDriverEmbed] });
+
+            await messageForceRemoveTeamEmbed.react('1️⃣');
+            await messageForceRemoveTeamEmbed.react('2️⃣');
+            await messageForceRemoveTeamEmbed.react(abmeldenEmoji);
+
+            const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
+
+            collectorConfirm.on('collect', async (reaction, user) => {
+              if(reaction.message.partial){
+                await reaction.message.fetch();
+              }
+              if(reaction.partial){
+                await reaction.fetch();
+              }
+              if(user.bot){
+                return;
+              }
+              if(!(reaction.message.guild)){
+                return;
+              }
+              /**
+              * Team Haas, Fahrer 1
+              */
+              else if(reaction.emoji.name == '1️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Haas')[0]
+
+                  currentLineupLiga1.get('Haas')[0] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Haas`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Haas! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Haas')[0]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(haasRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, haasRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              /**
+              * Team Haas, Fahrer 2
+              */
+              }else if(reaction.emoji.name == '2️⃣'){
+                if(args[0]){
+                  driverInID = args[0].slice(2, 20)
+                  let preCmdDriver = currentLineupLiga1.get('Haas')[1]
+
+                  currentLineupLiga1.get('Haas')[1] = driverInID
+
+                  if(preCmdDriver != 'nicht besetzt'){
+                    let clearCockpitRemoveEmbed = new MessageEmbed()
+                    .setColor('RED')
+                    .setTitle('️️️️️️️️️️️️️️️↩')
+                    .addFields(
+                      {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
+                    );
+
+                    await client.guilds.cache.get(discordID).channels.cache.get(abmeldeChannelIDLiga1).send({ embeds : [clearCockpitRemoveEmbed]}).then(() => {
+                      client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
+                    });
+
+                    let dateRemove = new Date().toLocaleString();
+                    console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                  }
+                  let clearCockpitInEmbed = new MessageEmbed()
+                  .setColor('GREEN')
+                  .setTitle('➡️')
+                  .addFields(
+                    {name: `Update`, value: `<@${driverInID}> fährt diese Woche den Haas`}
+                  );
+
+                  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelIDLiga1).send({ embeds : [clearCockpitInEmbed]}).then(() => {
+                    client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitInEmbed]});
+                    client.guilds.cache.get(discordID).members.cache.get(driverInID).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    `Haas! Viel Glück beim Rennen 🍀`);
+                  });
+
+                  driversSubInPerCommandLiga1.push(driverInID)
+
+                  let dateIn = new Date().toLocaleString();
+                  console.log(`${driverInID} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+
+                  if(subPersonListLiga1.includes(driverInID)){
+                    subPersonListLiga1.splice(subPersonListLiga1.indexOf(driverInID), 1)
+                  }
+
+                  if(reactedToSubIn.has(preCmdDriver)){
+                    messageEmbededAnmelden.reactions.resolve(reactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver)
+                  }
+
+                  await setWaitListMsgContent(client)
+                  await printLineup(client, message)
+                }else{
+                  
+                  let driverOutID = currentLineupLiga1.get('Haas')[1]
+                  let driverOutObject = await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`)
+                  
+
+                  await client.guilds.cache.get(discordID).members.fetch(`${driverOutID}`).then((driver) => {
+                    driverOutObject = driver
+                  })
+                  
+                  freeCarsLiga1.push(haasRoleIDLiga1);
+                  withdrawnDriversLiga1.push(driverOutID);
+                  await removeFromCurrentLineup(driverOutObject, client, message, haasRoleIDLiga1);
+                  await checkSubCanBeMade(client, message, false, null, null, null)
+                }
+              } else if(reaction.emoji.name == abmeldenEmoji){
+                await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+              } else {
+                reaction.users.remove(user.id);
+              }
+            })
+          } else if(reaction.emoji.name == abmeldenEmoji){
+            await message.reply(`Der Vorgang wurde erfolgreich abgebrochen`);
+          } else {
+            reaction.users.remove(user.id);
+          }
+        })
+      }
+
+      if(cmd == 'changecockpit1' && !(message.member.roles.cache.has(rennleiterRolleID))){
+        message.reply(`Der Command kann nur von der Rennleitung ausgeführt werden`).then(() => {
+          let date = new Date().toLocaleString();
+          console.log(`${message.member.user.username} hat probiert den changecockpit1 remove Command auszuführen, hat aber keine Berechtigung dafür -- ${date}`);
+        })
+      }
+
+      if(cmd == 'shufflewaitlistup1' && message.member.roles.cache.has(rennleiterRolleID)){
+        if(args[0]){
+
+          let driverID = args[0].slice(2,20)
+
+          let positionIndex = null
+          let onReinsate = false
+          let onNormal = false
+
+          if(subPersonListReinstatedDriversLiga1.includes(driverID)){
+            positionIndex = subPersonListReinstatedDriversLiga1.indexOf(driverID)
+            onReinsate = true
+          }else if(subPersonListLiga1.includes(driverID)){
+            positionIndex = subPersonListLiga1.indexOf(driverID)
+            onNormal = true
+          }else{
+            message.reply(`Fahrer ist nicht in Warteliste`)
+            return
+          }
+          
+          if(positionIndex == null){
+            return
+          }else{
+            if(onReinsate == true){
+              if(positionIndex == subPersonListReinstatedDriversLiga1.length - 1){
+                subPersonListReinstatedDriversLiga1[positionIndex] = subPersonListLiga1[0]
+                subPersonListLiga1[0] = driverID
+              }else{
+                subPersonListReinstatedDriversLiga1[positionIndex] = subPersonListReinstatedDriversLiga1[positionIndex + 1]
+                subPersonListReinstatedDriversLiga1[positionIndex + 1] = driverID
+              }
+            }else if(onNormal == true){
+              if(positionIndex == subPersonListLiga1.length - 1){
+                message.reply(`Ist schon ganz hinten du Wurst`)
+              }else{
+                subPersonListLiga1[positionIndex] = subPersonListLiga1[positionIndex + 1]
+                subPersonListLiga1[positionIndex + 1] = driverID
+              }
+            }else{
+              return
+            }
+          }
+
+          
+        }
+        await setWaitListMsgContent(client)
+      }
+
+      if(cmd == 'shufflewaitlistup1' && !(message.member.roles.cache.has(rennleiterRolleID))){
+        message.reply(`Der Command kann nur von der Rennleitung ausgeführt werden`).then(() => {
+          let date = new Date().toLocaleString();
+          console.log(`${message.member.user.username} hat probiert den shufflewaitlistup1 remove Command auszuführen, hat aber keine Berechtigung dafür -- ${date}`);
+        })
+      }
+
+      if(cmd == 'shufflewaitlistdown1' && message.member.roles.cache.has(rennleiterRolleID)){
+        if(args[0]){
+
+          let driverID = args[0].slice(2,20)
+
+          let positionIndex = null
+          let onReinsate = false
+          let onNormal = false
+
+          if(subPersonListReinstatedDriversLiga1.includes(driverID)){
+            positionIndex = subPersonListReinstatedDriversLiga1.indexOf(driverID)
+            onReinsate = true
+          }else if(subPersonListLiga1.includes(driverID)){
+            positionIndex = subPersonListLiga1.indexOf(driverID)
+            onNormal = true
+          }else{
+            message.reply(`Fahrer ist nicht in Warteliste`)
+            return
+          }
+          
+          if(positionIndex == null){
+            return
+          }else{
+            if(onReinsate == true){
+              if(positionIndex == 0){
+                message.reply(`Ist schon ganz vorne du Wurst`)
+              }else{
+                subPersonListReinstatedDriversLiga1[positionIndex] = subPersonListReinstatedDriversLiga1[positionIndex - 1]
+                subPersonListReinstatedDriversLiga1[positionIndex - 1] = driverID
+              }
+            }else if(onNormal == true){
+              if(positionIndex == 0){
+                subPersonListLiga1[0] = subPersonListReinstatedDriversLiga1[subPersonListReinstatedDriversLiga1.length - 1]
+                subPersonListReinstatedDriversLiga1[subPersonListReinstatedDriversLiga1.length - 1] = driverID
+              }else{
+                subPersonListLiga1[positionIndex] = subPersonListLiga1[positionIndex - 1]
+                subPersonListLiga1[positionIndex - 1] = driverID
+              }
+            }else{
+              return
+            }
+          }
+
+          
+        }
+        await setWaitListMsgContent(client)
+      }
+      
+      if(cmd == 'shufflewaitlistdown1' && !(message.member.roles.cache.has(rennleiterRolleID))){
+        message.reply(`Der Command kann nur von der Rennleitung ausgeführt werden`).then(() => {
+          let date = new Date().toLocaleString();
+          console.log(`${message.member.user.username} hat probiert den shufflewaitlistdown1 remove Command auszuführen, hat aber keine Berechtigung dafür -- ${date}`);
+        })
+      }
+
+      if(cmd == 'shufflewaitlistlast1' && message.member.roles.cache.has(rennleiterRolleID)){
+        if(args[0]){
+
+          let driverID = args[0].slice(2,20)
+
+          let positionIndex = null
+          let onReinsate = false
+          let onNormal = false
+
+          if(subPersonListReinstatedDriversLiga1.includes(driverID)){
+            positionIndex = subPersonListReinstatedDriversLiga1.indexOf(driverID)
+            onReinsate = true
+          }else if(subPersonListLiga1.includes(driverID)){
+            positionIndex = subPersonListLiga1.indexOf(driverID)
+            onNormal = true
+          }else{
+            message.reply(`Fahrer ist nicht in Warteliste`)
+            return
+          }
+          
+          if(positionIndex == null){
+            return
+          }else{
+            if(onReinsate == true){
+              while(positionIndex <= subPersonListReinstatedDriversLiga1.length - 1){
+                if(positionIndex == subPersonListReinstatedDriversLiga1.length - 1){
+                  subPersonListReinstatedDriversLiga1[positionIndex] = subPersonListLiga1[0]
+                  subPersonListLiga1[0] = driverID
+                }else{
+                  subPersonListReinstatedDriversLiga1[positionIndex] = subPersonListReinstatedDriversLiga1[positionIndex + 1]
+                  subPersonListReinstatedDriversLiga1[positionIndex + 1] = driverID
+                }
+                positionIndex++;
+              }
+            }
+            positionIndex = 0
+            while(positionIndex < subPersonListLiga1.length - 1){
+             
+                subPersonListLiga1[positionIndex] = subPersonListLiga1[positionIndex + 1]
+                subPersonListLiga1[positionIndex + 1] = driverID
+
+                positionIndex++
+              
+            }
+          }
+
+          
+        }
+        await setWaitListMsgContent(client)
+      }
+
+      if(cmd == 'shufflewaitlistlast1' && !(message.member.roles.cache.has(rennleiterRolleID))){
+        message.reply(`Der Command kann nur von der Rennleitung ausgeführt werden`).then(() => {
+          let date = new Date().toLocaleString();
+          console.log(`${message.member.user.username} hat probiert den shufflewaitlistlast1 remove Command auszuführen, hat aber keine Berechtigung dafür -- ${date}`);
+        })
+      }
+
+      if(cmd == 'shufflewaitlistfirst1' && message.member.roles.cache.has(rennleiterRolleID)){
+        if(args[0]){
+
+          let driverID = args[0].slice(2,20)
+
+          let positionIndex = null
+          let onReinsate = false
+          let onNormal = false
+
+          if(subPersonListReinstatedDriversLiga1.includes(driverID)){
+            positionIndex = subPersonListReinstatedDriversLiga1.indexOf(driverID)
+            onReinsate = true
+          }else if(subPersonListLiga1.includes(driverID)){
+            positionIndex = subPersonListLiga1.indexOf(driverID)
+            onNormal = true
+          }else{
+            message.reply(`Fahrer ist nicht in Warteliste`)
+            return
+          }
+          
+          if(positionIndex == null){
+            return
+          }else{
+            if(subPersonListReinstatedDriversLiga1 == 0){
+              while(positionIndex > 0){
+                subPersonListLiga1[positionIndex] = subPersonListLiga1[positionIndex - 1]
+                subPersonListLiga1[positionIndex - 1] = driverID
+
+                positionIndex--
+              }
+            }else{
+              if(onNormal == true){
+                while(positionIndex >= 0){
+                  if(positionIndex == 0){
+                    subPersonListLiga1[0] = subPersonListReinstatedDriversLiga1[subPersonListReinstatedDriversLiga1.length - 1]
+                    subPersonListReinstatedDriversLiga1[subPersonListReinstatedDriversLiga1.length - 1] = driverID
+                  }else{
+                    subPersonListLiga1[positionIndex] = subPersonListLiga1[positionIndex - 1]
+                    subPersonListLiga1[positionIndex - 1] = driverID
+                  }
+                  positionIndex--;
+                }
+              }
+              positionIndex = subPersonListReinstatedDriversLiga1.length - 1
+              while(positionIndex < 0){
+               
+                  subPersonListReinstatedDriversLiga1[positionIndex] = subPersonListReinstatedDriversLiga1[positionIndex - 1]
+                  subPersonListReinstatedDriversLiga1[positionIndex - 1] = driverID
+
+                  positionIndex --;
+                
+              }
+            }
+            
+          }
+
+          
+        }
+        await setWaitListMsgContent(client)
+      }
+
+      if(cmd == 'shufflewaitlistfirst1' && !(message.member.roles.cache.has(rennleiterRolleID))){
+        message.reply(`Der Command kann nur von der Rennleitung ausgeführt werden`).then(() => {
+          let date = new Date().toLocaleString();
+          console.log(`${message.member.user.username} hat probiert den shufflewaitlistfirst1 remove Command auszuführen, hat aber keine Berechtigung dafür -- ${date}`);
+        })
+      }
+
+      if(cmd == 'placedriveronwaitlist1' && message.member.roles.cache.has(rennleiterRolleID)){
+        if(args[0]){
+          let driverID = args[0].slice(2,20)
+
+          if(subPersonListLiga1.includes(driverID) == false && subPersonListReinstatedDriversLiga1.includes(driverID) == false
+            && await checkDriverInLineup(driverID) == false){
+              subPersonListLiga1.push(driverID)
+              await setWaitListMsgContent(client)
+          }else{
+            message.reply(`Fahrer ist schon im Lineup oder auf Warteliste`)
+          }
+        }
+
+      }
+
+      if(cmd == 'placedriveronwaitlist1' && !(message.member.roles.cache.has(rennleiterRolleID))){
+        message.reply(`Der Command kann nur von der Rennleitung ausgeführt werden`).then(() => {
+          let date = new Date().toLocaleString();
+          console.log(`${message.member.user.username} hat probiert den placedriveronwaitlist1 remove Command auszuführen, hat aber keine Berechtigung dafür -- ${date}`);
+        })
       }
 
     }
