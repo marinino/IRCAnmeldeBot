@@ -1,19 +1,15 @@
-const {SlashCommandBuilder} = require('@discordjs/builders')
+const {SlashCommandBuilder} = require('@discordjs/builders');
 const {MessageEmbed} = require('discord.js');
-const SeasonData = require('../dataClasses/VariablenDaten.js');
-const MethodStorage = require('../dataClasses/MethodenDaten.js');
-
-var seasonData = new SeasonData();
-var methodStorage = new MethodStorage()
+const CurrentSeason = require('./startseasonliga2.js')
 
 async function printCalendar(interaction){
 
     // Output for races in the future
     var stringFutureRaces = ''
-    if(seasonData.getSeasonCalendarLiga1().length == 0){
+    if(CurrentSeason.seasonData.getSeasonCalendarLiga2().length == 0){
         stringFutureRaces = `Es sind keine \n Rennen mehr geplant`
     }else{
-        seasonData.getSeasonCalendarLiga1().forEach((element) => {
+        CurrentSeason.seasonData.getSeasonCalendarLiga2().forEach((element) => {
         console.log(element)
         stringFutureRaces = stringFutureRaces.concat(`${element}\n`)
         })
@@ -21,18 +17,18 @@ async function printCalendar(interaction){
     
     // Output of current race
     var stringCurrentRace = ''
-    if(seasonData.getCurrentRaceLocationLiga1() == null){
+    if(CurrentSeason.seasonData.getCurrentRaceLocationLiga2() == null){
         stringCurrentRace = `Aktuell läuft \n kein Event`
     }else{
-        stringCurrentRace = seasonData.getCurrentRaceLocationLiga1()
+        stringCurrentRace = CurrentSeason.seasonData.getCurrentRaceLocationLiga2()
     }
     
     // Outputs past races
     var stringPastRaces = ''
-    if(seasonData.getSeasonCalendarRacesDoneLiga1().length == 0){
+    if(CurrentSeason.seasonData.getSeasonCalendarRacesDoneLiga2().length == 0){
         stringPastRaces = `Bisher wurde noch kein \n Event abgeschlossen`
     }else{
-        seasonData.getSeasonCalendarRacesDoneLiga1().forEach((element) => {
+        CurrentSeason.seasonData.getSeasonCalendarRacesDoneLiga2().forEach((element) => {
         stringPastRaces = stringPastRaces.concat(`${element}\n`)
         })
     }
@@ -49,7 +45,7 @@ async function printCalendar(interaction){
             {name: 'Gefahrene Rennen', value: `${stringPastRaces}`, inline: true}
         )
         interaction.reply({
-            content:`Die Season wurde erfolgreich gestartet!`,
+            content:`Der Kalender wurde erfolgreich geändert!`,
             embeds: [calendarEmbed]
         })
     }
@@ -57,46 +53,37 @@ async function printCalendar(interaction){
 }
 
 module.exports = {
-    seasonData,
-    methodStorage,
     data: new SlashCommandBuilder()
-        .setName('startseasonliga1')
-        .setDescription('Starts season and sets calendar')
+        .setName('removecalendar2')
+        .setDescription('Fügt ein Event der Saison hinzu')
         .addStringOption(option => 
-            option.setName('calendar')
-                .setDescription('Kalender hier angeben, Leerzeichen zwischen Flaggen')
+            option.setName('trackremove')
+                .setDescription('Das Event welches gelöscht werden soll')
                 .setRequired(true)),
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(seasonData.getRennleiterRolleID())){
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
             interaction.reply('Permission denied')
             return;
         }else{
             console.log('all good')
         }
 
-        // Sets typ of League
-        seasonData.setLigatitel('Liga 1')
+        const eventRemove = interaction.options.getString('trackremove')
 
-        // Gets parameter
-        const calendarAsString = interaction.options.getString('calendar')
+        let listTemp = CurrentSeason.seasonData.getSeasonCalendarLiga2();
 
-        // Sets calendar for given season object
-        var calendarAsArray = calendarAsString.split(' ')
-        if(calendarAsArray.length == 0){
-            interaction.reply('Kalender leer');
-            return
+        if(!(listTemp.includes(eventRemove))){
+            interaction.reply('Nicht drin im Kalender');
+            return;
         }
-        seasonData.setSeasonCalendarLiga1(calendarAsArray)
-
-        // test to give all race in console
-        var calendarTest = seasonData.getSeasonCalendarLiga2()
-        calendarTest.forEach(element => {
-            console.log(element)
-        });
-
-        printCalendar(interaction);
         
-    }
+        indexToInsert = listTemp.indexOf(eventRemove);  
+        
+        listTemp.splice(indexToInsert, 1);
+
+        CurrentSeason.seasonData.setSeasonCalendarLiga2(listTemp);
+        printCalendar(interaction);
+    }  
 }
