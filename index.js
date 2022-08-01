@@ -26,38 +26,26 @@ client.on('messageCreate', message => {
     } else {
       message.reply('Hey, mention, \<:dickerChris:937291228645580821>.')
     }
-
-    
-    
     return 
   }
 })
 
 
-const commandFilesLiga1 = fs.readdirSync('./commands/liga1').filter(file => file.endsWith('.js'));
-const commandFilesLiga2 = fs.readdirSync('./commands/liga2').filter(file => file.endsWith('.js'));
-const commandFilesLiga3 = fs.readdirSync('./commands/liga3').filter(file => file.endsWith('.js'));
+const commandFolders = fs.readdirSync('./commands');
+
 let commands = [];
 
 client.commands = new Discord.Collection();
 
-for (const file of commandFilesLiga1) {
-  const command = require(`./commands/liga1/${file}`);
-	commands.push(command.data.toJSON());
-  client.commands.set(command.data.name, command)
+for (const folder of commandFolders) {
+  const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'))
+  for(const file of commandFiles){
+    const command = require(`./commands/${folder}/${file}`);
+    commands.push(command.data.toJSON());
+    client.commands.set(command.data.name, command)
+  }
 }
 
-for (const file of commandFilesLiga2) {
-  const command = require(`./commands/liga2/${file}`);
-	commands.push(command.data.toJSON());
-  client.commands.set(command.data.name, command)
-}
-
-for (const file of commandFilesLiga3) {
-  const command = require(`./commands/liga3/${file}`);
-	commands.push(command.data.toJSON());
-  client.commands.set(command.data.name, command)
-}
 
 client.once("ready", () => {
  
@@ -67,7 +55,6 @@ client.once("ready", () => {
 
   (async () => {
     try {
-      
       
       console.log('Started refreshing application (/) commands.');
 
@@ -93,11 +80,6 @@ client.once("ready", () => {
         console.log('Registered globally')
       }else{
 
-        console.log(await rest.get(
-          Routes.applicationGuildCommands(clientId, guildId),
-          
-        ))
-
         /*
         rest.get(Routes.applicationGuildCommands(clientId, guildId))
         .then(data => {
@@ -109,12 +91,6 @@ client.once("ready", () => {
             return Promise.all(promises);
         });
         */
-
-
-        console.log(await rest.get(
-          Routes.applicationGuildCommands(clientId, guildId),
-          
-        ))
        
         await rest.put(
           Routes.applicationGuildCommands(clientId, guildId),
@@ -129,7 +105,5 @@ client.once("ready", () => {
   })();
 
 })
-
-
 
 client.login(process.env.TOKEN);
