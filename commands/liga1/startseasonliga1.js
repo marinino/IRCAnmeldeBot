@@ -76,6 +76,8 @@ module.exports = {
             console.log('all good')
         }
 
+        console.log('Lets go')
+
         // Sets typ of League
         seasonData.setLigatitel('Liga 1')
 

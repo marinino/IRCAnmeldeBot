@@ -38,6 +38,7 @@ module.exports = (client,  Discord, message) =>{
 
     
     command.execute(client, message, cmd, args, Discord);
+    console.log('Am here')
     
   } catch(error){
     message.reply('Der Command konnte nicht ausgeführt werden, wahrscheinlich hast du dich verschrieben.' + '\n'

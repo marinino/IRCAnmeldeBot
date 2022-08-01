@@ -34,14 +34,27 @@ client.on('messageCreate', message => {
 })
 
 
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commandFilesLiga1 = fs.readdirSync('./commands/liga1').filter(file => file.endsWith('.js'));
+const commandFilesLiga2 = fs.readdirSync('./commands/liga2').filter(file => file.endsWith('.js'));
+const commandFilesLiga3 = fs.readdirSync('./commands/liga3').filter(file => file.endsWith('.js'));
 let commands = [];
 
 client.commands = new Discord.Collection();
 
-for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  console.log(command)
+for (const file of commandFilesLiga1) {
+  const command = require(`./commands/liga1/${file}`);
+	commands.push(command.data.toJSON());
+  client.commands.set(command.data.name, command)
+}
+
+for (const file of commandFilesLiga2) {
+  const command = require(`./commands/liga2/${file}`);
+	commands.push(command.data.toJSON());
+  client.commands.set(command.data.name, command)
+}
+
+for (const file of commandFilesLiga3) {
+  const command = require(`./commands/liga3/${file}`);
 	commands.push(command.data.toJSON());
   client.commands.set(command.data.name, command)
 }
