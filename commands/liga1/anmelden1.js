@@ -22,7 +22,9 @@ module.exports = {
         const userToSubIn = interaction.options.getUser('fahrer');
         console.log(userToSubIn)
 
-        if(CurrentSeason.seasonData.getSubInDriversPerCommandLiga1().includes(userToSubIn.id)){
+        var tempSubDriversInPerCommand = CurrentSeason.seasonData.getSubInDriversPerCommandLiga1()
+
+        if(tempSubDriversInPerCommand.includes(userToSubIn.id)){
             interaction.reply('Wurde schon');
             return
         }else{
@@ -59,7 +61,7 @@ module.exports = {
 
                         CurrentSeason.methodStorage.subDriverIn(client, userToSubIn, CurrentSeason.seasonData);
                         
-                        CurrentSeason.seasonData.setSubInDriversPerCommandLiga1(CurrentSeason.seasonData.getSubInDriversPerCommandLiga1().concat([userToSubIn.id]));
+                        CurrentSeason.seasonData.setSubInDriversPerCommandLiga1(tempSubDriversInPerCommand.concat([userToSubIn.id]));
                         
                         console.log(CurrentSeason.seasonData.getSubInDriversPerCommandLiga1().length)
                 

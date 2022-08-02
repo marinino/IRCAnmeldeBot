@@ -21,8 +21,12 @@ module.exports = {
 
         const userToRemoveSubIn = interaction.options.getUser('fahrer');
         console.log(client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(userToRemoveSubIn.id))
+        var tempSubInPerCommand = CurrentSeason.seasonData.getSubInDriversPerCommandLiga2()
 
-        if(!(CurrentSeason.seasonData.getSubInDriversPerCommandLiga2().includes(userToRemoveSubIn.id))){
+        console.log('Angemeldet per Command')
+        console.log(tempSubInPerCommand)
+
+        if(!(tempSubInPerCommand.includes(userToRemoveSubIn.id))){
             interaction.reply('Fahrer wurde nicht per Command angemeldet');
             return
         } else {
@@ -61,7 +65,7 @@ module.exports = {
                         CurrentSeason.seasonData.setSubInDriversPerCommandLiga2(tempArray);
                     } else if(CurrentSeason.methodStorage.checkDriverInLineup(userToRemoveSubIn.id, CurrentSeason.seasonData)){
                         // Perform removal in lineup
-                        CurrentSeason.methodStorage.subDriverRemoveSubInInLineup(client, userToRemoveSubIn.id, CurrentSeason.seasonData)
+                        CurrentSeason.methodStorage.subDriverRemoveSubInInLineup(client, userToRemoveSubIn, CurrentSeason.seasonData)
                         // Remove from subInPerCommand list
                         let tempArray = CurrentSeason.seasonData.getSubInDriversPerCommandLiga2();
                         tempArray.splice(tempArray.indexOf(userToRemoveSubIn.id), 1);

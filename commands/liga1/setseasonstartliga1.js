@@ -54,7 +54,7 @@ module.exports = {
             cron.schedule(`${seasonStartSecondsOfDay} ${seasonStartMinutesOfDay} ${seasonStartHourOfDay} ${seasonStartDayofMonth} ${seasonStartMonth} *`, () => {
                 if(CurrentSeason.seasonData.getSeasonCalendarLiga1().length > 0){
                     CurrentSeason.seasonData.setSeasonActiveLiga1(true);
-                    CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 60000);
+                    CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 180000);
                     console.log(`Rennen 1`)
                 }
                 var i = 1
@@ -62,7 +62,7 @@ module.exports = {
                     CurrentSeason.seasonData.setStartLoopLiga1(startLoop);
                     if(CurrentSeason.seasonData.getSeasonCalendarLiga1().length > 0){
                         if(CurrentSeason.seasonData.getSeasonActiveLiga1() == true){
-                            CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 60000);
+                            CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 180000);
                             i++
                             console.log(`Rennen ${i}`)
                             CurrentSeason.seasonData.getSeasonCalendarLiga1().forEach(element => (console.log(element)))
@@ -80,7 +80,7 @@ module.exports = {
                         console.log(`Die Season in ${CurrentSeason.seasonData.getLigatitel()} wurde beendet`);
                     }
                     
-                }  , 80000)
+                }  , 190000)
                 
             })
         }catch{

@@ -24,8 +24,6 @@ module.exports = {
             console.log('all good')
         }
 
-        await interaction.reply(`Tausch wurde gestartet`);
-
         const driverIn = interaction.options.getUser('driver');
         const teamObject = interaction.options.getRole('team');
         const abmeldeChannel = CurrentSeason.seasonData.getAbmeldeChannelIDLiga2();
@@ -39,6 +37,16 @@ module.exports = {
         var tempFreeCars = CurrentSeason.seasonData.getFreeCarsLiga2();
         var tempWithdrawnDrivers = CurrentSeason.seasonData.getWithdrawnDriversLiga2();
         var tempReinstatedDrivers = CurrentSeason.seasonData.getsubPersonListReinstatedDriversLiga2();
+
+
+        if(driverIn != null){
+            if(await CurrentSeason.methodStorage.checkDriverInLineup(driverIn, CurrentSeason.seasonData)){
+                interaction.reply('Fahrer ist schon in Lineup oder auf Warteliste');
+                return
+            } 
+        }
+        
+        await interaction.reply(`Tausch wurde gestartet`);
 
         let forceRemoveDriverEmbed = new MessageEmbed()
             .setColor('#fd5100')
@@ -264,7 +272,7 @@ module.exports = {
                         });
 
                         tempWithdrawnDrivers.push(driverOutID);
-                        CurrentSeason.seasonData.setWithdrawnDriversLig2(tempWithdrawnDrivers);
+                        CurrentSeason.seasonData.setWithdrawnDriversLiga2(tempWithdrawnDrivers);
 
                         let dateRemove = new Date().toLocaleString();
                         console.log(`${driverOutObject.name} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);

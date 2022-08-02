@@ -51,8 +51,10 @@ class MethodClass{
             //Get all the information
             let teamNameString = null;
             if(freeCar == null){
+                console.log('Landed wrong')
                 teamNameString = await this.findMainTeamString(userToRemove, seasonData);
             } else {
+                console.log('Landed right')
                 let teamID = freeCar;
                 teamNameString = await client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(teamID).name;
             }
@@ -404,12 +406,12 @@ class MethodClass{
             }
             let date = new Date();
             console.log(`Prüfsumme für ${seasonData.getLigatitel()}, Methode checkSubCanBeMade. Das Auto was gerade belegt wird hat ID ${carToTake}, der 
-                        Fahrer der es nimmt hat die ID ${driverToStartTemp}. Beides darf nicht null oder undefined sein. -- ${date}`);
-            if(!fromForceRemove && driverToStart.roles.cache.has(stammfahrerRolleID) && await this.checkIfCarisFree(client, carToTake, seasonData)){
-                var driverOfMainTeamOne = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(currentLineup.get(mainTeamNameString)[0])
-                var driverOfMainTeamTwo = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(currentLineup.get(mainTeamNameString)[1])
-                var seatOpen = false;
+                        Fahrer der es nimmt hat die ID ${driverToStartTemp}. Beides darf nicht null oder undefined sein. -- ${date} + BOOLS: 1: ${await driverToStart.roles.cache.has(stammfahrerRolleID)}
+                        2: ${await this.checkIfCarisFree(client, carToTake, seasonData)}`);
+            if(!fromForceRemove && await driverToStart.roles.cache.has(stammfahrerRolleID) && await this.checkIfCarisFree(client, carToTake, seasonData)){
+                console.log('GOING HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
                 let mainTeamNameString = await this.findMainTeamString(driverToStart, seasonData);
+                var seatOpen = false;
                 let mainTeamIDString = null;
                 client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.find(role => {
                     if(role.name == mainTeamNameString){
@@ -423,11 +425,17 @@ class MethodClass{
                 } else if(currentLineup.get(mainTeamNameString)[1] == 'nicht besetzt'){
                     subDriverPosition = 1;
                     seatOpen = true;
-                } else if(driverOfMainTeamOne.roles.cache.has(ersatzfahrerRolleID)){
-                    subDriverPosition = 0;
-                } else if(driverOfMainTeamTwo.roles.cache.has(ersatzfahrerRolleID)){
-                    subDriverPosition = 1;
+                } else {
+                    var driverOfMainTeamOne = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(currentLineup.get(mainTeamNameString)[0])
+                    var driverOfMainTeamTwo = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(currentLineup.get(mainTeamNameString)[1])
+
+                    if(driverOfMainTeamOne.roles.cache.has(ersatzfahrerRolleID)){
+                        subDriverPosition = 0;
+                    } else if(driverOfMainTeamTwo.roles.cache.has(ersatzfahrerRolleID)){
+                        subDriverPosition = 1;
+                    }
                 }
+                
                 let subDriverID = null;
                 if(subDriverPosition != null){
                     subDriverID = currentLineup.get(mainTeamNameString)[subDriverPosition];
@@ -456,7 +464,7 @@ class MethodClass{
                             {name: `Update im Lineup`, value: `<@${subDriverID}> bekommt den <@&${carToTake}>`}
                         )
                         await client.guilds.cache.get(seasonData.getDiscordID()).members.cache.get(subDriverID).send(`Es ergab sich eine ` +
-                        `Verschiebung im Lineup, du fährst am Wochenende den  ${client.guilds.cache.get(discordID).roles.cache.get(carToTake).name}`);
+                        `Verschiebung im Lineup, du fährst am Wochenende den  ${client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(carToTake).name}`);
                     }
                     await client.channels.cache.get(anmeldeChannelID).send({embeds : [driverInEmbed]}).then(() => {
                         client.channels.cache.get(seasonData.getLogChannelID()).send({embeds : [driverInEmbed]});
@@ -1078,13 +1086,13 @@ class MethodClass{
         .setColor('RED')
         .setTitle('️️️️️️️️️️️️️️️↩')
         .addFields(
-            {name: `Update im Lineup`, value: `<@${driverObject.user.id}> ist diese Woche doch nicht dabei`}
+            {name: `Update im Lineup`, value: `<@${driverObject.id}> ist diese Woche doch nicht dabei`}
         );
         await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(anmeldeChannelID).send({ embeds : [subInRemoveEmbed]}).then(() => {
             client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getLogChannelID()).send({ embeds : [subInRemoveEmbed]});
         });
         let date = new Date().toLocaleString();
-        console.log(`${driverObject.user.username} wurde erfolgreich aus Lineup genommen in ${seasonData.getLigatitel()} -- ${date}`);
+        console.log(`${driverObject.nickname} wurde erfolgreich aus Lineup genommen in ${seasonData.getLigatitel()} -- ${date}`);
         await this.checkSubCanBeMade(client,false, null, null, null, seasonData);
         //Make changes global
         if(seasonData.getLigatitel() == 'Liga 1'){
@@ -1250,10 +1258,15 @@ class MethodClass{
         } else if(seasonData.getLigatitel() == 'Liga 3'){
             currentLineup = seasonData.getCurrentLineupLiga3();
         }
+
+        console.log(`Fahrer ID ${driverObject.id}`)
+        console.log('LINEUP')
+        console.log(currentLineup)
         //Do stuff
         if(currentLineup.get('Mercedes').includes(driverObject.id)){
             return seasonData.getMercedesRolleID();
         } else if(currentLineup.get('Red Bull').includes(driverObject.id)){
+            console.log('felx hat RB')
             return seasonData.getRedBullRolleID();
         } else if(currentLineup.get('Ferrari').includes(driverObject.id)){
             return seasonData.getFerrariRolleID();
@@ -1271,6 +1284,8 @@ class MethodClass{
             return seasonData.getWilliamsRolleID();
         } else if(currentLineup.get('Haas').includes(driverObject.id)){
             return seasonData.getHaasRolleID();
+        } else {
+            console.log('WIR SIND DURCH GEFALLEN!')
         }
     }
 
@@ -1284,6 +1299,7 @@ class MethodClass{
         } else if(seasonData.getLigatitel() == 'Liga 3'){
             currentLineup = seasonData.getCurrentLineupLiga3();
         }
+
         if(currentLineup.get('Mercedes').includes(driverID)){
             return true;
         } else if(currentLineup.get('Red Bull').includes(driverID)){

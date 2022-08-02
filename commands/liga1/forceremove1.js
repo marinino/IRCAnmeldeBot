@@ -149,7 +149,7 @@ module.exports = {
                         let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
                         let fahrerF1Role = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getFahrerF1RolleID());
                 
-                        let roleRemoveMember = await client.users.cache.find(user => user.id == `${driverToRemove}`);
+                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
                         await roleRemoveMember.roles.remove(regDriverRole);
                         await roleRemoveMember.roles.remove(teamRole);
@@ -195,7 +195,7 @@ module.exports = {
                         let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLiga1());
                         let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
                 
-                        let roleRemoveMember = await client.users.cache.find(user => user.id == `${driverToRemove}`);
+                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
                         await roleRemoveMember.roles.remove(regDriverRole);
                         await roleRemoveMember.roles.remove(teamRole);
@@ -212,7 +212,7 @@ module.exports = {
                         let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLiga1());
                         let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
                 
-                        let roleRemoveMember = await client.users.cache.find(user => user.id == `${driverToRemove}`);
+                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
                         await roleRemoveMember.roles.remove(regDriverRole);
                         await roleRemoveMember.roles.remove(teamRole);
@@ -293,7 +293,7 @@ module.exports = {
                 await messageFutureRoleEmbed.react('5️⃣');
                 await messageFutureRoleEmbed.react(CurrentSeason.seasonData.getAbmeldeEmoji());
 
-                const collectorConfirmFutureRoles = messageForceRemoveFutureRole.createReactionCollector({ dispose: true});
+                const collectorConfirmFutureRoles = messageFutureRoleEmbed.createReactionCollector({ dispose: true});
 
                 collectorConfirmFutureRoles.on('collect', async (reaction, user) => {
                     if(reaction.message.partial){
@@ -320,7 +320,7 @@ module.exports = {
                         let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
                         let fahrerF1Role = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getFahrerF1RolleID());
                 
-                        let roleRemoveMember = await client.users.cache.find(user => user.id == `${driverToRemove}`);
+                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
                         await roleRemoveMember.roles.remove(regDriverRole);
                         await roleRemoveMember.roles.remove(teamRole);
@@ -339,7 +339,7 @@ module.exports = {
                         let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLiga1());
                         let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
                 
-                        let roleRemoveMember = await client.users.cache.find(user => user.id == `${driverToRemove}`);
+                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
                         await roleRemoveMember.roles.remove(regDriverRole);
                         await roleRemoveMember.roles.remove(teamRole);
@@ -366,7 +366,7 @@ module.exports = {
                         let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLiga1());
                         let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
                 
-                        let roleRemoveMember = await client.users.cache.find(user => user.id == `${driverToRemove}`);
+                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
                         await roleRemoveMember.roles.remove(regDriverRole);
                         await roleRemoveMember.roles.remove(teamRole);
@@ -383,7 +383,7 @@ module.exports = {
                         let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLiga1());
                         let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
                 
-                        let roleRemoveMember = await client.users.cache.find(user => user.id == `${driverToRemove}`);
+                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
                         await roleRemoveMember.roles.remove(regDriverRole);
                         await roleRemoveMember.roles.remove(teamRole);

@@ -26,7 +26,7 @@ module.exports = {
             interaction.reply('Fahrer wurde nicht per Command abgemeldet');
             return
         } else {
-            if(!(client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(userToRemoveWithdraw.id).roles.cache.has(CurrentSeason.seasonData.getStammfahrerRolleIDLiga1()))){
+            if(!(client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(userToRemoveWithdraw.id).roles.cache.has(CurrentSeason.seasonData.getStammfahrerRolleIDLiga2()))){
                 interaction.reply('Fahrer hat die Stammfahrer nicht');
                 return
             }

@@ -20,14 +20,14 @@ module.exports = {
             console.log('all good')
         }
 
-        // Adman, Chris
-        CurrentSeason.seasonData.setMercedesDriversLiga2(['269499201702854667', '469926134700703748']);
-        // SHD, lyrex
-        CurrentSeason.seasonData.setRedBullDriversLiga2(['284981237645312000', '281829417775267840']);
+        // Rocket, Nyrox
+        CurrentSeason.seasonData.setMercedesDriversLiga2(['281100297051570177', '269499201702854667']);
+        // John, Pascal
+        CurrentSeason.seasonData.setRedBullDriversLiga2(['396155559344078849', '604645537882308609']);
         CurrentSeason.seasonData.setFerrariDriversLiga2(['nicht besetzt', 'nicht besetzt']);
         CurrentSeason.seasonData.setMcLarenDriversLiga2(['nicht besetzt', 'nicht besetzt']);
-        // Vollkorn
-        CurrentSeason.seasonData.setAstonMartinDriversLiga2(['319115003032502282', 'nicht besetzt']);
+        // -
+        CurrentSeason.seasonData.setAstonMartinDriversLiga2(['nicht besetzt', 'nicht besetzt']);
         CurrentSeason.seasonData.setAlpineDriversLiga2(['nicht besetzt', 'nicht besetzt']);
         CurrentSeason.seasonData.setAlphaTauriDriversLiga2(['nicht besetzt', 'nicht besetzt']);
         CurrentSeason.seasonData.setAlfaRomeoDriversLiga2(['nicht besetzt', 'nicht besetzt']);
@@ -54,7 +54,7 @@ module.exports = {
             cron.schedule(`${seasonStartSecondsOfDay} ${seasonStartMinutesOfDay} ${seasonStartHourOfDay} ${seasonStartDayofMonth} ${seasonStartMonth} *`, () => {
                 if(CurrentSeason.seasonData.getSeasonCalendarLiga2().length > 0){
                     CurrentSeason.seasonData.setSeasonActiveLiga2(true);
-                    CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 60000);
+                    CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 180000);
                     console.log(`Rennen 1`)
                 }
                 var i = 1
@@ -62,7 +62,7 @@ module.exports = {
                     CurrentSeason.seasonData.setStartLoopLiga2(startLoop);
                     if(CurrentSeason.seasonData.getSeasonCalendarLiga2().length > 0){
                         if(CurrentSeason.seasonData.getSeasonActiveLiga2() == true){
-                            CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 60000);
+                            CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 180000);
                             i++
                             console.log(`Rennen ${i}`)
                             CurrentSeason.seasonData.getSeasonCalendarLiga2().forEach(element => (console.log(element)))
@@ -80,7 +80,7 @@ module.exports = {
                         console.log(`Die Season in ${CurrentSeason.seasonData.getLigatitel()} wurde beendet`);
                     }
                     
-                }  , 80000)
+                }  , 190000)
                 
             })
         }catch{

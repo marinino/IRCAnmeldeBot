@@ -61,7 +61,7 @@ module.exports = {
                         CurrentSeason.seasonData.setSubInDriversPerCommandLiga1(tempArray);
                     } else if(CurrentSeason.methodStorage.checkDriverInLineup(userToRemoveSubIn.id, CurrentSeason.seasonData)){
                         // Perform removal in lineup
-                        CurrentSeason.methodStorage.subDriverRemoveSubInInLineup(client, userToRemoveSubIn.id, CurrentSeason.seasonData)
+                        CurrentSeason.methodStorage.subDriverRemoveSubInInLineup(client, userToRemoveSubIn, CurrentSeason.seasonData)
                         // Remove from subInPerCommand list
                         let tempArray = CurrentSeason.seasonData.getSubInDriversPerCommandLiga1();
                         tempArray.splice(tempArray.indexOf(userToRemoveSubIn.id), 1);

@@ -48,7 +48,9 @@ module.exports = {
                     tempReinstatedDrivers[indexDriver - 1] = driver.id;
                 }
             } else if(onNormal){
-                if(indexDriver == 0){
+                if(tempReinstatedDrivers.length == 0 && indexDriver == 0){
+                    interaction.channel.send(`Fahrer ist schon ganz vorne`)
+                }  else if(indexDriver == 0){
                     tempSubPersonList[0] = tempReinstatedDrivers[tempReinstatedDrivers.length - 1];
                     tempReinstatedDrivers[tempReinstatedDrivers.length - 1] = driver.id;
                 } else {
