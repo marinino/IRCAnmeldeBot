@@ -4,7 +4,7 @@ const CurrentSeason = require('./startseasonliga1.js')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('abmelden1')
-        .setDescription('Can sub out driver')
+        .setDescription('Wird benutzt um einen Fahrer abzumelden')
         .addUserOption(option => 
             option.setName('fahrer')
                 .setDescription('Fahrer der abgemeldet werden soll')
@@ -12,22 +12,23 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
-            interaction.reply('Permission denied')
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+            interaction.reply('Du hast keine Berechtigung diesen Command auszuführen');
             return;
         }else{
-            console.log('all good')
+            var date = new Date().toLocaleString()
+            console.log(`Der abmelden1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         const userToRemove = interaction.options.getUser('fahrer');
-        console.log(userToRemove)
+        var tempWithdrawnDriversPerCommand = CurrentSeason.seasonData.getWithdrawnDriversPerCommandLiga1();
 
-        if(CurrentSeason.seasonData.getWithdrawnDriversPerCommandLiga1().includes(userToRemove.id)){
-            interaction.reply('Wurde schon');
+        if(tempWithdrawnDriversPerCommand.includes(userToRemove.id)){
+            interaction.reply('Der Farhrer wurde schon per Command abgemeldet');
             return;
         }else{
             let markedUserID = userToRemove.id;
-            console.log(markedUserID)
 
             let confirmMessage = await interaction.channel.send(`Bist du sicher, dass du ${userToRemove.username} abmelden möchtest?`);
 
@@ -58,37 +59,35 @@ module.exports = {
                         client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(markedUserID).roles.cache.has(CurrentSeason.seasonData.getStammfahrerRolleIDLiga1())){                
 
                         CurrentSeason.methodStorage.regularDriverWithdraw(client, userToRemove, CurrentSeason.seasonData);
-                        CurrentSeason.seasonData.setWithdrawnDriversPerCommandLiga1(CurrentSeason.seasonData.getWithdrawnDriversPerCommandLiga1().concat([userToRemove.id]));
+                        CurrentSeason.seasonData.setWithdrawnDriversPerCommandLiga1(tempWithdrawnDriversPerCommand.concat([userToRemove.id]));
 
                         let date = new Date().toLocaleString();
-                        console.log(`${userToRemove.username} wurde erfolgreich per Command abgemeldet -- ${date}`);
+                        console.log(`abmelden1 wurde erfolgreich mit ${userToRemove.username} durchgeführt -- ${date}`);
                 
    
                     }else if(userToRemove &&
                         !(client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(markedUserID).roles.cache.has(CurrentSeason.seasonData.getStammfahrerRolleIDLiga1()))){
                         
                             let date = new Date().toLocaleString();
-                            console.log(`Es ist etwas schiefgelaufen beim abmelden Command. Der markierte User hat nicht die richtige Rolle. ` + 
-                            `Fahrer: ${userToRemove.username} -- ${date}`);
+                            console.log(`Es ist etwas schiefgelaufen beim abmelden1 Command. ${userToRemove.username} hat nicht die Rolle Stammfahrer Liga 1. -- ${date}`);
                        
                     }else{
                        
                         let date = new Date().toLocaleString();
-                        console.log(`Es ist etwas schiefgelaufen beim abmelden Command. Das Userobjekt war wahrscheinlich ` + 
-                        `entweder undefiniert oder null -- ${date}`);
+                        console.log(`Bei abmelden1 war der userToRemove undefiniert oder null. -- ${date}`);
                         
                     }
                     await confirmMessage.delete();
                 } else if(reaction.emoji.name == CurrentSeason.seasonData.getAbmeldeEmoji()){
                     await confirmMessage.reply('Der Vorgang wurde erfolgreich abgebrochen!').then(() => {
                         let date = new Date().toLocaleString();
-                        console.log(`Der manuelle Anmeldeprozess wurde gestartet und abgebrochen -- ${date}`)
+                        console.log(`abmelden1 wurde gestartet und abgebrochen -- ${date}`)
                     });
                     await confirmMessage.delete();
                 } else {
                     await confirmMessage.reply('Es wurde mit dem falschen Emoji reagiert').then(() => {
                         let date = new Date().toLocaleString();
-                        console.log(`Der manuelle Abmeldeprozess wurde gestartet und es wurde mit dem flaschen Emoji reagiert -- ${date}`)
+                        console.log(`abmelden1 wurde gestartet und es wurde mit dem falschen Emoji reagiert -- ${date}`)
                         })
                     await reaction.users.remove(user.id);
                 }

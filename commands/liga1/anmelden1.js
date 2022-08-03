@@ -4,7 +4,7 @@ const CurrentSeason = require('./startseasonliga1.js')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('anmelden1')
-        .setDescription('Can sign sub driver up')
+        .setDescription('Wird benutzt um einen Fahrer abzumelden')
         .addUserOption(option => 
             option.setName('fahrer')
                 .setDescription('Fahrer der angemeldet werden soll')
@@ -12,20 +12,21 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
-            interaction.reply('Permission denied')
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+            interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
-            console.log('all good')
+            var date = new Date().toLocaleString()
+            console.log(`Der anmelden1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         const userToSubIn = interaction.options.getUser('fahrer');
-        console.log(userToSubIn)
 
         var tempSubDriversInPerCommand = CurrentSeason.seasonData.getSubInDriversPerCommandLiga1()
 
         if(tempSubDriversInPerCommand.includes(userToSubIn.id)){
-            interaction.reply('Wurde schon');
+            interaction.reply('Der Farhrer wurde schon per Command abgemeldet');
             return
         }else{
             let markedUserID = userToSubIn.id;
@@ -66,33 +67,31 @@ module.exports = {
                         console.log(CurrentSeason.seasonData.getSubInDriversPerCommandLiga1().length)
                 
                         let date = new Date().toLocaleString();
-                        console.log(`${userToSubIn.username} wurde erfolgreich per Command angemeldet -- ${date}`);
+                        console.log(`anmelden1 wurde erfolgreich mit ${userToRemove.username} durchgeführt -- ${date}`);
 
                     }else if(userToSubIn &&
                         !(client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(markedUserID).roles.cache.has(CurrentSeason.seasonData.getErsatzfahrerRolleIDLiga1()))){
                         
                             let date = new Date().toLocaleString();
-                            console.log(`Es ist etwas schiefgelaufen beim anmelden Command. Der markierte User hat nicht die richtige Rolle. ` + 
-                            `Fahrer: ${userToSubIn.username} -- ${date}`);
+                            console.log(`Es ist etwas schiefgelaufen beim anmelden1 Command. ${userToRemove.username} hat nicht die Rolle Ersatzfahrer Liga 1. -- ${date}`);
                        
                     }else{
                        
                         let date = new Date().toLocaleString();
-                        console.log(`Es ist etwas schiefgelaufen beim anmelden Command. Das Userobjekt war wahrscheinlich ` + 
-                        `entweder undefiniert oder null -- ${date}`);
+                        console.log(`Bei anmelden1 war der userToRemove undefiniert oder null. -- ${date}`);
                         
                     }
                     await confirmMessage.delete();
                 } else if(reaction.emoji.name == CurrentSeason.seasonData.getAbmeldeEmoji()){
                     await confirmMessage.reply('Der Vorgang wurde erfolgreich abgebrochen!').then(() => {
                         let date = new Date().toLocaleString();
-                        console.log(`Der manuelle Anmeldeprozess wurde gestartet und abgebrochen -- ${date}`)
+                        console.log(`anmelden1 wurde gestartet und abgebrochen -- ${date}`)
                     });
                     await confirmMessage.delete();
                 } else {
                     await confirmMessage.reply('Es wurde mit dem falschen Emoji reagiert').then(() => {
                         let date = new Date().toLocaleString();
-                        console.log(`Der manuelle Abmeldeprozess wurde gestartet und es wurde mit dem falschen Emoji reagiert -- ${date}`)
+                        console.log(`anmelden1 wurde gestartet und es wurde mit dem falschen Emoji reagiert -- ${date}`)
                         })
                     await reaction.users.remove(user.id);
                 }

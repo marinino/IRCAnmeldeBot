@@ -21,11 +21,13 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
-            interaction.reply('Permission denied')
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+            interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
-            console.log('all good')
+            var date = new Date().toLocaleString()
+            console.log(`Der startonce1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         // Adman, Chris
@@ -70,19 +72,16 @@ module.exports = {
                                 seasonStartMinutesOfDayStart, seasonStartSecondsOfDayStart);
         let endDate = new Date(new Date().getFullYear(), seasonStartMonthEnd - 1, seasonStartDayofMonthEnd, seasonStartHourOfDayEnd, 
                                 seasonStartMinutesOfDayEnd, seasonStartSecondsOfDayEnd);
-        console.log(endDate - startDate)
         
         try{
             cron.schedule(`${seasonStartSecondsOfDayStart} ${seasonStartMinutesOfDayStart} ${seasonStartHourOfDayStart} ${seasonStartDayofMonthStart} ${seasonStartMonthStart} *`, () => {
-                console.log(`hz`)
                 if(!(CurrentSeason.seasonData.getSeasonActiveLiga1())){
                     CurrentSeason.seasonData.setSeasonActiveLiga1(true);
                 }
-                console.log(CurrentSeason.seasonData)
                 CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, endDate - startDate)
             })
         }catch{
-            console.log(`dick`)
+            console.log(`Seasonstart konnte nicht durchgeführt werden`)
         }
 
     }  

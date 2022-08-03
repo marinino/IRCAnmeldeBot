@@ -15,6 +15,7 @@ class Season {
         this.stammfahrerRolleIDLiga2 = '947229969686335535';
         this.stammfahrerRolleIDLiga3 = '947229969686335534';
         this.rennleiterRolleID = '947229969711521867';
+        this.ligaleiterRolleID = '736929944646713355';
         this.infoChannelIDLiga1 = '947229976997007383';
         this.infoChannelIDLiga2 = '947229977248690210';
         this.infoChannelIDLiga3 = '947229977567428631';
@@ -360,6 +361,10 @@ class Season {
 
     getRennleiterRolleID(){
         return this.rennleiterRolleID
+    }
+
+    getLigaleiterRolleID(){
+        return this.ligaleiterRolleID
     }
 
     getCommandChannelID(){

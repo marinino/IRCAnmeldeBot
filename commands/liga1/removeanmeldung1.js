@@ -12,22 +12,27 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
-            interaction.reply('Permission denied')
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+            interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
-            console.log('all good')
+            var date = new Date().toLocaleString()
+            console.log(`Der removeanmeldung1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         const userToRemoveSubIn = interaction.options.getUser('fahrer');
-        console.log(client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(userToRemoveSubIn.id))
 
         if(!(CurrentSeason.seasonData.getSubInDriversPerCommandLiga1().includes(userToRemoveSubIn.id))){
             interaction.reply('Fahrer wurde nicht per Command angemeldet');
+            var date = new Date().toLocaleString()
+            console.log(`${userToRemoveSubIn.username} wurde vorher nicht per Command angemeldet in Liga 1 -- ${date}`)
             return
         } else {
             if(!(client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(userToRemoveSubIn.id).roles.cache.has(CurrentSeason.seasonData.getErsatzfahrerRolleIDLiga1()))){
                 interaction.reply('Fahrer hat die Ersatzfahrerrolle nicht');
+                var date = new Date().toLocaleString()
+                console.log(`${userToRemoveSubIn.username} hat die Ersatzfahrer Rolle Liga 1 nicht -- ${date}`)
                 return
             }
             await interaction.reply(`Bei ${userToRemoveSubIn.username} wird die Anmeldung zurück genommen `)
@@ -71,17 +76,19 @@ module.exports = {
                         console.log(`Die Anmeldung per Command von Fahrer ${userToRemoveSubIn.username} sollte zurückgenommen werden, allerdings `+
                                     `war der Fahrer weder im Lineup noch in auf der Warteliste in ${CurrentSeason.seasonData.getLigatitel()} -- ${date}`);
                     }
+                    let date = new Date().toLocaleString();
+                    console.log(`removeanmeldung1 wurde gestartet und erfolgreich durchgeführt für ${userToRemoveSubIn.username} -- ${date}`)
                     await confirmMessage.delete();
                 } else if(reaction.emoji.name == CurrentSeason.seasonData.getAbmeldeEmoji()){
                     await confirmMessage.delete();
                     await interaction.channel.send(`Der Vorgang wurde erfolgreich abgebrochen`).then(() => {
                         let date = new Date().toLocaleString();
-                        console.log(`Der manuelle Anmeldeentfernungsprozess wurde gestartet und abgebrochen ${CurrentSeason.seasonData.getLigatitel()} -- ${date}`)
+                        console.log(`removeanmeldung1 wurde gestartet und abgebrochen -- ${date}`)
                     });
                 } else {
                     confirmMessage.reply('Es wurde mit dem falschen Emoji reagiert').then(() => {
                       let date = new Date().toLocaleString();
-                      console.log(`Der manuelle Anmeldeprozess wurde gestartet aber es wurde mit dem falschen Emoji `+
+                      console.log(`removeanmeldung1 wurde gestartet aber es wurde mit dem falschen Emoji `+
                                     `reagiert in ${CurrentSeason.seasonData.getLigatitel()} -- ${date}`)
                       reaction.users.remove(user.id);
                     })

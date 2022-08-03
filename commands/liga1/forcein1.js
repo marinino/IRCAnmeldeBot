@@ -16,11 +16,13 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
-            interaction.reply('Permission denied')
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+            interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
-            console.log('all good')
+            var date = new Date().toLocaleString()
+            console.log(`Der forcein1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         interaction.reply(`Ersetzten wurde gestartet`);
@@ -55,11 +57,15 @@ module.exports = {
 
         if(!(driverIn.roles.cache.has(CurrentSeason.seasonData.getErsatzfahrerRolleIDLiga1()))){
             interaction.channel.send(`Fahrer braucht Ersatzfahrerrolle von Liga 1`);
+            var date = new Date().toLocaleString()
+            console.log(`${driverInUser.username} hat nicht die Ersatzfahrerolle für Liga 1 -- ${date}`)
             return;
         }
 
         if(tempLineup.get(teamRole.name)[0] != 'entfernt' && tempLineup.get(teamRole.name)[1] != 'entfernt'){
             interaction.channel.send(`Falsches Team wurde übergeben`);
+            var date = new Date().toLocaleString()
+            console.log(`${teamRole.name} hat kein entferntes Cockpit in Liga 1 -- ${date}`)
             return;
         }
 

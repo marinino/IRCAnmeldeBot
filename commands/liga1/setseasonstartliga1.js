@@ -5,7 +5,7 @@ const cron = require('node-cron');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('setseasonstartliga1')
-        .setDescription('Sets the start of a new Season')
+        .setDescription('Setzt die Startzeit der wöchentlichen Anmeldung für die Liga')
         .addStringOption(option => 
             option.setName('starttime')
                 .setDescription('Startzeit angeben im Format TT.MM HH:MM:SS')
@@ -13,11 +13,13 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
-            interaction.reply('Permission denied')
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+            interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
-            console.log('all good')
+            var date = new Date().toLocaleString()
+            console.log(`Der startseasonliga1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         // Adman, Chris
@@ -55,20 +57,17 @@ module.exports = {
                 if(CurrentSeason.seasonData.getSeasonCalendarLiga1().length > 0){
                     CurrentSeason.seasonData.setSeasonActiveLiga1(true);
                     CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 180000);
-                    console.log(`Rennen 1`)
                 }
-                var i = 1
                 let startLoop = setInterval(async function(){
                     CurrentSeason.seasonData.setStartLoopLiga1(startLoop);
                     if(CurrentSeason.seasonData.getSeasonCalendarLiga1().length > 0){
                         if(CurrentSeason.seasonData.getSeasonActiveLiga1() == true){
                             CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 180000);
-                            i++
-                            console.log(`Rennen ${i}`)
                             CurrentSeason.seasonData.getSeasonCalendarLiga1().forEach(element => (console.log(element)))
                             CurrentSeason.seasonData.getSeasonCalendarRacesDoneLiga1().forEach(element => (console.log(element)))
                         }else{
-                            console.log(`Pausiert oder zu Ende`)
+                            var date = new Date().toLocaleString()
+                            console.log(`Der Ligabetrieb in Liga 1 ist Pausiert oder zu Ende -- ${date}`)
                         }
                     
                     }else{
@@ -77,14 +76,14 @@ module.exports = {
                         CurrentSeason.seasonData.setSeasonActiveLiga1(false);
                         CurrentSeason.seasonData.setSeasonCalendarLiga1(new Array());
                         CurrentSeason.seasonData.setSeasonCalendarRacesDoneLiga1(new Array());
-                        console.log(`Die Season in ${CurrentSeason.seasonData.getLigatitel()} wurde beendet`);
+                        console.log(`Die Season in Liga 1 wurde beendet`);
                     }
                     
                 }  , 190000)
                 
             })
         }catch{
-            console.log(`dick`)
+            console.log(`Seasonstart konnte nicht durchgeführt werden`)
         }
     }  
 }

@@ -13,19 +13,19 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
-            interaction.reply('Permission denied')
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+            interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
-            console.log('all good')
+            var date = new Date().toLocaleString()
+            console.log(`Der forceremove1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         interaction.reply(`Entfernung wurde gestartet`);
 
         const roleGiven = interaction.options.getRole('role');
-        console.log(roleGiven)
         const roleName = roleGiven.name
-        console.log(roleName)
         // Get Array of regular drivers
         let tempTeamDrivers = new Array()
         if(roleName == `Mercedes`){
@@ -49,12 +49,11 @@ module.exports = {
         } else if(roleName == `Haas`){
             tempTeamDrivers = CurrentSeason.seasonData.getHaasDriversLiga1();
         }
-        console.log(tempTeamDrivers)
 
         var tempLineup = CurrentSeason.seasonData.getCurrentLineupLiga1();
 
         var forceRemoveDriverEmbed = new MessageEmbed()
-            .setColor('#66ff99')
+            .setColor('#ff7272')
             .setTitle('Bitte wähle den Fahrer aus')
             .setDescription(`Du hast Team <@&${roleGiven.id}> gewählt. Welchen Fahrer willst du entfernen`)
             .addFields(
@@ -101,7 +100,7 @@ module.exports = {
                 await CurrentSeason.methodStorage.printLineup(client, CurrentSeason.seasonData);
 
                 var futureRoleEmbed = new MessageEmbed()
-                    .setColor('#fd5100')
+                    .setColor('#ff7272')
                     .setTitle('Bitte wähle den Fahrer aus')
                     .setDescription(`Du hast Fahrer <@${driverToRemove}> von Team <@&${roleGiven.id}> gewählt. Was macht der Fahrer in der Zukunft?`)
                     .addFields(
@@ -272,7 +271,7 @@ module.exports = {
                 await CurrentSeason.methodStorage.printLineup(client, CurrentSeason.seasonData);
 
                 var futureRoleEmbed = new MessageEmbed()
-                    .setColor('#fd5100')
+                    .setColor('#ff7272')
                     .setTitle('Bitte wähle den Fahrer aus')
                     .setDescription(`Du hast Fahrer <@${driverToRemove}> von Team <@&${roleGiven.id}> gewählt. Was macht der Fahrer in der Zukunft?`)
                     .addFields(

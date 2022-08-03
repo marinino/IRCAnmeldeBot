@@ -58,6 +58,10 @@ module.exports = {
         .setDescription('Gibt Kalender aus!'),
         
     async execute(client, interaction, command){
+
+        var date = new Date().toLocaleString()
+        console.log(`printcalendar1 wurde verwendet -- ${date}`)
+
         printCalendar(interaction);
     }  
 }

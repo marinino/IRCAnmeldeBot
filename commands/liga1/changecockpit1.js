@@ -17,11 +17,13 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
-            interaction.reply('Permission denied')
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+            interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
-            console.log('all good')
+            var date = new Date().toLocaleString()
+            console.log(`Der changecockpit1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         const driverIn = interaction.options.getUser('driver');
@@ -103,14 +105,15 @@ module.exports = {
                         CurrentSeason.seasonData.setWithdrawnDriversLiga1(tempWithdrawnDrivers);
 
                         let dateRemove = new Date().toLocaleString();
-                        console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                        console.log(`changecockpit1 wurde verwendet und der Fahrer` +
+                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${dateRemove}`);
                     }
 
                     tempSubInPerCmd.push(driverIn.id)
                     CurrentSeason.seasonData.setSubInDriversPerCommandLiga1(tempSubInPerCmd);
 
                     let dateIn = new Date().toLocaleString();
-                    console.log(`${driverIn.username} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+                    console.log(`changecockpit1 wurde verwendet und der Fahrer ${driverIn.username} wurde erfolgreich ins Lineup genommen -- ${dateIn}`);
 
                     if(tempSubPersonList.includes(driverIn.id)){
                         tempSubPersonList.splice(tempSubPersonList.indexOf(driverIn.id), 1)
@@ -161,13 +164,13 @@ module.exports = {
                             client.guilds.cache.get(discordID).channels.cache.get(logChannelID).send({ embeds : [clearCockpitRemoveEmbed]});
                         });
 
-                        console.log('Hr')
-                        console.log(tempWithdrawnDrivers)
+
                         tempWithdrawnDrivers.push(driverOutID);
                         CurrentSeason.seasonData.setWithdrawnDriversLiga1(tempWithdrawnDrivers);
 
                         let dateRemove = new Date().toLocaleString();
-                        console.log(`${driverOutObject.name} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                        console.log(`changecockpit1 wurde verwendet und der Fahrer` +
+                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${dateRemove}`);
 
                         tempFreeCars.push(teamObject.id);         
                         
@@ -211,14 +214,15 @@ module.exports = {
                         CurrentSeason.seasonData.setWithdrawnDriversLiga1(tempWithdrawnDrivers);
 
                         let dateRemove = new Date().toLocaleString();
-                        console.log(`${preCmdDriver} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                        console.log(`changecockpit1 wurde verwendet und der Fahrer` +
+                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${dateRemove}`);
                     }
 
                     tempSubInPerCmd.push(driverIn.id)
                     CurrentSeason.seasonData.setSubInDriversPerCommandLiga1(tempSubInPerCmd);
 
                     let dateIn = new Date().toLocaleString();
-                    console.log(`${driverIn.username} wurde erfolgreich ins Lineup genommen per clearCockpit-Befehl -- ${dateIn}`);
+                    console.log(`changecockpit1 wurde verwendet und der Fahrer ${driverIn.username} wurde erfolgreich ins Lineup genommen -- ${dateIn}`);
 
                     if(tempSubPersonList.includes(driverIn.id)){
                         tempSubPersonList.splice(tempSubPersonList.indexOf(driverIn.id), 1)
@@ -274,7 +278,8 @@ module.exports = {
                         CurrentSeason.seasonData.setWithdrawnDriversLiga1(tempWithdrawnDrivers);
 
                         let dateRemove = new Date().toLocaleString();
-                        console.log(`${driverOutObject.name} wurde erfolgreich aus Lineup genommen per clearCockpit-Befehl -- ${dateRemove}`);
+                        console.log(`changecockpit1 wurde verwendet und der Fahrer` +
+                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${dateRemove}`);
 
                         tempFreeCars.push(teamObject.id);
                         if(tempSubInPerCmd.includes(driverOutID)){

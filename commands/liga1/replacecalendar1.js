@@ -37,7 +37,7 @@ async function printCalendar(interaction){
         message.reply('Versuche den Command später nochmal')
     }else{
         const calendarEmbed = new MessageEmbed()
-        .setColor('YELLOW')
+        .setColor('#b1fe8c')
         .setTitle(`Kalender`)
         .addFields(
             {name: 'Zukünftige Rennen', value: `${stringFutureRaces}`, inline: true},
@@ -67,11 +67,13 @@ module.exports = {
        
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID())){
-            interaction.reply('Permission denied');
+        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+            interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
-            console.log('all good');
+            var date = new Date().toLocaleString()
+            console.log(`Der replacecalendar1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         const eventIn = interaction.options.getString('trackin');
