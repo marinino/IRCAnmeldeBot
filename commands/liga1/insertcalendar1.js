@@ -37,7 +37,7 @@ async function printCalendar(interaction){
         message.reply('Versuche den Command später nochmal')
     }else{
         const calendarEmbed = new MessageEmbed()
-        .setColor('YELLOW')
+        .setColor('#b1fe8c')
         .setTitle(`Kalender`)
         .addFields(
             {name: 'Zukünftige Rennen', value: `${stringFutureRaces}`, inline: true},
