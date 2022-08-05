@@ -1020,44 +1020,78 @@ class MethodClass{
     }
 
     async initVariables(currentRaceLocation, seasonData){
-        if(seasonData.getLigatitel() == `Liga 1`){
-            await seasonData.setSubPersonListLiga1(new Array());
-            await seasonData.setsubPersonListReinstatedDriversLiga1(new Array());
-            await seasonData.setFreeCarsLiga1(new Array());
-            await seasonData.setWithdrawnDriversLiga1(new Array());
-            await seasonData.setWithdrawnDriversPerCommandLiga1(new Array());
-            await seasonData.setReactedToSignOutLiga1(new Map());
-            await seasonData.setReactedToSubInLiga1(new Map());
-            await seasonData.setSubInDriversPerCommandLiga1(new Array());
-            await seasonData.setLineupMsgLiga1(null);
-            await seasonData.setAnmeldungActiveLiga1(true);
-            await seasonData.setCurrentRaceLocationLiga1(currentRaceLocation);
-            console.log(seasonData.getSubPersonListLiga1() + ` SubPersonList`)
-            console.log(seasonData.getSubInDriversPerCommandLiga1() + ' SubDriverInPerCmd')
-        } else if(seasonData.getLigatitel() == `Liga 2`){
-            await seasonData.setSubPersonListLiga2(new Array());
-            await seasonData.setsubPersonListReinstatedDriversLiga2(new Array());
-            await seasonData.setFreeCarsLiga2(new Array());
-            await seasonData.setWithdrawnDriversLiga2(new Array());
-            await seasonData.setWithdrawnDriversPerCommandLiga2(new Array());
-            await seasonData.setSubInDriversPerCommandLiga2(new Array());
-            await seasonData.setReactedToSignOutLiga2(new Map());
-            await seasonData.setReactedToSubInLiga2(new Map());
-            await seasonData.setLineupMsgLiga2(null);
-            await seasonData.setAnmeldungActiveLiga2(true);
-            await seasonData.setCurrentRaceLocationLiga2(currentRaceLocation);
-        } else if(seasonData.getLigatitel() == `Liga 3`){
-            await seasonData.setSubPersonListLiga3(new Array());
-            await seasonData.setsubPersonListReinstatedDriversLiga3(new Array());
-            await seasonData.setFreeCarsLiga3(new Array());
-            await seasonData.setWithdrawnDriversLiga3(new Array());
-            await seasonData.setWithdrawnDriversPerCommandLiga3(new Array());
-            await seasonData.setSubInDriversPerCommandLiga3(new Array());
-            await seasonData.setReactedToSignOutLiga3(new Map());
-            await seasonData.setReactedToSubInLiga3(new Map());
-            await seasonData.setLineupMsgLiga3(null);
-            await seasonData.setAnmeldungActiveLiga3(true);
-            await seasonData.setCurrentRaceLocationLiga3(currentRaceLocation);
+        if(seasonData.getLigatitel() == `Liga SO 1`){
+            await seasonData.setSubPersonListLigaSO1(new Array());
+            await seasonData.setsubPersonListReinstatedDriversLigaSO1(new Array());
+            await seasonData.setFreeCarsLigaSO1(new Array());
+            await seasonData.setWithdrawnDriversLigaSO1(new Array());
+            await seasonData.setWithdrawnDriversPerCommandLigaSO1(new Array());
+            await seasonData.setReactedToSignOutLigaSO1(new Map());
+            await seasonData.setReactedToSubInLigaSO1(new Map());
+            await seasonData.setSubInDriversPerCommandLigaSO1(new Array());
+            await seasonData.setLineupMsgLigaSO1(null);
+            await seasonData.setAnmeldungActiveLigaSO1(true);
+            await seasonData.setCurrentRaceLocationLigaSO1(currentRaceLocation);
+        } else if(seasonData.getLigatitel() == `Liga SO 2`){
+            await seasonData.setSubPersonListLigaSO2(new Array());
+            await seasonData.setsubPersonListReinstatedDriversLigaSO2(new Array());
+            await seasonData.setFreeCarsLigaSO2(new Array());
+            await seasonData.setWithdrawnDriversLigaSO2(new Array());
+            await seasonData.setWithdrawnDriversPerCommandLigaSO2(new Array());
+            await seasonData.setSubInDriversPerCommandLigaSO2(new Array());
+            await seasonData.setReactedToSignOutLigaSO2(new Map());
+            await seasonData.setReactedToSubInLigaSO2(new Map());
+            await seasonData.setLineupMsgLigaSO2(null);
+            await seasonData.setAnmeldungActiveLigaSO2(true);
+            await seasonData.setCurrentRaceLocationLigaSO2(currentRaceLocation);
+        } else if(seasonData.getLigatitel() == `Liga SA 1`){
+            await seasonData.setSubPersonListLigaSA1(new Array());
+            await seasonData.setsubPersonListReinstatedDriversLigaSA1(new Array());
+            await seasonData.setFreeCarsLigaSA1(new Array());
+            await seasonData.setWithdrawnDriversLigaSA1(new Array());
+            await seasonData.setWithdrawnDriversPerCommandLigaSA1(new Array());
+            await seasonData.setSubInDriversPerCommandLigaSA1(new Array());
+            await seasonData.setReactedToSignOutLigaSA1(new Map());
+            await seasonData.setReactedToSubInLigaSA1(new Map());
+            await seasonData.setLineupMsgLigaSA1(null);
+            await seasonData.setAnmeldungActiveLigaSA1(true);
+            await seasonData.setCurrentRaceLocationLigaSA1(currentRaceLocation);
+        } else if(seasonData.getLigatitel() == `Liga SA 2`){
+            await seasonData.setSubPersonListLigaSA2(new Array());
+            await seasonData.setsubPersonListReinstatedDriversLigaSA2(new Array());
+            await seasonData.setFreeCarsLigaSA2(new Array());
+            await seasonData.setWithdrawnDriversLigaSA2(new Array());
+            await seasonData.setWithdrawnDriversPerCommandLigaSA2(new Array());
+            await seasonData.setReactedToSignOutLigaSA2(new Map());
+            await seasonData.setReactedToSubInLigaSA2(new Map());
+            await seasonData.setSubInDriversPerCommandLigaSA2(new Array());
+            await seasonData.setLineupMsgLigaSA2(null);
+            await seasonData.setAnmeldungActiveLigaSA2(true);
+            await seasonData.setCurrentRaceLocationLigaSA2(currentRaceLocation);
+        } else if(seasonData.getLigatitel() == `Liga FR`){
+            await seasonData.setSubPersonListLigaFR(new Array());
+            await seasonData.setsubPersonListReinstatedDriversLigaFR(new Array());
+            await seasonData.setFreeCarsLigaFR(new Array());
+            await seasonData.setWithdrawnDriversLigaFR(new Array());
+            await seasonData.setWithdrawnDriversPerCommandLigaFR(new Array());
+            await seasonData.setSubInDriversPerCommandLigaFR(new Array());
+            await seasonData.setReactedToSignOutLigaFR(new Map());
+            await seasonData.setReactedToSubInLigaFR(new Map());
+            await seasonData.setLineupMsgLigaFR(null);
+            await seasonData.setAnmeldungActiveLigaFR(true);
+            await seasonData.setCurrentRaceLocationLigaFR(currentRaceLocation);
+        } else if(seasonData.getLigatitel() == `Liga Origin`){
+            await seasonData.setSubPersonListLigaOrigin(new Array());
+            await seasonData.setsubPersonListReinstatedDriversLigaOrigin(new Array());
+            await seasonData.setFreeCarsLigaOrigin(new Array());
+            await seasonData.setWithdrawnDriversLigaOrigin(new Array());
+            await seasonData.setWithdrawnDriversPerCommandLigaOrigin(new Array());
+            await seasonData.setSubInDriversPerCommandLigaOrigin(new Array());
+            await seasonData.setReactedToSignOutLigaOrigin(new Map());
+            await seasonData.setReactedToSubInLigaOrigin(new Map());
+            await seasonData.setLineupMsgLigaOrigin(null);
+            await seasonData.setAnmeldungActiveLigaOrigin(true);
+            await seasonData.setCurrentRaceLocationLigaOrigin(currentRaceLocation);
         }
     }
 
@@ -1065,17 +1099,26 @@ class MethodClass{
         //Gets all the information
         let anmeldeChannelID = null;
         let abmeldeChannelID = null;
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga1();
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga2();
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga3();
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO1();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO2();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA1();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA2();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaOrigin();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaOrigin();
         }
-        console.log(anmeldeChannelID)
+    
         await client.channels.cache.get(anmeldeChannelID).bulkDelete(100).then(() => {
             let date = new Date().toLocaleString();
             console.log(`Der Anmelde-Channel in ${seasonData.getLigatitel()} wurde gecleart -- ${date}`)
@@ -1091,68 +1134,103 @@ class MethodClass{
         let anmeldeChannelID = null;
         let ersatzfahrerRolleID = null;
         let currentRaceLocation = null;
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga1();
-            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLiga1();
-            currentRaceLocation = seasonData.getCurrentRaceLocationLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga2();
-            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLiga2();
-            currentRaceLocation = seasonData.getCurrentRaceLocationLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga3();
-            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLiga3();
-            currentRaceLocation = seasonData.getCurrentRaceLocationLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO1();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaSO1();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO2();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaSO2();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA1();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaSA1();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA2();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaSA2();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaFR();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaOrigin();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaOrigin();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaOrigin();
         }
-        console.log(anmeldeChannelID + ` HHHHHHHHHHHHHHHHHHHHHHHH`)
         await client.channels.cache.get(anmeldeChannelID).send(`<@&${ersatzfahrerRolleID}> die Anmeldung für das ` + 
                                                               `Ligarennen in ${currentRaceLocation} ist hiermit eröffnet!`).then(() => {
             let date = new Date().toLocaleString();
-            console.log(`Die Anmeldung für Liga 2 in ${currentRaceLocation} wurde eröffnet. -- ${date}`);
+            console.log(`Die Anmeldung für ${seasonData.getLigatitel()} in ${currentRaceLocation} wurde eröffnet. -- ${date}`);
         });
         // Message for List of waiting drivers
         await client.channels.cache.get(anmeldeChannelID).send(`Warteliste:`).then((msg) => {
-            if(seasonData.getLigatitel() == `Liga 1`){
-                seasonData.setWaitlistMsgIDLiga1(msg.id);
-            } else if(seasonData.getLigatitel() == `Liga 2`){
-                seasonData.setWaitlistMsgIDLiga2(msg.id);
-            } else if(seasonData.getLigatitel() == `Liga 3`){
-                seasonData.setWaitlistMsgIDLiga3(msg.id);
+            if(seasonData.getLigatitel() == `Liga SO 1`){
+                seasonData.setWaitlistMsgIDLigaSO1(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga SO 2`){
+                seasonData.setWaitlistMsgIDLigaSO2(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga SA 1`){
+                seasonData.setWaitlistMsgIDLigaSA1(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga SA 2`){
+                seasonData.setWaitlistMsgIDLigaSA2(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga FR`){
+                seasonData.setWaitlistMsgIDLigaFR(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga Origin`){
+                seasonData.setWaitlistMsgIDLigaOrigin(msg.id);
             }
         });            
         // Message for List of free cars
         await client.channels.cache.get(anmeldeChannelID).send(`Freie Autos:`).then((msg) => {
-            if(seasonData.getLigatitel() == `Liga 1`){
-                seasonData.setFreeCarMsgIDLiga1(msg.id);
-            } else if(seasonData.getLigatitel() == `Liga 2`){
-                seasonData.setFreeCarMsgIDLiga2(msg.id);
-            } else if(seasonData.getLigatitel() == `Liga 3`){
-                seasonData.setFreeCarMsgIDLiga3(msg.id);
+            if(seasonData.getLigatitel() == `Liga SO 1`){
+                seasonData.setFreeCarMsgIDLigaSO1(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga SO 2`){
+                seasonData.setFreeCarMsgIDLigaSO2(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga SA 1`){
+                seasonData.setFreeCarMsgIDLigaSA1(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga SA 2`){
+                seasonData.setFreeCarMsgIDLigaSA2(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga FR`){
+                seasonData.setFreeCarMsgIDLigaFR(msg.id);
+            } else if(seasonData.getLigatitel() == `Liga Origin`){
+                seasonData.setFreeCarMsgIDLigaOrigin(msg.id);
             }
         })    
         await this.printLineup(client, seasonData);
         let date = new Date().toLocaleString();
-        console.log(`Das Standard Lineup wurde gesendet -- ${date}`);
+        console.log(`Das Standard Lineup wurde gesendet in ${seasonData.getLigatitel()} -- ${date}`);
     }
 
     async subDriverIn(client, driverObject, seasonData){     
         let anmeldeChannelID = null;     
         let subPersonList = new Array();
         let withdrawnDrivers = new Array();
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga1();
-            subPersonList = seasonData.getSubPersonListLiga1();
-            withdrawnDrivers = seasonData.getWithdrawnDriversLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga2();
-            subPersonList = seasonData.getSubPersonListLiga2();
-            withdrawnDrivers = seasonData.getWithdrawnDriversLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga3();//
-            subPersonList = seasonData.getSubPersonListLiga3();//
-            withdrawnDrivers = seasonData.getWithdrawnDriversLiga3();//
-            
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO1();
+            subPersonList = seasonData.getSubPersonListLigaSO1();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO2();
+            subPersonList = seasonData.getSubPersonListLigaSO2();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA1();//
+            subPersonList = seasonData.getSubPersonListLigaSA1();//
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSA1();//
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA2();
+            subPersonList = seasonData.getSubPersonListLigaSA2();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+            subPersonList = seasonData.getSubPersonListLigaFR();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaOrigin();//
+            subPersonList = seasonData.getSubPersonListLigaOrigin();//
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaOrigin();//
         }
+
         if(driverObject.id){
             subPersonList.push(driverObject.id);
         }else{
@@ -1172,38 +1250,57 @@ class MethodClass{
             client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getLogChannelID()).send({ embeds : [subInEmbed]});
         });
         let date = new Date().toLocaleString();
-        console.log(`${driverObject.username} hat sich erfolgreich angemeldet -- ${date}`);
-        await this.checkSubCanBeMade(client, false, null, null, null, seasonData);
+        console.log(`${driverObject.username} hat sich erfolgreich angemeldet in ${seasonData.getLigatitel()} -- ${date}`);
+        
         //Make changes global
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            await seasonData.setSubPersonListLiga1(subPersonList);
-            await seasonData.setWithdrawnDriversLiga1(withdrawnDrivers);
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            await seasonData.setSubPersonListLiga2(subPersonList);
-            await seasonData.setWithdrawnDriversLiga2(withdrawnDrivers);      
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            await seasonData.setSubPersonListLiga3(subPersonList);
-            await seasonData.setWithdrawnDriversLiga3(withdrawnDrivers);       
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            await seasonData.setSubPersonListLigaSO1(subPersonList);
+            await seasonData.setWithdrawnDriversLigaSO1(withdrawnDrivers);
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            await seasonData.setSubPersonListLigaSO2(subPersonList);
+            await seasonData.setWithdrawnDriversLigaSO2(withdrawnDrivers);      
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            await seasonData.setSubPersonListLigaSA1(subPersonList);
+            await seasonData.setWithdrawnDriversLigaSA1(withdrawnDrivers);       
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            await seasonData.setSubPersonListLigaSA2(subPersonList);
+            await seasonData.setWithdrawnDriversLigaSA2(withdrawnDrivers);
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            await seasonData.setSubPersonListLigaFR(subPersonList);
+            await seasonData.setWithdrawnDriversLigaFR(withdrawnDrivers);      
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            await seasonData.setSubPersonListLigaOrigin(subPersonList);
+            await seasonData.setWithdrawnDriversLigaOrigin(withdrawnDrivers);       
         }
+
+        await this.checkSubCanBeMade(client, false, null, null, null, seasonData);
     }
 
     async regularDriverWithdraw(client, driverObject, seasonData){
         //Get current info
         let abmeldeChannelID = null;
         let withdrawnDrivers = new Array();
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga1();
-            withdrawnDrivers = seasonData.getWithdrawnDriversLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga2();   
-            withdrawnDrivers = seasonData.getWithdrawnDriversLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga3();
-            withdrawnDrivers = seasonData.getWithdrawnDriversLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSO1();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSO2();   
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSA1();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSA2();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaFR();   
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaOrigin();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaOrigin();
         }
         //Do stuff
         withdrawnDrivers.push(driverObject.id);
-        console.log(driverObject)
         await this.addCarOfWithdrawnDriverToFreeCars(driverObject, seasonData, client);
         await this.removeFromCurrentLineup(client, driverObject, null, seasonData);
         let driverWithdrawnEmbed = new MessageEmbed()
@@ -1216,31 +1313,48 @@ class MethodClass{
             client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getLogChannelID()).send({ embeds : [driverWithdrawnEmbed]});
         });
         let date = new Date().toLocaleString();
-        console.log(`${driverObject.username} hat sich erfolgreich abgemeldet -- ${date}`); 
-        await this.checkSubCanBeMade(client, false, null, null, null, seasonData);
+        console.log(`${driverObject.username} hat sich erfolgreich abgemeldet in ${seasonData.getLigatitel()} -- ${date}`); 
+        
         //Make changes global
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            await seasonData.setWithdrawnDriversLiga1(withdrawnDrivers);
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            await seasonData.setWithdrawnDriversLiga2(withdrawnDrivers);      
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            await seasonData.setWithdrawnDriversLiga3(withdrawnDrivers);       
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            await seasonData.setWithdrawnDriversLigaSO1(withdrawnDrivers);
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            await seasonData.setWithdrawnDriversLigaSO2(withdrawnDrivers);      
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            await seasonData.setWithdrawnDriversLigaSA1(withdrawnDrivers);       
+        } else  if(seasonData.getLigatitel() == 'Liga SA 2'){
+            await seasonData.setWithdrawnDriversLigaSA2(withdrawnDrivers);
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            await seasonData.setWithdrawnDriversLigaFR(withdrawnDrivers);      
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            await seasonData.setWithdrawnDriversLigaOrigin(withdrawnDrivers);       
         }
+
+        await this.checkSubCanBeMade(client, false, null, null, null, seasonData);
     }
 
     async subDriverRemoveSubInOnWaitlist(client, driverObject, seasonData){
         //Get current info
         let anmeldeChannelID = null;//
         let subPersonList = new Array();//
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga1();
-            subPersonList = seasonData.getSubPersonListLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga2();
-            subPersonList = seasonData.getSubPersonListLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga3();
-            subPersonList = seasonData.getSubPersonListLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO1();
+            subPersonList = seasonData.getSubPersonListLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO2();
+            subPersonList = seasonData.getSubPersonListLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA1();
+            subPersonList = seasonData.getSubPersonListLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA2();
+            subPersonList = seasonData.getSubPersonListLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+            subPersonList = seasonData.getSubPersonListLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaOrigin();
+            subPersonList = seasonData.getSubPersonListLigaOrigin();
         }
         //Do stuff
         subPersonList.splice(subPersonList.indexOf(driverObject.id), 1); 
@@ -1255,30 +1369,47 @@ class MethodClass{
         });
         let date = new Date().toLocaleString();
         console.log(`${driverObject.username} wurde erfolgreich von der Warteliste entfernt in ${seasonData.getLigatitel()} -- ${date}`);
-        await this.checkSubCanBeMade(client, false, null, null, null, seasonData);
+        
         //Make changes global
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            await seasonData.setSubPersonListLiga1(subPersonList);
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            await seasonData.setSubPersonListLiga2(subPersonList);     
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            await seasonData.setSubPersonListLiga3(subPersonList);       
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            await seasonData.setSubPersonListLigaSO1(subPersonList);
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            await seasonData.setSubPersonListLigaSO2(subPersonList);     
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            await seasonData.setSubPersonListLigaSA1(subPersonList);       
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            await seasonData.setSubPersonListLigaSA2(subPersonList);
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            await seasonData.setSubPersonListLigaFR(subPersonList);     
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            await seasonData.setSubPersonListLigaOrigin(subPersonList);       
         }
+
+        await this.checkSubCanBeMade(client, false, null, null, null, seasonData);
     }
 
     async subDriverRemoveSubInInLineup(client, driverObject, seasonData){
         //Get current info
         let anmeldeChannelID = null;//
         let freeCars = new Array()//
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga1();
-            freeCars = seasonData.getFreeCarsLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga2();
-            freeCars = seasonData.getFreeCarsLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga3();
-            freeCars = seasonData.getFreeCarsLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO1();
+            freeCars = seasonData.getFreeCarsLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO2();
+            freeCars = seasonData.getFreeCarsLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA1();
+            freeCars = seasonData.getFreeCarsLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA2();
+            freeCars = seasonData.getFreeCarsLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+            freeCars = seasonData.getFreeCarsLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaOrigin();
+            freeCars = seasonData.getFreeCarsLigaOrigin();
         }
         //Do stuff
         let freeCar = await this.findCurrentCockpitOfSub(driverObject, seasonData);
@@ -1295,15 +1426,23 @@ class MethodClass{
         });
         let date = new Date().toLocaleString();
         console.log(`${driverObject.nickname} wurde erfolgreich aus Lineup genommen in ${seasonData.getLigatitel()} -- ${date}`);
-        await this.checkSubCanBeMade(client,false, null, null, null, seasonData);
+        
         //Make changes global
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            await seasonData.setFreeCarsLiga1(freeCars);
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            await seasonData.setFreeCarsLiga2(freeCars);    
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            await seasonData.setFreeCarsLiga3(freeCars);      
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            await seasonData.setFreeCarsLigaSO1(freeCars);
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            await seasonData.setFreeCarsLigaSO2(freeCars);    
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            await seasonData.setFreeCarsLigaSA1(freeCars);      
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            await seasonData.setFreeCarsLigaSA2(freeCars);
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            await seasonData.setFreeCarsLigaFR(freeCars);    
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            await seasonData.setFreeCarsLigaOrigin(freeCars);      
         }
+
+        await this.checkSubCanBeMade(client, false, null, null, null, seasonData);
     }
 
     async regularDriverRemoveWithdraw(client, driverObject, seasonData){
@@ -1311,18 +1450,30 @@ class MethodClass{
         let anmeldeChannelID = null;
         let withdrawnDrivers = new Array();
         let reinstatedDrivers = new Array();
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga1();
-            withdrawnDrivers = seasonData.getWithdrawnDriversLiga1();
-            reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga2();
-            withdrawnDrivers = seasonData.getWithdrawnDriversLiga2();
-            reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga3();
-            withdrawnDrivers = seasonData.getWithdrawnDriversLiga3();
-            reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO1();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSO1();
+            reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO2();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSO2();
+            reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA1();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSA1();
+            reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA2();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaSA2();
+            reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaFR();
+            reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaOrigin();
+            withdrawnDrivers = seasonData.getWithdrawnDriversLigaOrigin();
+            reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLigaOrigin();
         }
         //Do stuff
         reinstatedDrivers.push(driverObject.id);
@@ -1338,18 +1489,29 @@ class MethodClass{
         })
         let date = new Date().toLocaleString();
         console.log(`Die Abmeldung von ${driverObject.username} wurde erfolgreich zurückgenommen  ${seasonData.getLigatitel()} -- ${date}`);
-        await this.checkSubCanBeMade(client, false, null, null, null, seasonData);
+        
         //Make changes global
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            await seasonData.setsubPersonListReinstatedDriversLiga1(reinstatedDrivers);
-            await seasonData.setWithdrawnDriversLiga1(withdrawnDrivers);
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            await seasonData.setsubPersonListReinstatedDriversLiga2(reinstatedDrivers);
-            await seasonData.setWithdrawnDriversLiga2(withdrawnDrivers);      
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            await seasonData.setsubPersonListReinstatedDriversLiga3(reinstatedDrivers);
-            await seasonData.setWithdrawnDriversLiga3(withdrawnDrivers);   
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            await seasonData.setsubPersonListReinstatedDriversLigaSO1(reinstatedDrivers);
+            await seasonData.setWithdrawnDriversLigaSO1(withdrawnDrivers);
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            await seasonData.setsubPersonListReinstatedDriversLigaSO2(reinstatedDrivers);
+            await seasonData.setWithdrawnDriversLigaSO2(withdrawnDrivers);      
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            await seasonData.setsubPersonListReinstatedDriversLigaSA1(reinstatedDrivers);
+            await seasonData.setWithdrawnDriversLigaSA1(withdrawnDrivers);   
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            await seasonData.setsubPersonListReinstatedDriversLigaSA2(reinstatedDrivers);
+            await seasonData.setWithdrawnDriversLigaSA2(withdrawnDrivers);
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            await seasonData.setsubPersonListReinstatedDriversLigaFR(reinstatedDrivers);
+            await seasonData.setWithdrawnDriversLigaFR(withdrawnDrivers);      
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            await seasonData.setsubPersonListReinstatedDriversLigaOrigin(reinstatedDrivers);
+            await seasonData.setWithdrawnDriversLigaOrigin(withdrawnDrivers);   
         }
+
+        await this.checkSubCanBeMade(client, false, null, null, null, seasonData);
     }
 
     async sendTeams(client, seasonData){
@@ -1366,46 +1528,86 @@ class MethodClass{
         let alfaRomeoDrivers = new Array();
         let williamsDrivers = new Array();
         let haasDrivers = new Array();
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            currentRegularDriver = seasonData.getCurrentRegularDriversLiga1();
-            regularDrivers = seasonData.getRegularDriversLiga1();
-            mercedesDrivers = seasonData.getMercedesDriversLiga1();
-            redBullDrivers = seasonData.getRedBullDriversLiga1();
-            ferrariDrivers = seasonData.getFerrariDriversLiga1();
-            mcLarenDrivers = seasonData.getMcLarenDriversLiga1();
-            astonMartinDrivers = seasonData.getAstonMartinDriversLiga1();
-            alpineDrivers = seasonData.getAlpineDriversLiga1();
-            alphaTauriDrivers = seasonData.getAlphaTauriDriversLiga1();
-            alfaRomeoDrivers = seasonData.getAlfaRomeoDriversLiga1();
-            williamsDrivers = seasonData.getWilliamsDriversLiga1();
-            haasDrivers = seasonData.getHaasDriversLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            currentRegularDriver = seasonData.getCurrentRegularDriversLiga2();
-            regularDrivers = seasonData.getRegularDriversLiga2();
-            mercedesDrivers = seasonData.getMercedesDriversLiga2();
-            redBullDrivers = seasonData.getRedBullDriversLiga2();
-            ferrariDrivers = seasonData.getFerrariDriversLiga2();
-            mcLarenDrivers = seasonData.getMcLarenDriversLiga2();
-            astonMartinDrivers = seasonData.getAstonMartinDriversLiga2();
-            alpineDrivers = seasonData.getAlpineDriversLiga2();
-            alphaTauriDrivers = seasonData.getAlphaTauriDriversLiga2();
-            alfaRomeoDrivers = seasonData.getAlfaRomeoDriversLiga2();
-            williamsDrivers = seasonData.getWilliamsDriversLiga2();
-            haasDrivers = seasonData.getHaasDriversLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            currentRegularDriver = seasonData.getCurrentRegularDriversLiga3();
-            regularDrivers = seasonData.getRegularDriversLiga3();
-            mercedesDrivers = seasonData.getMercedesDriversLiga3();
-            redBullDrivers = seasonData.getRedBullDriversLiga3();
-            ferrariDrivers = seasonData.getFerrariDriversLiga3();
-            mcLarenDrivers = seasonData.getMcLarenDriversLiga3();
-            astonMartinDrivers = seasonData.getAstonMartinDriversLiga3();
-            alpineDrivers = seasonData.getAlpineDriversLiga3();
-            alphaTauriDrivers = seasonData.getAlphaTauriDriversLiga3();
-            alfaRomeoDrivers = seasonData.getAlfaRomeoDriversLiga3();
-            williamsDrivers = seasonData.getWilliamsDriversLiga3();
-            haasDrivers = seasonData.getHaasDriversLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            currentRegularDriver = seasonData.getCurrentRegularDriversLigaSO1();
+            regularDrivers = seasonData.getRegularDriversLigaSO1();
+            mercedesDrivers = seasonData.getMercedesDriversLigaSO1();
+            redBullDrivers = seasonData.getRedBullDriversLigaSO1();
+            ferrariDrivers = seasonData.getFerrariDriversLigaSO1();
+            mcLarenDrivers = seasonData.getMcLarenDriversLigaSO1();
+            astonMartinDrivers = seasonData.getAstonMartinDriversLigaSO1();
+            alpineDrivers = seasonData.getAlpineDriversLigaSO1();
+            alphaTauriDrivers = seasonData.getAlphaTauriDriversLigaSO1();
+            alfaRomeoDrivers = seasonData.getAlfaRomeoDriversLigaSO1();
+            williamsDrivers = seasonData.getWilliamsDriversLigaSO1();
+            haasDrivers = seasonData.getHaasDriversLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            currentRegularDriver = seasonData.getCurrentRegularDriversLigaSO2();
+            regularDrivers = seasonData.getRegularDriversLigaSO2();
+            mercedesDrivers = seasonData.getMercedesDriversLigaSO2();
+            redBullDrivers = seasonData.getRedBullDriversLigaSO2();
+            ferrariDrivers = seasonData.getFerrariDriversLigaSO2();
+            mcLarenDrivers = seasonData.getMcLarenDriversLigaSO2();
+            astonMartinDrivers = seasonData.getAstonMartinDriversLigaSO2();
+            alpineDrivers = seasonData.getAlpineDriversLigaSO2();
+            alphaTauriDrivers = seasonData.getAlphaTauriDriversLigaSO2();
+            alfaRomeoDrivers = seasonData.getAlfaRomeoDriversLigaSO2();
+            williamsDrivers = seasonData.getWilliamsDriversLigaSO2();
+            haasDrivers = seasonData.getHaasDriversLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            currentRegularDriver = seasonData.getCurrentRegularDriversLigaSA1();
+            regularDrivers = seasonData.getRegularDriversLigaSA1();
+            mercedesDrivers = seasonData.getMercedesDriversLigaSA1();
+            redBullDrivers = seasonData.getRedBullDriversLigaSA1();
+            ferrariDrivers = seasonData.getFerrariDriversLigaSA1();
+            mcLarenDrivers = seasonData.getMcLarenDriversLigaSA1();
+            astonMartinDrivers = seasonData.getAstonMartinDriversLigaSA1();
+            alpineDrivers = seasonData.getAlpineDriversLigaSA1();
+            alphaTauriDrivers = seasonData.getAlphaTauriDriversLigaSA1();
+            alfaRomeoDrivers = seasonData.getAlfaRomeoDriversLigaSA1();
+            williamsDrivers = seasonData.getWilliamsDriversLigaSA1();
+            haasDrivers = seasonData.getHaasDriversLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            currentRegularDriver = seasonData.getCurrentRegularDriversLigaSA2();
+            regularDrivers = seasonData.getRegularDriversLigaSA2();
+            mercedesDrivers = seasonData.getMercedesDriversLigaSA2();
+            redBullDrivers = seasonData.getRedBullDriversLigaSA2();
+            ferrariDrivers = seasonData.getFerrariDriversLigaSA2();
+            mcLarenDrivers = seasonData.getMcLarenDriversLigaSA2();
+            astonMartinDrivers = seasonData.getAstonMartinDriversLigaSA2();
+            alpineDrivers = seasonData.getAlpineDriversLigaSA2();
+            alphaTauriDrivers = seasonData.getAlphaTauriDriversLigaSA2();
+            alfaRomeoDrivers = seasonData.getAlfaRomeoDriversLigaSA2();
+            williamsDrivers = seasonData.getWilliamsDriversLigaSA2();
+            haasDrivers = seasonData.getHaasDriversLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            currentRegularDriver = seasonData.getCurrentRegularDriversLigaFR();
+            regularDrivers = seasonData.getRegularDriversLigaFR();
+            mercedesDrivers = seasonData.getMercedesDriversLigaFR();
+            redBullDrivers = seasonData.getRedBullDriversLigaFR();
+            ferrariDrivers = seasonData.getFerrariDriversLigaFR();
+            mcLarenDrivers = seasonData.getMcLarenDriversLigaFR();
+            astonMartinDrivers = seasonData.getAstonMartinDriversLigaFR();
+            alpineDrivers = seasonData.getAlpineDriversLigaFR();
+            alphaTauriDrivers = seasonData.getAlphaTauriDriversLigaFR();
+            alfaRomeoDrivers = seasonData.getAlfaRomeoDriversLigaFR();
+            williamsDrivers = seasonData.getWilliamsDriversLigaFR();
+            haasDrivers = seasonData.getHaasDriversLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            currentRegularDriver = seasonData.getCurrentRegularDriversLigaOrigin();
+            regularDrivers = seasonData.getRegularDriversLigaOrigin();
+            mercedesDrivers = seasonData.getMercedesDriversLigaOrigin();
+            redBullDrivers = seasonData.getRedBullDriversLigaOrigin();
+            ferrariDrivers = seasonData.getFerrariDriversLigaOrigin();
+            mcLarenDrivers = seasonData.getMcLarenDriversLigaOrigin();
+            astonMartinDrivers = seasonData.getAstonMartinDriversLigaOrigin();
+            alpineDrivers = seasonData.getAlpineDriversLigaOrigin();
+            alphaTauriDrivers = seasonData.getAlphaTauriDriversLigaOrigin();
+            alfaRomeoDrivers = seasonData.getAlfaRomeoDriversLigaOrigin();
+            williamsDrivers = seasonData.getWilliamsDriversLigaOrigin();
+            haasDrivers = seasonData.getHaasDriversLigaOrigin();
         }
+
         if(currentRegularDriver != null){
             await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getTeamsChannelID()).messages.fetch(currentRegularDriver).then((msg) => {
                 msg.delete();
@@ -1453,22 +1655,24 @@ class MethodClass{
     async findCurrentCockpitOfSub(driverObject, seasonData){
         //Get current info
         let currentLineup = new Array();
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            currentLineup = seasonData.getCurrentLineupLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            currentLineup = seasonData.getCurrentLineupLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            currentLineup = seasonData.getCurrentLineupLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            currentLineup = seasonData.getCurrentLineupLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            currentLineup = seasonData.getCurrentLineupLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            currentLineup = seasonData.getCurrentLineupLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            currentLineup = seasonData.getCurrentLineupLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            currentLineup = seasonData.getCurrentLineupLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            currentLineup = seasonData.getCurrentLineupLigaOrigin();
         }
 
-        console.log(`Fahrer ID ${driverObject.id}`)
-        console.log('LINEUP')
-        console.log(currentLineup)
         //Do stuff
         if(currentLineup.get('Mercedes').includes(driverObject.id)){
             return seasonData.getMercedesRolleID();
         } else if(currentLineup.get('Red Bull').includes(driverObject.id)){
-            console.log('felx hat RB')
             return seasonData.getRedBullRolleID();
         } else if(currentLineup.get('Ferrari').includes(driverObject.id)){
             return seasonData.getFerrariRolleID();
@@ -1487,19 +1691,25 @@ class MethodClass{
         } else if(currentLineup.get('Haas').includes(driverObject.id)){
             return seasonData.getHaasRolleID();
         } else {
-            console.log('WIR SIND DURCH GEFALLEN!')
+            console.log(`WIR SIND DURCH GEFALLEN! findCurrentCockpitOfSub in ${seasonData.getLigatitel()}`)
         }
     }
 
     async checkDriverInLineup(driverID, seasonData){
         //Get current info
         let currentLineup = new Array();
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            currentLineup = seasonData.getCurrentLineupLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            currentLineup = seasonData.getCurrentLineupLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            currentLineup = seasonData.getCurrentLineupLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            currentLineup = seasonData.getCurrentLineupLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            currentLineup = seasonData.getCurrentLineupLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            currentLineup = seasonData.getCurrentLineupLigaSA1();
+        } else  if(seasonData.getLigatitel() == 'Liga SA 2'){
+            currentLineup = seasonData.getCurrentLineupLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            currentLineup = seasonData.getCurrentLineupLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            currentLineup = seasonData.getCurrentLineupLigaOrigin();
         }
 
         if(currentLineup.get('Mercedes').includes(driverID)){

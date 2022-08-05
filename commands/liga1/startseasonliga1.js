@@ -69,8 +69,8 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
-            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+        if(!interaction.member.roles.cache.has(seasonData.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(seasonData.getLigaleiterRolleID())){
             interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{

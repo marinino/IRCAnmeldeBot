@@ -67,18 +67,18 @@ module.exports = {
                         console.log(CurrentSeason.seasonData.getSubInDriversPerCommandLiga1().length)
                 
                         let date = new Date().toLocaleString();
-                        console.log(`anmelden1 wurde erfolgreich mit ${userToRemove.username} durchgeführt -- ${date}`);
+                        console.log(`anmelden1 wurde erfolgreich mit ${userToSubIn.username} durchgeführt -- ${date}`);
 
                     }else if(userToSubIn &&
                         !(client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(markedUserID).roles.cache.has(CurrentSeason.seasonData.getErsatzfahrerRolleIDLiga1()))){
                         
                             let date = new Date().toLocaleString();
-                            console.log(`Es ist etwas schiefgelaufen beim anmelden1 Command. ${userToRemove.username} hat nicht die Rolle Ersatzfahrer Liga 1. -- ${date}`);
+                            console.log(`Es ist etwas schiefgelaufen beim anmelden1 Command. ${userToSubIn.username} hat nicht die Rolle Ersatzfahrer Liga 1. -- ${date}`);
                        
                     }else{
                        
                         let date = new Date().toLocaleString();
-                        console.log(`Bei anmelden1 war der userToRemove undefiniert oder null. -- ${date}`);
+                        console.log(`Bei anmelden1 war der userToSubIn undefiniert oder null. -- ${date}`);
                         
                     }
                     await confirmMessage.delete();
