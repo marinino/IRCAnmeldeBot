@@ -30,19 +30,26 @@ module.exports = {
             console.log(`Der startonceOrigin Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
-        // Adman, Chris
-        CurrentSeason.seasonData.setMercedesDriversLigaOrigin(['269499201702854667', '469926134700703748']);
-        // SHD, Brückenwasser
-        CurrentSeason.seasonData.setRedBullDriversLigaOrigin(['284981237645312000', '281829417775267840']);
-        //
-        CurrentSeason.seasonData.setFerrariDriversLigaOrigin(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setMcLarenDriversLigaOrigin(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAstonMartinDriversLigaOrigin(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlpineDriversLigaOrigin(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlphaTauriDriversLigaOrigin(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlfaRomeoDriversLigaOrigin(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setWilliamsDriversLigaOrigin(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setHaasDriversLigaOrigin(['nicht besetzt', 'nicht besetzt']);
+        // MrZOCKson, Crysii
+        CurrentSeason.seasonData.setMercedesDriversLigaOrigin(['181150006961635328', '310176925848961025']);
+        // Charizzz, talo
+        CurrentSeason.seasonData.setRedBullDriversLigaOrigin(['469926134700703748', '265537845081407489']);
+        // Noryl, WieSie
+        CurrentSeason.seasonData.setFerrariDriversLigaOrigin(['289036587159912448', '382914407153401857']);
+        // felx, John
+        CurrentSeason.seasonData.setMcLarenDriversLigaOrigin(['250274323934347264', '396155559344078849']);
+        // Broncos, Rocket
+        CurrentSeason.seasonData.setAstonMartinDriversLigaOrigin(['604645537882308609', '281100297051570177']);
+        // Bratpfanne, Giulio
+        CurrentSeason.seasonData.setAlpineDriversLigaOrigin(['640308390072942617', '266833962989518849']);
+        // Adman, Scof
+        CurrentSeason.seasonData.setAlphaTauriDriversLigaOrigin(['269499201702854667', '378256164196188160']);
+        // Lizenzinhaber, Julian223
+        CurrentSeason.seasonData.setAlfaRomeoDriversLigaOrigin(['556478238311055360', '563449483162288150']);
+        // Milleniuz, Nexoooo
+        CurrentSeason.seasonData.setWilliamsDriversLigaOrigin(['416272464012640256', '419147681659617280']);
+        // Mops, Taurice
+        CurrentSeason.seasonData.setHaasDriversLigaOrigin(['291996277556641794', '206037918647713792']);
 
         const location = interaction.options.getString('location');
         const startTime = interaction.options.getString('timestart');

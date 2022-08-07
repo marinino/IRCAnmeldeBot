@@ -34,14 +34,21 @@ module.exports = {
         CurrentSeason.seasonData.setMercedesDriversLigaSA2(['269499201702854667', '469926134700703748']);
         // SHD, Brückenwasser
         CurrentSeason.seasonData.setRedBullDriversLigaSA2(['284981237645312000', '281829417775267840']);
+        // Sushi, MORE RGB = MORE FPS
+        CurrentSeason.seasonData.setFerrariDriversLigaSA2(['571039644490268673', '693165800642576456']);
         //
-        CurrentSeason.seasonData.setFerrariDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
         CurrentSeason.seasonData.setMcLarenDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAstonMartinDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlpineDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlphaTauriDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlfaRomeoDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
+        // Tomato Hacker, Peekme
+        CurrentSeason.seasonData.setAstonMartinDriversLigaSA2(['792152769431339008', '549248953011666944']);
+        // Tim White, Danny Phantom
+        CurrentSeason.seasonData.setAlpineDriversLigaSA2(['653676539174453258', '873747625067827200']);
+        // faxbxo, MATO
+        CurrentSeason.seasonData.setAlphaTauriDriversLigaSA2(['480222830466695180', '991714043343675404']);
+        // Henri_FCB, jxstbaum
+        CurrentSeason.seasonData.setAlfaRomeoDriversLigaSA2(['617636990359306281', '771722284226445324']);
+        //
         CurrentSeason.seasonData.setWilliamsDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
+        //
         CurrentSeason.seasonData.setHaasDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
 
         const location = interaction.options.getString('location');

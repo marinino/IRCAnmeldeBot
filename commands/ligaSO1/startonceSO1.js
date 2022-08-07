@@ -30,19 +30,26 @@ module.exports = {
             console.log(`Der startonceSO1 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
-        // Adman, Chris
-        CurrentSeason.seasonData.setMercedesDriversLigaSO1(['269499201702854667', '469926134700703748']);
-        // SHD, Brückenwasser
-        CurrentSeason.seasonData.setRedBullDriversLigaSO1(['284981237645312000', '281829417775267840']);
-        //
-        CurrentSeason.seasonData.setFerrariDriversLigaSO1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setMcLarenDriversLigaSO1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAstonMartinDriversLigaSO1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlpineDriversLigaSO1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlphaTauriDriversLigaSO1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlfaRomeoDriversLigaSO1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setWilliamsDriversLigaSO1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setHaasDriversLigaSO1(['nicht besetzt', 'nicht besetzt']);
+        // Zani, xDarknight
+        CurrentSeason.seasonData.setMercedesDriversLigaSO1(['751461016583274516', '756083277512835082']);
+        // Nyrox, Sweazy
+        CurrentSeason.seasonData.setRedBullDriversLigaSO1(['336885878029025280', '307481682272059394']);
+        // k.k, Playhak
+        CurrentSeason.seasonData.setFerrariDriversLigaSO1(['688006080109740070', '299534780595175424']);
+        // Eriksen, SHDGames
+        CurrentSeason.seasonData.setMcLarenDriversLigaSO1(['263760051515293696', '284981237645312000']);
+        // Achimedes, Korky
+        CurrentSeason.seasonData.setAstonMartinDriversLigaSO1(['336841703816429570', '380076906172645390']);
+        // Sven, Die_K4ante
+        CurrentSeason.seasonData.setAlpineDriversLigaSO1(['427116609128103947', '315803566591967243']);
+        // Finn, lyrex
+        CurrentSeason.seasonData.setAlphaTauriDriversLigaSO1(['272073232893345792', '216889083463598080']);
+        // Sören_1206, Shining
+        CurrentSeason.seasonData.setAlfaRomeoDriversLigaSO1(['264706413715128322', '312983203147153418']);
+        // MRVN, Kibu
+        CurrentSeason.seasonData.setWilliamsDriversLigaSO1(['495721676848496640', '173416598101688320']);
+        // Vollkorn, Melody
+        CurrentSeason.seasonData.setHaasDriversLigaSO1(['319115003032502282', '413367477548875777']);
 
         const location = interaction.options.getString('location');
         const startTime = interaction.options.getString('timestart');

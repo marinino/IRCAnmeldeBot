@@ -50,7 +50,7 @@ module.exports = {
             tempTeamDrivers = CurrentSeason.seasonData.getHaasDriversLigaSO2();
         }
 
-        var tempLineup = CurrentSeason.seasonData.getCurrentLineupLigaSO1();
+        var tempLineup = CurrentSeason.seasonData.getCurrentLineupLigaSO2();
 
         var forceRemoveDriverEmbed = new MessageEmbed()
             .setColor('#ff7272')

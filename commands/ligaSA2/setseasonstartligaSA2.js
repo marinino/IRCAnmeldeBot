@@ -22,19 +22,26 @@ module.exports = {
             console.log(`Der startseasonligaSA2 Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
-        // Adman, Chris
-        CurrentSeason.seasonData.setMercedesDriversLigaSA2(['269499201702854667', '469926134700703748']);
-        // SHD, lyrex
-        CurrentSeason.seasonData.setRedBullDriversLigaSA2(['284981237645312000', '281829417775267840']);
-        CurrentSeason.seasonData.setFerrariDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setMcLarenDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        // Vollkorn
-        CurrentSeason.seasonData.setAstonMartinDriversLigaSA2(['319115003032502282', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlpineDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlphaTauriDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlfaRomeoDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setWilliamsDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setHaasDriversLigaSA2(['nicht besetzt', 'nicht besetzt']);
+       // Dino, Hoerke
+       CurrentSeason.seasonData.setMercedesDriversLigaSA2(['527496491414192128', '339415812165074945']);
+       // KDMNot34, Luca_YP
+       CurrentSeason.seasonData.setRedBullDriversLigaSA2(['439861415633879040', '641015329429913633']);
+       // Sushi, MORE RGB = MORE FPS
+       CurrentSeason.seasonData.setFerrariDriversLigaSA2(['571039644490268673', '693165800642576456']);
+       // Scheber, Delacium
+       CurrentSeason.seasonData.setMcLarenDriversLigaSA2(['822055711365136394', '689532105029713943']);
+       // Tomato Hacker, Peekme
+       CurrentSeason.seasonData.setAstonMartinDriversLigaSA2(['792152769431339008', '549248953011666944']);
+       // Tim White, Danny Phantom
+       CurrentSeason.seasonData.setAlpineDriversLigaSA2(['653676539174453258', '873747625067827200']);
+       // faxbxo, MATO
+       CurrentSeason.seasonData.setAlphaTauriDriversLigaSA2(['480222830466695180', '991714043343675404']);
+       // Henri_FCB, jxstbaum
+       CurrentSeason.seasonData.setAlfaRomeoDriversLigaSA2(['617636990359306281', '771722284226445324']);
+       // The_White_Epic, DaaTom
+       CurrentSeason.seasonData.setWilliamsDriversLigaSA2(['436237942214623233', '232563772626173952']);
+       // Quinkway, The Wolf
+       CurrentSeason.seasonData.setHaasDriversLigaSA2(['544005185526300672', '394987394719547442']);
 
         var seasonStartDayofMonth = null
         var seasonStartMonth = null

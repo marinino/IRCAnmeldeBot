@@ -30,19 +30,26 @@ module.exports = {
             console.log(`Der startonceFR Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
-        // Adman, Chris
-        CurrentSeason.seasonData.setMercedesDriversLigaFR(['269499201702854667', '469926134700703748']);
-        // SHD, Brückenwasser
-        CurrentSeason.seasonData.setRedBullDriversLigaFR(['284981237645312000', '281829417775267840']);
-        //
-        CurrentSeason.seasonData.setFerrariDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setMcLarenDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAstonMartinDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlpineDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlphaTauriDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlfaRomeoDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setWilliamsDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setHaasDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
+        // Martin2002, MaxPrimetime
+        CurrentSeason.seasonData.setMercedesDriversLigaFR(['268398200749031425', '533728391107575809']);
+        // Sergeant, Jules Kaiser
+        CurrentSeason.seasonData.setRedBullDriversLigaFR(['266673984601325570', '529018929008476160']);
+        // Felixx, Jan Overbeck
+        CurrentSeason.seasonData.setFerrariDriversLigaFR(['927709369431363594', '598253459216662634']);
+        // Spacelord, Feuerrabe
+        CurrentSeason.seasonData.setMcLarenDriversLigaFR(['335420562413453312', '682281837233700931']);
+        // Kesby, Robbsell
+        CurrentSeason.seasonData.setAstonMartinDriversLigaFR(['387002150569377802', '659327297819508737']);
+        // avestro, Pacman
+        CurrentSeason.seasonData.setAlpineDriversLigaFR(['671353767232274442', '284950253772341248']);
+        // Alkenvogel, Yarbay
+        CurrentSeason.seasonData.setAlphaTauriDriversLigaFR(['163331404439093248', '523553582524399672']);
+        // Andre, Felichs
+        CurrentSeason.seasonData.setAlfaRomeoDriversLigaFR(['548524356855136268', '471758946651078657']);
+        // Jojo, Pascalus
+        CurrentSeason.seasonData.setWilliamsDriversLigaFR(['695583838042325042', '254292883492831232']);
+        // Senfy, Schorli
+        CurrentSeason.seasonData.setHaasDriversLigaFR(['497014626589081602', '1004447400645111969']);
 
         const location = interaction.options.getString('location');
         const startTime = interaction.options.getString('timestart');

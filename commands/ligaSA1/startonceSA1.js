@@ -34,15 +34,22 @@ module.exports = {
         CurrentSeason.seasonData.setMercedesDriversLigaSA1(['269499201702854667', '469926134700703748']);
         // SHD, Brückenwasser
         CurrentSeason.seasonData.setRedBullDriversLigaSA1(['284981237645312000', '281829417775267840']);
+        // Rocky, Helim
+        CurrentSeason.seasonData.setFerrariDriversLigaSA1(['176331806839275520', '404664138103652362']);
+        // DavidXUX, DelBoss
+        CurrentSeason.seasonData.setMcLarenDriversLigaSA1(['386929779208880150', '438403655306313728']);
+        // Trade.VSG, ScepticHamster
+        CurrentSeason.seasonData.setAstonMartinDriversLigaSA1(['399565281657225226', '170629700719214592']);
+        // Demiyoo, hairylegs
+        CurrentSeason.seasonData.setAlpineDriversLigaSA1(['356721136467443722', '605199089793236996']);
         //
-        CurrentSeason.seasonData.setFerrariDriversLigaSA1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setMcLarenDriversLigaSA1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAstonMartinDriversLigaSA1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlpineDriversLigaSA1(['nicht besetzt', 'nicht besetzt']);
         CurrentSeason.seasonData.setAlphaTauriDriversLigaSA1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setAlfaRomeoDriversLigaSA1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setWilliamsDriversLigaSA1(['nicht besetzt', 'nicht besetzt']);
-        CurrentSeason.seasonData.setHaasDriversLigaSA1(['nicht besetzt', 'nicht besetzt']);
+        // Cvbby, smittyy
+        CurrentSeason.seasonData.setAlfaRomeoDriversLigaSA1(['259366764121423872', '154609243033436160']);
+        // ghostvali, PhantaFlash
+        CurrentSeason.seasonData.setWilliamsDriversLigaSA1(['650625652407402496', '709479846358810704']);
+        // VettelFan, josia
+        CurrentSeason.seasonData.setHaasDriversLigaSA1(['328902952486174722', '469239617590132737']);
 
         const location = interaction.options.getString('location');
         const startTime = interaction.options.getString('timestart');
