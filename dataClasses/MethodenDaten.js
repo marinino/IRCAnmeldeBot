@@ -335,7 +335,6 @@ class MethodClass{
         }
         //Deletes lineup currently displayed in channel
         if(msgLineupID != null){
-            console.log(msgLineupID + `Lineup ID`)
             await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(infoChannelID).messages.fetch(msgLineupID).then((msg) => {
                 msg.delete();
                 let date = new Date().toLocaleString();
@@ -760,7 +759,6 @@ class MethodClass{
                 freeCarListDefaultMessage += `, <@&${freeCars[i]}>`;
             }
         }
-        console.log(freeCarsMsgID);
         await client.channels.cache.get(anmeldeChannelID).messages.fetch(freeCarsMsgID).then((msg) => {
             msg.edit(freeCarListDefaultMessage);
         });
@@ -1639,15 +1637,24 @@ class MethodClass{
             {name: `Haas`, value: `<@${await regularDrivers.get('Haas')[0]}> und <@${await regularDrivers.get('Haas')[1]}>`}
         );
         await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getTeamsChannelID()).send({ embeds : [regularDriverEmbed]}).then((msg) => {
-            if(seasonData.getLigatitel() == `Liga 1`){
-                seasonData.setCurrentRegularDriversLiga1(msg.id);
-                seasonData.setRegularDriversLiga1(regularDrivers);
-            } else if(seasonData.getLigatitel() == `Liga 2`){
-                seasonData.setCurrentRegularDriversLiga2(msg.id);
-                seasonData.setRegularDriversLiga2(regularDrivers);
-            } else if(seasonData.getLigatitel() == `Liga 3`){
-                seasonData.setCurrentRegularDriversLiga3(msg.id);
-                seasonData.setRegularDriversLiga3(regularDrivers);
+            if(seasonData.getLigatitel() == `Liga SO 1`){
+                seasonData.setCurrentRegularDriversLigaSO1(msg.id);
+                seasonData.setRegularDriversLigaSO1(regularDrivers);
+            } else if(seasonData.getLigatitel() == `Liga SO 2`){
+                seasonData.setCurrentRegularDriversLigaSO2(msg.id);
+                seasonData.setRegularDriversLigaSO2(regularDrivers);
+            } else if(seasonData.getLigatitel() == `Liga SA 1`){
+                seasonData.setCurrentRegularDriversLigaSA1(msg.id);
+                seasonData.setRegularDriversLigaSA1(regularDrivers);
+            } else if(seasonData.getLigatitel() == `Liga SA 2`){
+                seasonData.setCurrentRegularDriversLigaSA2(msg.id);
+                seasonData.setRegularDriversLigaSA2(regularDrivers);
+            } else if(seasonData.getLigatitel() == `Liga FR`){
+                seasonData.setCurrentRegularDriversLigaFR(msg.id);
+                seasonData.setRegularDriversLigaFR(regularDrivers);
+            } else if(seasonData.getLigatitel() == `Liga Origin`){
+                seasonData.setCurrentRegularDriversLigaOrigin(msg.id);
+                seasonData.setRegularDriversLigaOrigin(regularDrivers);
             }
         })
     }
@@ -1739,12 +1746,18 @@ class MethodClass{
 
     async startFunction(client, message, seasonData, timeTillClose){
         let seasonCalendar = new Array();
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            seasonCalendar = seasonData.getSeasonCalendarLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            seasonCalendar = seasonData.getSeasonCalendarLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            seasonCalendar = seasonData.getSeasonCalendarLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaOrigin();
         }
         //Init
         await this.initVariables(seasonCalendar.shift(), seasonData);
@@ -1762,46 +1775,85 @@ class MethodClass{
         let ersatzfahrerRolleID = null;
         let stammfahrerRolleID = null;
         let currentRaceLocation = null;
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            seasonCalendar = seasonData.getSeasonCalendarLiga1();
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga1();
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga1();
-            anmeldungActive = seasonData.getAnmeldungActiveLiga1();
-            subDriverInPerCommand = seasonData.getSubInDriversPerCommandLiga1();
-            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLiga1();
-            subPersonList = seasonData.getSubPersonListLiga1();
-            stammfahrerRolleID = seasonData.getStammfahrerRolleIDLiga1();
-            reactedToSubIn = seasonData.getReactedToSubInLiga1();
-            reactedToSignOut = seasonData.getReactedToSignOutLiga1();
-            withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLiga1();
-            currentRaceLocation = seasonData.getCurrentRaceLocationLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            seasonCalendar = seasonData.getSeasonCalendarLiga2();
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga2();
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga2();
-            anmeldungActive = seasonData.getAnmeldungActiveLiga2();
-            subDriverInPerCommand = seasonData.getSubInDriversPerCommandLiga2();
-            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLiga2();
-            subPersonList = seasonData.getSubPersonListLiga2();        
-            stammfahrerRolleID = seasonData.getStammfahrerRolleIDLiga2();
-            reactedToSubIn = seasonData.getReactedToSubInLiga2();
-            reactedToSignOut = seasonData.getReactedToSignOutLiga2();
-            withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLiga2();
-            currentRaceLocation = seasonData.getCurrentRaceLocationLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            seasonCalendar = seasonData.getSeasonCalendarLiga3();
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga3();
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga3();
-            anmeldungActive = seasonData.getAnmeldungActiveLiga3();
-            subDriverInPerCommand = seasonData.getSubInDriversPerCommandLiga3();
-            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLiga3();
-            subPersonList = seasonData.getSubPersonListLiga3();
-            stammfahrerRolleID = seasonData.getStammfahrerRolleIDLiga3();
-            reactedToSubIn = seasonData.getReactedToSubInLiga3();
-            reactedToSignOut = seasonData.getReactedToSignOutLiga3();
-            withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLiga3();
-            currentRaceLocation = seasonData.getCurrentRaceLocationLiga3();
-        }
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaSO1();
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO1();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSO1();
+            anmeldungActive = seasonData.getAnmeldungActiveLigaSO1();
+            subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSO1();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaSO1();
+            subPersonList = seasonData.getSubPersonListLigaSO1();
+            stammfahrerRolleID = seasonData.getStammfahrerRolleIDLigaSO1();
+            reactedToSubIn = seasonData.getReactedToSubInLigaSO1();
+            reactedToSignOut = seasonData.getReactedToSignOutLigaSO1();
+            withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSO1();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaSO2();
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO2();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSO2();
+            anmeldungActive = seasonData.getAnmeldungActiveLigaSO2();
+            subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSO2();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaSO2();
+            subPersonList = seasonData.getSubPersonListLigaSO2();        
+            stammfahrerRolleID = seasonData.getStammfahrerRolleIDLigaSO2();
+            reactedToSubIn = seasonData.getReactedToSubInLigaSO2();
+            reactedToSignOut = seasonData.getReactedToSignOutLigaSO2();
+            withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSO2();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaSA1();
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA1();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSA1();
+            anmeldungActive = seasonData.getAnmeldungActiveLigaSA1();
+            subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSA1();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaSA1();
+            subPersonList = seasonData.getSubPersonListLigaSA1();
+            stammfahrerRolleID = seasonData.getStammfahrerRolleIDLigaSA1();
+            reactedToSubIn = seasonData.getReactedToSubInLigaSA1();
+            reactedToSignOut = seasonData.getReactedToSignOutLigaSA1();
+            withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSA1();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaSA2();
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA2();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSA2();
+            anmeldungActive = seasonData.getAnmeldungActiveLigaSA2();
+            subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSA2();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaSA2();
+            subPersonList = seasonData.getSubPersonListLigaSA2();
+            stammfahrerRolleID = seasonData.getStammfahrerRolleIDLigaSA2();
+            reactedToSubIn = seasonData.getReactedToSubInLigaSA2();
+            reactedToSignOut = seasonData.getReactedToSignOutLigaSA2();
+            withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSA2();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaFR();
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaFR();
+            anmeldungActive = seasonData.getAnmeldungActiveLigaFR();
+            subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaFR();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaFR();
+            subPersonList = seasonData.getSubPersonListLigaFR();        
+            stammfahrerRolleID = seasonData.getStammfahrerRolleIDLigaFR();
+            reactedToSubIn = seasonData.getReactedToSubInLigaFR();
+            reactedToSignOut = seasonData.getReactedToSignOutLigaFR();
+            withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaFR();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            seasonCalendar = seasonData.getSeasonCalendarLigaOrigin();
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaOrigin();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaOrigin();
+            anmeldungActive = seasonData.getAnmeldungActiveLigaOrigin();
+            subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaOrigin();
+            ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaOrigin();
+            subPersonList = seasonData.getSubPersonListLigaOrigin();
+            stammfahrerRolleID = seasonData.getStammfahrerRolleIDLigaOrigin();
+            reactedToSubIn = seasonData.getReactedToSubInLigaOrigin();
+            reactedToSignOut = seasonData.getReactedToSignOutLigaOrigin();
+            withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaOrigin();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaOrigin();
+        } 
         //Do stuff
         
         await this.clearChannels(client, seasonData);
@@ -1834,32 +1886,56 @@ class MethodClass{
         var collectorSubIn = null;
         
         await client.channels.cache.get(anmeldeChannelID).send({ embeds: [embedAnmeldung] }).then((msg) => {
-            if(seasonData.getLigatitel() == 'Liga 1'){
-                seasonData.setMessageEmbedAnmeldenLiga1(msg);
+            if(seasonData.getLigatitel() == 'Liga SO 1'){
+                seasonData.setMessageEmbedAnmeldenLigaSO1(msg);
                 msg.react(seasonData.getAnmeldeEmoji());
                 collectorSubIn = msg.createReactionCollector({ dispose: true});
-            } else if(seasonData.getLigatitel() == 'Liga 2'){
-                seasonData.setMessageEmbedAnmeldenLiga2(msg);
+            } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+                seasonData.setMessageEmbedAnmeldenLigaSO2(msg);
                 msg.react(seasonData.getAnmeldeEmoji());
                 collectorSubIn = msg.createReactionCollector({ dispose: true});
-            } else if(seasonData.getLigatitel() == 'Liga 3'){
-                seasonData.setMessageEmbedAnmeldenLiga3(msg);
+            } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+                seasonData.setMessageEmbedAnmeldenLigaSA1(msg);
+                msg.react(seasonData.getAnmeldeEmoji());
+                collectorSubIn = msg.createReactionCollector({ dispose: true});
+            } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                seasonData.setMessageEmbedAnmeldenLigaSA2(msg);
+                msg.react(seasonData.getAnmeldeEmoji());
+                collectorSubIn = msg.createReactionCollector({ dispose: true});
+            } else if(seasonData.getLigatitel() == 'Liga FR'){
+                seasonData.setMessageEmbedAnmeldenLigaFR(msg);
+                msg.react(seasonData.getAnmeldeEmoji());
+                collectorSubIn = msg.createReactionCollector({ dispose: true});
+            } else if(seasonData.getLigatitel() == 'Liga Origin'){
+                seasonData.setMessageEmbedAnmeldenLigaOrigin(msg);
                 msg.react(seasonData.getAnmeldeEmoji());
                 collectorSubIn = msg.createReactionCollector({ dispose: true});
             }
         });
         var collectorWithdraw = null;
         await client.channels.cache.get(abmeldeChannelID).send({ embeds: [embedAbmeldung] }).then((msg) => {
-            if(seasonData.getLigatitel() == 'Liga 1'){
-                seasonData.setMessageEmbedAbmeldenLiga1(msg);
+            if(seasonData.getLigatitel() == 'Liga SO 1'){
+                seasonData.setMessageEmbedAbmeldenLigaSO1(msg);
                 msg.react(seasonData.getAbmeldeEmoji());
                 collectorWithdraw = msg.createReactionCollector({ dispose: true});
-            } else if(seasonData.getLigatitel() == 'Liga 2'){
-                seasonData.setMessageEmbedAbmeldenLiga2(msg);
+            } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+                seasonData.setMessageEmbedAbmeldenLigaSO2(msg);
                 msg.react(seasonData.getAbmeldeEmoji());
                 collectorWithdraw = msg.createReactionCollector({ dispose: true});
-            } else if(seasonData.getLigatitel() == 'Liga 3'){
-                seasonData.setMessageEmbedAbmeldenLiga3(msg);
+            } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+                seasonData.setMessageEmbedAbmeldenLigaSA1(msg);
+                msg.react(seasonData.getAbmeldeEmoji());
+                collectorWithdraw = msg.createReactionCollector({ dispose: true});
+            } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                seasonData.setMessageEmbedAbmeldenLigaSA2(msg);
+                msg.react(seasonData.getAbmeldeEmoji());
+                collectorWithdraw = msg.createReactionCollector({ dispose: true});
+            } else if(seasonData.getLigatitel() == 'Liga FR'){
+                seasonData.setMessageEmbedAbmeldenLigaFR(msg);
+                msg.react(seasonData.getAbmeldeEmoji());
+                collectorWithdraw = msg.createReactionCollector({ dispose: true});
+            } else if(seasonData.getLigatitel() == 'Liga Origin'){
+                seasonData.setMessageEmbedAbmeldenLigaOrigin(msg);
                 msg.react(seasonData.getAbmeldeEmoji());
                 collectorWithdraw = msg.createReactionCollector({ dispose: true});
             }
@@ -1869,18 +1945,30 @@ class MethodClass{
         collectorSubIn.on('collect', async (reaction, user) => {
             //Get information
             //Check new for every reaction
-            if(seasonData.getLigatitel() == 'Liga 1'){
-                anmeldungActive = seasonData.getAnmeldungActiveLiga1();
-                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLiga1();                                           
-                reactedToSubIn = seasonData.getReactedToSubInLiga1();                
-            } else if(seasonData.getLigatitel() == 'Liga 2'){                   
-                anmeldungActive = seasonData.getAnmeldungActiveLiga2();
-                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLiga2();                                               
-                reactedToSubIn = seasonData.getReactedToSubInLiga2();                  
-            } else if(seasonData.getLigatitel() == 'Liga 3'){                
-                anmeldungActive = seasonData.getAnmeldungActiveLiga3();
-                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLiga3();                              
-                reactedToSubIn = seasonData.getReactedToSubInLiga3();              
+            if(seasonData.getLigatitel() == 'Liga SO 1'){
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSO1();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSO1();                                           
+                reactedToSubIn = seasonData.getReactedToSubInLigaSO1();                
+            } else if(seasonData.getLigatitel() == 'Liga SO 2'){                   
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSO2();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSO2();                                               
+                reactedToSubIn = seasonData.getReactedToSubInLigaSO2();                  
+            } else if(seasonData.getLigatitel() == 'Liga SA 1'){                
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSA1();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSA1();                              
+                reactedToSubIn = seasonData.getReactedToSubInLigaSA1();              
+            } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSA2();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSA2();                                           
+                reactedToSubIn = seasonData.getReactedToSubInLigaSA2();                
+            } else if(seasonData.getLigatitel() == 'Liga FR'){                   
+                anmeldungActive = seasonData.getAnmeldungActiveLigaFR();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaFR();                                               
+                reactedToSubIn = seasonData.getReactedToSubInLigaFR();                  
+            } else if(seasonData.getLigatitel() == 'Liga Origin'){                
+                anmeldungActive = seasonData.getAnmeldungActiveLigaOrigin();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaOrigin();                              
+                reactedToSubIn = seasonData.getReactedToSubInLigaOrigin();              
             }
             //Do stuff
             if(reaction.message.partial){
@@ -1899,33 +1987,68 @@ class MethodClass{
             if(reaction.message.channel.id == anmeldeChannelID){
                 if(anmeldungActive == true){
                     // insert reaction into reacted to sub in list
-                    if(seasonData.getLigatitel() == 'Liga 1'){
+                    if(seasonData.getLigatitel() == 'Liga SO 1'){
                         if(reactedToSubIn.has(user.id)){
-                            console.log('weird');
+                            let date = new Date().toLocaleString();
+                            console.log(`${user.username} hat auf Anmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
                         } else {
                             reactedToSubIn.set(user.id, reaction)
-                            console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction}`)
-                            await seasonData.setReactedToSubInLiga1(reactedToSubIn);
+                            let date = new Date().toLocaleString();
+                            console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                            await seasonData.setReactedToSubInLigaSO1(reactedToSubIn);
                         }
-                    } else if(seasonData.getLigatitel() == 'Liga 2'){
+                    } else if(seasonData.getLigatitel() == 'Liga SO 2'){
                         if(reactedToSubIn.has(user.id)){
-                            console.log('weird');
+                            let date = new Date().toLocaleString();
+                            console.log(`${user.username} hat auf Anmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
                         } else {
                             reactedToSubIn.set(user.id, reaction)
-                            console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction}`)
-                            await seasonData.setReactedToSubInLiga2(reactedToSubIn);
+                            let date = new Date().toLocaleString();
+                            console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                            await seasonData.setReactedToSubInLigaSO2(reactedToSubIn);
                         }
-                    } else if(seasonData.getLigatitel() == 'Liga 3'){
+                    } else if(seasonData.getLigatitel() == 'Liga SA 1'){
                         if(reactedToSubIn.has(user.id)){
-                            console.log('weird');
+                            let date = new Date().toLocaleString();
+                            console.log(`${user.username} hat auf Anmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
                         } else {
                             reactedToSubIn.set(user.id, reaction)
-                            console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction}`)
-                            await seasonData.setReactedToSubInLiga3(reactedToSubIn);
+                            let date = new Date().toLocaleString();
+                            console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                            await seasonData.setReactedToSubInLigaSA1(reactedToSubIn);
+                        }
+                    } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                        if(reactedToSubIn.has(user.id)){
+                            let date = new Date().toLocaleString();
+                            console.log(`${user.username} hat auf Anmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
+                        } else {
+                            reactedToSubIn.set(user.id, reaction)
+                            let date = new Date().toLocaleString();
+                            console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                            await seasonData.setReactedToSubInLigaSA2(reactedToSubIn);
+                        }
+                    } else if(seasonData.getLigatitel() == 'Liga FR'){
+                        if(reactedToSubIn.has(user.id)){
+                            let date = new Date().toLocaleString();
+                            console.log(`${user.username} hat auf Anmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
+                        } else {
+                            reactedToSubIn.set(user.id, reaction)
+                            let date = new Date().toLocaleString();
+                            console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                            await seasonData.setReactedToSubInLigaFR(reactedToSubIn);
+                        }
+                    } else if(seasonData.getLigatitel() == 'Liga Origin'){
+                        if(reactedToSubIn.has(user.id)){
+                            let date = new Date().toLocaleString();
+                            console.log(`${user.username} hat auf Anmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
+                        } else {
+                            reactedToSubIn.set(user.id, reaction)
+                            let date = new Date().toLocaleString();
+                            console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                            await seasonData.setReactedToSubInLigaOrigin(reactedToSubIn);
                         }
                     }
-                    console.log('Penisgesicht:')
-                    console.log(subDriverInPerCommand)
+
                     if(reaction.emoji.name === seasonData.getAnmeldeEmoji() && !subDriverInPerCommand.includes(user.id) &&
                         reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleID)){                          
                         this.subDriverIn(client, reaction.message.guild.members.cache.get(user.id), seasonData);
@@ -1955,18 +2078,30 @@ class MethodClass{
         collectorWithdraw.on('collect', async (reaction, user) => {
             //Get information
             //Check new for every reaction
-            if(seasonData.getLigatitel() == 'Liga 1'){
-                anmeldungActive = seasonData.getAnmeldungActiveLiga1();
-                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLiga1();  
-                reactedToSignOut = seasonData.getReactedToSignOutLiga1();               
-            } else if(seasonData.getLigatitel() == 'Liga 2'){                   
-                anmeldungActive = seasonData.getAnmeldungActiveLiga2();
-                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLiga2();     
-                reactedToSignOut = seasonData.getReactedToSignOutLiga2();                 
-            } else if(seasonData.getLigatitel() == 'Liga 3'){                
-                anmeldungActive = seasonData.getAnmeldungActiveLiga3();         
-                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLiga3();  
-                reactedToSignOut = seasonData.getReactedToSignOutLiga3();                  
+            if(seasonData.getLigatitel() == 'Liga SO 1'){
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSO1();
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSO1();  
+                reactedToSignOut = seasonData.getReactedToSignOutLigaSO1();               
+            } else if(seasonData.getLigatitel() == 'Liga SO 2'){                   
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSO2();
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSO2();     
+                reactedToSignOut = seasonData.getReactedToSignOutLigaSO2();                 
+            } else if(seasonData.getLigatitel() == 'Liga SA 1'){                
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSA1();         
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSA1();  
+                reactedToSignOut = seasonData.getReactedToSignOutLigaSA1();                  
+            } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSA2();
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSA2();  
+                reactedToSignOut = seasonData.getReactedToSignOutLigaSA2();               
+            } else if(seasonData.getLigatitel() == 'Liga FR'){                   
+                anmeldungActive = seasonData.getAnmeldungActiveLigaFR();
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaFR();     
+                reactedToSignOut = seasonData.getReactedToSignOutLigaFR();                 
+            } else if(seasonData.getLigatitel() == 'Liga Origin'){                
+                anmeldungActive = seasonData.getAnmeldungActiveLigaOrigin();         
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaOrigin();  
+                reactedToSignOut = seasonData.getReactedToSignOutLigaOrigin();                  
             }
             //Do stuff
             if(reaction.message.channel.id == abmeldeChannelID){
@@ -1987,29 +2122,65 @@ class MethodClass{
                     if(reaction.emoji.name === seasonData.getAbmeldeEmoji() && !(withdrawnDriversPerCommand.includes(user.id)) &&
                         reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleID)){
                         //Local change 
-                        if(seasonData.getLigatitel() == 'Liga 1'){
-                            if(reactedToSignOut.has(user.id)){
-                                console.log('weird');
+                        if(seasonData.getLigatitel() == 'Liga SO 1'){
+                            if(reactedToSubIn.has(user.id)){
+                                let date = new Date().toLocaleString();
+                                console.log(`${user.username} hat auf Abmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
                             } else {
-                                reactedToSignOut.set(user.id, reaction)
-                                console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction}`)
-                                await seasonData.setReactedToSignOutLiga1(reactedToSignOut);
+                                reactedToSubIn.set(user.id, reaction)
+                                let date = new Date().toLocaleString();
+                                console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                                await seasonData.setReactedToSubInLigaSO1(reactedToSubIn);
                             }
-                        } else if(seasonData.getLigatitel() == 'Liga 2'){
-                            if(reactedToSignOut.has(user.id)){
-                                console.log('weird');
+                        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+                            if(reactedToSubIn.has(user.id)){
+                                let date = new Date().toLocaleString();
+                                console.log(`${user.username} hat auf Abmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
                             } else {
-                                reactedToSignOut.set(user.id, reaction)
-                                console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction}`)
-                                await seasonData.setReactedToSignOutLiga2(reactedToSignOut);
+                                reactedToSubIn.set(user.id, reaction)
+                                let date = new Date().toLocaleString();
+                                console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                                await seasonData.setReactedToSubInLigaSO2(reactedToSubIn);
                             }
-                        } else if(seasonData.getLigatitel() == 'Liga 3'){
-                            if(reactedToSignOut.has(user.id)){
-                                console.log('weird');
+                        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+                            if(reactedToSubIn.has(user.id)){
+                                let date = new Date().toLocaleString();
+                                console.log(`${user.username} hat auf Abmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
                             } else {
-                                reactedToSignOut.set(user.id, reaction)
-                                console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction}`)
-                                await seasonData.setReactedToSignOutLiga3(reactedToSignOut);
+                                reactedToSubIn.set(user.id, reaction)
+                                let date = new Date().toLocaleString();
+                                console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                                await seasonData.setReactedToSubInLigaSA1(reactedToSubIn);
+                            }
+                        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                            if(reactedToSubIn.has(user.id)){
+                                let date = new Date().toLocaleString();
+                                console.log(`${user.username} hat auf Abmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
+                            } else {
+                                reactedToSubIn.set(user.id, reaction)
+                                let date = new Date().toLocaleString();
+                                console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                                await seasonData.setReactedToSubInLigaSA2(reactedToSubIn);
+                            }
+                        } else if(seasonData.getLigatitel() == 'Liga FR'){
+                            if(reactedToSubIn.has(user.id)){
+                                let date = new Date().toLocaleString();
+                                console.log(`${user.username} hat auf Abmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
+                            } else {
+                                reactedToSubIn.set(user.id, reaction)
+                                let date = new Date().toLocaleString();
+                                console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                                await seasonData.setReactedToSubInLigaFR(reactedToSubIn);
+                            }
+                        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+                            if(reactedToSubIn.has(user.id)){
+                                let date = new Date().toLocaleString();
+                                console.log(`${user.username} hat auf Abmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${seasonData.getLigatitel()} -- ${date}`);
+                            } else {
+                                reactedToSubIn.set(user.id, reaction)
+                                let date = new Date().toLocaleString();
+                                console.log(`New entry to Reacted to sub in key: ${user.id}, value: ${reaction} -- ${date}`)
+                                await seasonData.setReactedToSubInLigaOrigin(reactedToSubIn);
                             }
                         }
                         //Do stuff
@@ -2042,18 +2213,30 @@ class MethodClass{
         collectorSubIn.on('remove', async (reaction, user) => {
             //Get information
             //Check new for every reaction
-            if(seasonData.getLigatitel() == 'Liga 1'){
-                anmeldungActive = seasonData.getAnmeldungActiveLiga1();
-                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLiga1();                                           
-                reactedToSubIn = seasonData.getReactedToSubInLiga1();                
-            } else if(seasonData.getLigatitel() == 'Liga 2'){                   
-                anmeldungActive = seasonData.getAnmeldungActiveLiga2();
-                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLiga2();                                               
-                reactedToSubIn = seasonData.getReactedToSubInLiga2();                  
-            } else if(seasonData.getLigatitel() == 'Liga 3'){                
-                anmeldungActive = seasonData.getAnmeldungActiveLiga3();
-                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLiga3();                              
-                reactedToSubIn = seasonData.getReactedToSubInLiga3();              
+            if(seasonData.getLigatitel() == 'Liga SO 1'){
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSO1();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSO1();                                           
+                reactedToSubIn = seasonData.getReactedToSubInLigaSO1();                
+            } else if(seasonData.getLigatitel() == 'Liga SO 2'){                   
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSO2();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSO2();                                               
+                reactedToSubIn = seasonData.getReactedToSubInLigaSO2();                  
+            } else if(seasonData.getLigatitel() == 'Liga SA 1'){                
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSA1();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSA1();                              
+                reactedToSubIn = seasonData.getReactedToSubInLigaSA1();              
+            } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSA2();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaSA2();                                           
+                reactedToSubIn = seasonData.getReactedToSubInLigaSA2();                
+            } else if(seasonData.getLigatitel() == 'Liga FR'){                   
+                anmeldungActive = seasonData.getAnmeldungActiveLigaFR();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaFR();                                               
+                reactedToSubIn = seasonData.getReactedToSubInLigaFR();                  
+            } else if(seasonData.getLigatitel() == 'Liga Origin'){                
+                anmeldungActive = seasonData.getAnmeldungActiveLigaOrigin();
+                subDriverInPerCommand = seasonData.getSubInDriversPerCommandLigaOrigin();                              
+                reactedToSubIn = seasonData.getReactedToSubInLigaOrigin();              
             }
             //Do stuff
             if(reaction.message.partial){
@@ -2074,12 +2257,18 @@ class MethodClass{
                     if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleID)){
                         if(reaction.emoji.name == seasonData.getAnmeldeEmoji()){
                             reactedToSubIn.delete(user.id);
-                            if(seasonData.getLigatitel() == 'Liga 1'){
-                                seasonData.setReactedToSubInLiga1(reactedToSubIn);
-                            } else if(seasonData.getLigatitel() == 'Liga 2'){
-                                seasonData.setReactedToSubInLiga2(reactedToSubIn);
-                            } else if(seasonData.getLigatitel() == 'Liga 3'){
-                                seasonData.setReactedToSubInLiga3(reactedToSubIn);
+                            if(seasonData.getLigatitel() == 'Liga SO 1'){
+                                seasonData.setReactedToSubInLigaSO1(reactedToSubIn);
+                            } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+                                seasonData.setReactedToSubInLigaSO2(reactedToSubIn);
+                            } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+                                seasonData.setReactedToSubInLigaSA1(reactedToSubIn);
+                            } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                                seasonData.setReactedToSubInLigaSA2(reactedToSubIn);
+                            } else if(seasonData.getLigatitel() == 'Liga FR'){
+                                seasonData.setReactedToSubInLigaFR(reactedToSubIn);
+                            } else if(seasonData.getLigatitel() == 'Liga Origin'){
+                                seasonData.setReactedToSubInLigaOrigin(reactedToSubIn);
                             }
                             // Checkt ob Fahrer mit Command abgemeldet wurde
                             if(subDriverInPerCommand.includes(user.id)){
@@ -2123,18 +2312,30 @@ class MethodClass{
         collectorWithdraw.on('remove', async (reaction, user) => {
             //Get information
             //Check new for every reaction
-            if(seasonData.getLigatitel() == 'Liga 1'){
-                anmeldungActive = seasonData.getAnmeldungActiveLiga1();
-                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLiga1();  
-                reactedToSignOut = seasonData.getReactedToSignOutLiga1();               
-            } else if(seasonData.getLigatitel() == 'Liga 2'){                   
-                anmeldungActive = seasonData.getAnmeldungActiveLiga2();
-                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLiga2();     
-                reactedToSignOut = seasonData.getReactedToSignOutLiga2();                 
-            } else if(seasonData.getLigatitel() == 'Liga 3'){                
-                anmeldungActive = seasonData.getAnmeldungActiveLiga3();         
-                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLiga3();  
-                reactedToSignOut = seasonData.getReactedToSignOutLiga3();                  
+            if(seasonData.getLigatitel() == 'Liga SO 1'){
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSO1();
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSO1();  
+                reactedToSignOut = seasonData.getReactedToSignOutLigaSO1();               
+            } else if(seasonData.getLigatitel() == 'Liga SO 2'){                   
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSO2();
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSO2();     
+                reactedToSignOut = seasonData.getReactedToSignOutLigaSO2();                 
+            } else if(seasonData.getLigatitel() == 'Liga SA 1'){                
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSA1();         
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSA1();  
+                reactedToSignOut = seasonData.getReactedToSignOutLigaSA1();                  
+            } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                anmeldungActive = seasonData.getAnmeldungActiveLigaSA2();
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaSA2();  
+                reactedToSignOut = seasonData.getReactedToSignOutLigaSA2();               
+            } else if(seasonData.getLigatitel() == 'Liga FR'){                   
+                anmeldungActive = seasonData.getAnmeldungActiveLigaFR();
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaFR();     
+                reactedToSignOut = seasonData.getReactedToSignOutLigaFR();                 
+            } else if(seasonData.getLigatitel() == 'Liga Origin'){                
+                anmeldungActive = seasonData.getAnmeldungActiveLigaOrigin();         
+                withdrawnDriversPerCommand = seasonData.getWithdrawnDriversPerCommandLigaOrigin();  
+                reactedToSignOut = seasonData.getReactedToSignOutLigaOrigin();                  
             }
             //Do stuff
             if(reaction.message.partial){
@@ -2157,12 +2358,18 @@ class MethodClass{
                     if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleID)){
                         if(reaction.emoji.name == seasonData.getAbmeldeEmoji()){
                             reactedToSignOut.delete(user.id);
-                            if(seasonData.getLigatitel() == 'Liga 1'){
-                                await seasonData.setReactedToSignOutLiga1(reactedToSignOut);
-                            } else if(seasonData.getLigatitel() == 'Liga 2'){
-                                await seasonData.setReactedToSignOutLiga2(reactedToSignOut);
-                            } else if(seasonData.getLigatitel() == 'Liga 3'){
-                                await seasonData.setReactedToSignOutLiga3(reactedToSignOut);
+                            if(seasonData.getLigatitel() == 'Liga SO 1'){
+                                await seasonData.setReactedToSignOutLigaSO1(reactedToSignOut);
+                            } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+                                await seasonData.setReactedToSignOutLigaSO2(reactedToSignOut);
+                            } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+                                await seasonData.setReactedToSignOutLigaSA1(reactedToSignOut);
+                            } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+                                await seasonData.setReactedToSignOutLigaSA2(reactedToSignOut);
+                            } else if(seasonData.getLigatitel() == 'Liga FR'){
+                                await seasonData.setReactedToSignOutLigaFR(reactedToSignOut);
+                            } else if(seasonData.getLigatitel() == 'Liga Origin'){
+                                await seasonData.setReactedToSignOutLigaOrigin(reactedToSignOut);
                             }
                             if(!(withdrawnDriversPerCommand.includes(user.id))){
                                 this.regularDriverRemoveWithdraw(client, reaction.message.guild.members.cache.get(user.id), seasonData);
@@ -2202,30 +2409,51 @@ class MethodClass{
         let abmeldeChannelID = null;
         let currentRaceLocation = null;
         let seasonCalendarRacesDone = new Map();
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga1();
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga1();
-            currentRaceLocation = seasonData.getCurrentRaceLocationLiga1();
-            seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLiga1();
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga2();
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga2();
-            currentRaceLocation = seasonData.getCurrentRaceLocationLiga2();
-            seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLiga2();
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            anmeldeChannelID = seasonData.getAnmeldeChannelIDLiga3();
-            abmeldeChannelID = seasonData.getAbmeldeChannelIDLiga3();
-            currentRaceLocation = seasonData.getCurrentRaceLocationLiga3();
-            seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLiga3();
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO1();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSO1();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSO1();
+            seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLigaSO1();
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSO2();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSO2();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSO2();
+            seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLigaSO2();
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA1();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSA1();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSA1();
+            seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLigaSA1();
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaSA2();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaSA2();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaSA2();
+            seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLigaSA2();
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaFR();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaFR();
+            seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLigaFR();
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaOrigin();
+            abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaOrigin();
+            currentRaceLocation = seasonData.getCurrentRaceLocationLigaOrigin();
+            seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLigaOrigin();
         }
         //Do stuff
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            seasonData.setAnmeldungActiveLiga1(false);
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            seasonData.setAnmeldungActiveLiga2(false);
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            seasonData.setAnmeldungActiveLiga3(false);
-        }
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            seasonData.setAnmeldungActiveLigaSO1(false);
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            seasonData.setAnmeldungActiveLigaSO2(false);
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            seasonData.setAnmeldungActiveLigaSA1(false);
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            seasonData.setAnmeldungActiveLigaSA2(false);
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            seasonData.setAnmeldungActiveLigaFR(false);
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            seasonData.setAnmeldungActiveLigaOrigin(false);
+        } 
         await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(anmeldeChannelID).send(`Die Anmeldung für das Rennen in ${currentRaceLocation} wurde beendet`).then(() => {
             console.log(`Die Anmeldung in ${seasonData.getLigatitel()} wurde beendet`);
         })
@@ -2234,15 +2462,24 @@ class MethodClass{
             console.log(`Die Abmeldung in ${seasonData.getLigatitel()} wurde beendet`);
         })
         seasonCalendarRacesDone.unshift(currentRaceLocation);
-        if(seasonData.getLigatitel() == 'Liga 1'){
-            seasonData.setSeasonCalendarRacesDoneLiga1(seasonCalendarRacesDone);
-            seasonData.setCurrentRaceLocationLiga1(null);
-        } else if(seasonData.getLigatitel() == 'Liga 2'){
-            seasonData.setSeasonCalendarRacesDoneLiga2(seasonCalendarRacesDone);
-            seasonData.setCurrentRaceLocationLiga2(null);
-        } else if(seasonData.getLigatitel() == 'Liga 3'){
-            seasonData.setSeasonCalendarRacesDoneLiga3(seasonCalendarRacesDone);
-            seasonData.setCurrentRaceLocationLiga3(null);
+        if(seasonData.getLigatitel() == 'Liga SO 1'){
+            seasonData.setSeasonCalendarRacesDoneLigaSO1(seasonCalendarRacesDone);
+            seasonData.setCurrentRaceLocationLigaSO1(null);
+        } else if(seasonData.getLigatitel() == 'Liga SO 2'){
+            seasonData.setSeasonCalendarRacesDoneLigaSO2(seasonCalendarRacesDone);
+            seasonData.setCurrentRaceLocationLigaSO2(null);
+        } else if(seasonData.getLigatitel() == 'Liga SA 1'){
+            seasonData.setSeasonCalendarRacesDoneLigaSA1(seasonCalendarRacesDone);
+            seasonData.setCurrentRaceLocationLigaSA1(null);
+        } else if(seasonData.getLigatitel() == 'Liga SA 2'){
+            seasonData.setSeasonCalendarRacesDoneLigaSA2(seasonCalendarRacesDone);
+            seasonData.setCurrentRaceLocationLigaSA2(null);
+        } else if(seasonData.getLigatitel() == 'Liga FR'){
+            seasonData.setSeasonCalendarRacesDoneLigaFR(seasonCalendarRacesDone);
+            seasonData.setCurrentRaceLocationLigaFR(null);
+        } else if(seasonData.getLigatitel() == 'Liga Origin'){
+            seasonData.setSeasonCalendarRacesDoneLigaOrigin(seasonCalendarRacesDone);
+            seasonData.setCurrentRaceLocationLigaOrigin(null);
         }
         
     }
