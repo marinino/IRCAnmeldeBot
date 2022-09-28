@@ -1,51 +1,33 @@
 
 const Discord = require('discord.js');
-const { Client, Intents, Collection } = require('discord.js');
+const { Client, Intents, Collection, GatewayIntentBits } = require('discord.js');
 require('dotenv').config();
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const fs = require('fs');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],});
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.MessageContent],});
 
 client.commands = new Discord.Collection();
 client.events = new Discord.Collection();
 
 
 ['command_handler' , 'event_handler'].forEach(handler =>{
-  require(`./handlers/${handler}`)(client, Discord);
+  require(`./handlers/${handler}`)(client);
 });
 
-client.on('messageCreate', message => {
-  if(/<@!901473425078497360>|<@901473425078497360>/.test(message.content)) {
 
-    randomNumber = Math.floor(Math.random() * 10)
-    console.log(randomNumber)
-    if(randomNumber == 9){
-      message.reply('https://media.giphy.com/media/ZebTmyvw85gnm/giphy.gif')
-    } else {
-      message.reply('Hey, mention, \<:dickerChris:937291228645580821>.')
-    }
-    return 
-  }
-})
-
-
-const commandFolders = fs.readdirSync('./commands');
-
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 let commands = [];
 
 client.commands = new Discord.Collection();
 
-for (const folder of commandFolders) {
-  const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'))
-  for(const file of commandFiles){
-    const command = require(`./commands/${folder}/${file}`);
-    commands.push(command.data.toJSON());
-    client.commands.set(command.data.name, command)
-  }
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`);
+  console.log(command)
+	commands.push(command.data.toJSON());
+  client.commands.set(command.data.name, command)
 }
-
 
 client.once("ready", () => {
  
@@ -55,6 +37,7 @@ client.once("ready", () => {
 
   (async () => {
     try {
+      
       
       console.log('Started refreshing application (/) commands.');
 
@@ -80,6 +63,11 @@ client.once("ready", () => {
         console.log('Registered globally')
       }else{
 
+        console.log(await rest.get(
+          Routes.applicationGuildCommands(clientId, guildId),
+          
+        ))
+
         /*
         rest.get(Routes.applicationGuildCommands(clientId, guildId))
         .then(data => {
@@ -91,6 +79,12 @@ client.once("ready", () => {
             return Promise.all(promises);
         });
         */
+
+
+        console.log(await rest.get(
+          Routes.applicationGuildCommands(clientId, guildId),
+          
+        ))
        
         await rest.put(
           Routes.applicationGuildCommands(clientId, guildId),
@@ -105,5 +99,7 @@ client.once("ready", () => {
   })();
 
 })
+
+
 
 client.login(process.env.TOKEN);

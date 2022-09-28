@@ -38,11 +38,10 @@ module.exports = (client,  Discord, message) =>{
 
     
     command.execute(client, message, cmd, args, Discord);
-    console.log('Am here')
     
   } catch(error){
     message.reply('Der Command konnte nicht ausgeführt werden, wahrscheinlich hast du dich verschrieben.' + '\n'
-                    + 'Führe den %commandList Command aus um die Liste an Commands zu sehen.');
+                    + 'Führe den %commandslist Command aus um die Liste an Commands zu sehen.');
     console.log(`${error}` + `\n` + `Bot läuft noch...`);
   }
 }

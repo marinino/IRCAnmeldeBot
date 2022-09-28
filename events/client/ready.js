@@ -1,3 +1,4 @@
 module.exports = (client) =>{
-    console.log(`'Bot ist online. ${client.user.tag}`)
-  }
+    let date = new Date().toLocaleString();
+    console.log(`'Bot ist online. ${client.user.tag} -- ${date}`)
+}
