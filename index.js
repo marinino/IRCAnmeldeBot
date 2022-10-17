@@ -51,7 +51,7 @@ client.once("ready", () => {
  
   const clientId = client.user.id;
   const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
-  const guildId = '479053264537649153';
+  const guildId = '947229969438896128';
 
   (async () => {
     try {

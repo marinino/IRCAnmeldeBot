@@ -10,24 +10,24 @@ class Season {
 
         // KONSTANTEN
 
-        this.rennleiterRolleID = '479053658135461903';
-        this.ligaleiterRolleID = '736929944646713355';
-        this.commandChannelID = '901067530012078162';
-        this.logChannelID = '901067704499322890';
-        this.teamsChannelID = '866950218887987221';
-        this.ehemaligerFahrerRolle = '587697224561983516';
-        this.fahrerF1Rolle = '587695833428787240';
-        this.discordID = '479053264537649153';
-        this.mercedesRolleID = '656098815492882432';  
-        this.redBullRolleID = '656098821289541633';  
-        this.ferrariRolleID = '656098818290483201';
-        this.mcLarenRolleID = '656098834878824469';
-        this.astonMartinRolleID = '656104213893611522';
-        this.alpineRolleID = '656098824074428416';
-        this.alphaTauriRolleID = '656098829497532417';
-        this.alfaRomeoRolleID = '656098832052125698';
-        this.williamsRolleID = '656098837965963274';
-        this.haasRolleID = '656098826427432963';
+        this.rennleiterRolleID = '947229969711521867';
+        this.ligaleiterRolleID = '0';
+        this.commandChannelID = '947229975671615492';
+        this.logChannelID = '947229975671615493';
+        this.teamsChannelID = '947229976825049124';
+        this.ehemaligerFahrerRolle = '947229969640222735';
+        this.fahrerF1Rolle = '947229969640222734';
+        this.discordID = '947229969438896128';
+        this.mercedesRolleID = '947229969673760816';  
+        this.redBullRolleID = '947229969673760812';  
+        this.ferrariRolleID = '947229969673760814';
+        this.mcLarenRolleID = '947229969656971368';
+        this.astonMartinRolleID = '947229969656971364';
+        this.alpineRolleID = '947229969673760810';
+        this.alphaTauriRolleID = '947229969656971372';
+        this.alfaRomeoRolleID = '947229969656971370';
+        this.williamsRolleID = '947229969656971366';
+        this.haasRolleID = '947229969673760808';
         this.anmeldenEmoji = '✅';
         this.abmeldenEmoji = '❌';
 
@@ -35,11 +35,11 @@ class Season {
 
         // LIGA FR
 
-        this.anmeldeChannelIDLigaFR = '1004371431112593418'; // ID: 1004371431112593418
-        this.abmeldeChannelIDLigaFR = '1004371465380048937'; // ID: 1004371465380048937     
-        this.ersatzfahrerRolleIDLigaFR = '1004370377780248647'; // ID: 1004370377780248647     
-        this.stammfahrerRolleIDLigaFR = '1004370364895342782'; // ID: 1004370364895342782
-        this.infoChannelIDLigaFR = '1004371403740545045'; // ID: 1004371403740545045
+        this.anmeldeChannelIDLigaFR = '947229976997007384'; // ID: 1004371431112593418
+        this.abmeldeChannelIDLigaFR = '947229976997007385'; // ID: 1004371465380048937     
+        this.ersatzfahrerRolleIDLigaFR = '947229969686335531'; // ID: 1004370377780248647     
+        this.stammfahrerRolleIDLigaFR = '947229969686335536'; // ID: 1004370364895342782
+        this.infoChannelIDLigaFR = '947229976997007383'; // ID: 1004371403740545045
         
         // VARIABLEN
 
