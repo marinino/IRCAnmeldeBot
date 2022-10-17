@@ -1,0 +1,20 @@
+# ABMELDEN
+
+ff4d4d
+
+# ANMELDEN
+
+#4ef57b
+
+# AUSWAHLEN
+
+e0e0e0
+
+# KALENDER
+
+6d6dfc
+
+# ÄNDERUNG
+
+#fff654
+
