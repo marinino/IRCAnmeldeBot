@@ -30,26 +30,26 @@ module.exports = {
             console.log(`Der startonceFR Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
-        // Martin2002, MaxPrimetime
-        CurrentSeason.seasonData.setMercedesDriversLigaFR(['268398200749031425', '533728391107575809']);
-        // Zerotix, Nagato
-        CurrentSeason.seasonData.setRedBullDriversLigaFR(['545636518782435330', '772557225024946217']);
+        // Adman, Chris
+        CurrentSeason.seasonData.setMercedesDriversLigaFR(['269499201702854667', '469926134700703748']);
+        // lyrex, Broncos
+        CurrentSeason.seasonData.setRedBullDriversLigaFR(['216889083463598080', '604645537882308609']);
         // Felixx, Dome nur Besser
-        CurrentSeason.seasonData.setFerrariDriversLigaFR(['927709369431363594', '777188809175072778']);
+        CurrentSeason.seasonData.setFerrariDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
         // Spacelord, Mandalon
-        CurrentSeason.seasonData.setMcLarenDriversLigaFR(['335420562413453312', '764434676588740638']);
-        // Moralix, UhuUnheil
-        CurrentSeason.seasonData.setAstonMartinDriversLigaFR(['460882242856681474', '1007613328505454632']);
+        CurrentSeason.seasonData.setMcLarenDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
+        // Vollkorn, UhuUnheil
+        CurrentSeason.seasonData.setAstonMartinDriversLigaFR(['319115003032502282', 'nicht besetzt']);
         // avestro, Pacman
-        CurrentSeason.seasonData.setAlpineDriversLigaFR(['1014907037412511864', '284950253772341248']);
+        CurrentSeason.seasonData.setAlpineDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
         // Entsafter, Yarbay
-        CurrentSeason.seasonData.setAlphaTauriDriversLigaFR(['630078485083455498', '523553582524399672']);
+        CurrentSeason.seasonData.setAlphaTauriDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
         // Andre, Felichs
-        CurrentSeason.seasonData.setAlfaRomeoDriversLigaFR(['548524356855136268', '471758946651078657']);
+        CurrentSeason.seasonData.setAlfaRomeoDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
         // Jojo, Pascalus
-        CurrentSeason.seasonData.setWilliamsDriversLigaFR(['695583838042325042', '254292883492831232']);
+        CurrentSeason.seasonData.setWilliamsDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
         // Senfy, Schorli
-        CurrentSeason.seasonData.setHaasDriversLigaFR(['497014626589081602', '1004447400645111969']);
+        CurrentSeason.seasonData.setHaasDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
 
         const location = interaction.options.getString('location');
         const startTime = interaction.options.getString('timestart');

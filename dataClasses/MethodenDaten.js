@@ -438,25 +438,25 @@ class MethodClass{
         //Changes locally
         var member = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(memberUser.id);
         if(member.roles.cache.has(seasonData.getMercedesRolleID())){
-            await freeCars.push(seasonData.getMercedesRolleID());
+            await freeCars.unshift(seasonData.getMercedesRolleID());
         } else if(member.roles.cache.has(seasonData.getRedBullRolleID())){
-            await freeCars.push(seasonData.getRedBullRolleID());
+            await freeCars.unshift(seasonData.getRedBullRolleID());
         } else if(member.roles.cache.has(seasonData.getFerrariRolleID())){
-            await freeCars.push(seasonData.getFerrariRolleID());
+            await freeCars.unshift(seasonData.getFerrariRolleID());
         } else if(member.roles.cache.has(seasonData.getMcLarenRolleID())){
-            await freeCars.push(seasonData.getMcLarenRolleID());
+            await freeCars.unshift(seasonData.getMcLarenRolleID());
         } else if(member.roles.cache.has(seasonData.getAstonMartinRolleID())){
-            await freeCars.push(seasonData.getAstonMartinRolleID());
+            await freeCars.unshift(seasonData.getAstonMartinRolleID());
         }  else if(member.roles.cache.has(seasonData.getAlpineRolleID())){
-            await freeCars.push(seasonData.getAlpineRolleID());
+            await freeCars.unshift(seasonData.getAlpineRolleID());
         } else if(member.roles.cache.has(seasonData.getAlphaTauriRolleID())){
-            await freeCars.push(seasonData.getAlphaTauriRolleID());
+            await freeCars.unshift(seasonData.getAlphaTauriRolleID());
         } else if(member.roles.cache.has(seasonData.getAlfaRomeoRolleID())){
-            await freeCars.push(seasonData.getAlfaRomeoRolleID());
+            await freeCars.unshift(seasonData.getAlfaRomeoRolleID());
         } else if(member.roles.cache.has(seasonData.getWilliamsRolleID())){
-            await freeCars.push(seasonData.getWilliamsRolleID());
+            await freeCars.unshift(seasonData.getWilliamsRolleID());
         } else if(member.roles.cache.has(seasonData.getHaasRolleID())){
-            await freeCars.push(seasonData.getHaasRolleID());
+            await freeCars.unshift(seasonData.getHaasRolleID());
         }
         //Makes changes globally
        
@@ -810,7 +810,7 @@ class MethodClass{
       
         //Do stuff
         let freeCar = await this.findCurrentCockpitOfSub(driverObject, seasonData);
-        freeCars.push(freeCar);
+        freeCars.unshift(freeCar);
         await this.removeFromCurrentLineup(client, driverObject, freeCar, seasonData);
         let subInRemoveEmbed = new EmbedBuilder()
         .setColor('#ff4d4d')
