@@ -1,5 +1,4 @@
-const {SlashCommandBuilder} = require('@discordjs/builders')
-const {MessageEmbed} = require('discord.js');
+const {SlashCommandBuilder, EmbedBuilder} = require('discord.js');
 const SeasonData = require('../../dataClasses/VariablenDaten.js');
 const MethodStorage = require('../../dataClasses/MethodenDaten.js');
 
@@ -33,15 +32,16 @@ async function printCalendar(interaction){
         stringPastRaces = `Bisher wurde noch kein \n Event abgeschlossen`
     }else{
         seasonData.getSeasonCalendarRacesDoneLigaFR().forEach((element) => {
-        stringPastRaces = stringPastRaces.concat(`${element}\n`)
+            stringPastRaces = stringPastRaces.concat(`${element}\n`)
         })
     }
     
     if(stringCurrentRace == '' || stringFutureRaces == '' || stringPastRaces == ''){
         message.reply('Versuche den Command später nochmal')
+        console.log('ack')
     }else{
-        const calendarEmbed = new MessageEmbed()
-        .setColor('#b1fe8c')
+        const calendarEmbed = new EmbedBuilder()
+        .setColor('#6d6dfc')
         .setTitle(`Kalender`)
         .addFields(
             {name: 'Zukünftige Rennen', value: `${stringFutureRaces}`, inline: true},
@@ -52,6 +52,7 @@ async function printCalendar(interaction){
             content:`Die Season wurde erfolgreich gestartet!`,
             embeds: [calendarEmbed]
         })
+        console.log('ack')
     }
 
 }
@@ -72,10 +73,11 @@ module.exports = {
         if(!interaction.member.roles.cache.has(seasonData.getRennleiterRolleID()) &&
             !interaction.member.roles.cache.has(seasonData.getLigaleiterRolleID())){
             interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
+            console.log('ack')
             return;
         }else{
             var date = new Date().toLocaleString()
-            console.log(`Der startseasonFR Command wurde von ${interaction.user.username} verwendet -- ${date}`)
+            console.log(`Der startseason_fr Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         // Sets typ of League
@@ -88,6 +90,7 @@ module.exports = {
         var calendarAsArray = calendarAsString.split(' ')
         if(calendarAsArray.length == 0){
             interaction.reply('Kalender leer');
+            console.log('ack')
             return
         }
         seasonData.setSeasonCalendarLigaFR(calendarAsArray)

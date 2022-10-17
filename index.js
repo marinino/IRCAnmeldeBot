@@ -1,12 +1,12 @@
 
 const Discord = require('discord.js');
-const { Client, Intents, Collection } = require('discord.js');
+const { Client, Intents, Collection, GatewayIntentBits, Partials } = require('discord.js');
 require('dotenv').config();
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const fs = require('fs');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],});
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions]});
 
 client.commands = new Discord.Collection();
 client.events = new Discord.Collection();
@@ -51,7 +51,7 @@ client.once("ready", () => {
  
   const clientId = client.user.id;
   const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
-  const guildId = '947229969438896128';
+  const guildId = '479053264537649153';
 
   (async () => {
     try {

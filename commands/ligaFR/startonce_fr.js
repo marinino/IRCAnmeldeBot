@@ -1,4 +1,4 @@
-const {SlashCommandBuilder} = require('@discordjs/builders');
+const {SlashCommandBuilder} = require('discord.js');
 const CurrentSeason = require('./startseasonliga_fr.js')
 const cron = require('node-cron');
 
@@ -32,18 +32,18 @@ module.exports = {
 
         // Martin2002, MaxPrimetime
         CurrentSeason.seasonData.setMercedesDriversLigaFR(['268398200749031425', '533728391107575809']);
-        // Sergeant, Jules Kaiser
-        CurrentSeason.seasonData.setRedBullDriversLigaFR(['266673984601325570', '529018929008476160']);
-        // Felixx, Jan Overbeck
-        CurrentSeason.seasonData.setFerrariDriversLigaFR(['927709369431363594', '598253459216662634']);
-        // Spacelord, Feuerrabe
-        CurrentSeason.seasonData.setMcLarenDriversLigaFR(['335420562413453312', '682281837233700931']);
-        // Kesby, Robbsell
-        CurrentSeason.seasonData.setAstonMartinDriversLigaFR(['387002150569377802', '659327297819508737']);
+        // Zerotix, Nagato
+        CurrentSeason.seasonData.setRedBullDriversLigaFR(['545636518782435330', '772557225024946217']);
+        // Felixx, Dome nur Besser
+        CurrentSeason.seasonData.setFerrariDriversLigaFR(['927709369431363594', '777188809175072778']);
+        // Spacelord, Mandalon
+        CurrentSeason.seasonData.setMcLarenDriversLigaFR(['335420562413453312', '764434676588740638']);
+        // Moralix, UhuUnheil
+        CurrentSeason.seasonData.setAstonMartinDriversLigaFR(['460882242856681474', '1007613328505454632']);
         // avestro, Pacman
-        CurrentSeason.seasonData.setAlpineDriversLigaFR(['671353767232274442', '284950253772341248']);
-        // Alkenvogel, Yarbay
-        CurrentSeason.seasonData.setAlphaTauriDriversLigaFR(['163331404439093248', '523553582524399672']);
+        CurrentSeason.seasonData.setAlpineDriversLigaFR(['1014907037412511864', '284950253772341248']);
+        // Entsafter, Yarbay
+        CurrentSeason.seasonData.setAlphaTauriDriversLigaFR(['630078485083455498', '523553582524399672']);
         // Andre, Felichs
         CurrentSeason.seasonData.setAlfaRomeoDriversLigaFR(['548524356855136268', '471758946651078657']);
         // Jojo, Pascalus
@@ -69,7 +69,7 @@ module.exports = {
 
         interaction.reply(`Die Anmeldung zum Rennen in ${location} wird am ${seasonStartDayofMonthStart}.${seasonStartMonthStart} um ` + 
                             `${seasonStartHourOfDayStart}:${seasonStartMinutesOfDayStart}:${seasonStartSecondsOfDayStart} geöffnet und am ` + 
-                            `${seasonStartDayofMonthEnd}.${seasonStartMonthEnd} um ${seasonStartHourOfDayEnd}:${seasonStartMinutesOfDayEnd}:${seasonStartSecondsOfDayEnd}` + 
+                            `${seasonStartDayofMonthEnd}.${seasonStartMonthEnd} um ${seasonStartHourOfDayEnd}:${seasonStartMinutesOfDayEnd}:${seasonStartSecondsOfDayEnd} ` + 
                             `geschlossen`)
 
         CurrentSeason.seasonData.setLigatitel('Liga SO 1')

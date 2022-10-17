@@ -1,5 +1,4 @@
-const {SlashCommandBuilder} = require('@discordjs/builders');
-const {MessageEmbed} = require('discord.js');
+const {EmbedBuilder, SlashCommandBuilder} = require('discord.js');
 const CurrentSeason = require('./startseasonliga_fr.js');
 
 module.exports = {
@@ -47,8 +46,8 @@ module.exports = {
             return;
         }
 
-        let embedRemoveWaitlist = new MessageEmbed()
-            .setColor('RED')
+        let embedRemoveWaitlist = new EmbedBuilder()
+            .setColor('#ff4d4d')
             .setTitle('↩')
             .addFields({name:'Update', value:`<@${driverRemove.id}> wurde von der Warteliste enfernt`});
         

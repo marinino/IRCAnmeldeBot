@@ -1,5 +1,4 @@
-const {SlashCommandBuilder} = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const CurrentSeason = require('./startseasonliga_fr.js')
 
 module.exports = {
@@ -52,8 +51,8 @@ module.exports = {
 
         var tempLineup = CurrentSeason.seasonData.getCurrentLineupLigaFR();
 
-        var forceRemoveDriverEmbed = new MessageEmbed()
-            .setColor('#ff7272')
+        var forceRemoveDriverEmbed = new EmbedBuilder()
+            .setColor('#fff654')
             .setTitle('Bitte wähle den Fahrer aus')
             .setDescription(`Du hast Team <@&${roleGiven.id}> gewählt. Welchen Fahrer willst du entfernen`)
             .addFields(
@@ -99,8 +98,8 @@ module.exports = {
                 // Stammlineup ändern
                 await CurrentSeason.methodStorage.printLineup(client, CurrentSeason.seasonData);
 
-                var futureRoleEmbed = new MessageEmbed()
-                    .setColor('#ff7272')
+                var futureRoleEmbed = new EmbedBuilder()
+                    .setColor('#fff654')
                     .setTitle('Bitte wähle den Fahrer aus')
                     .setDescription(`Du hast Fahrer <@${driverToRemove}> von Team <@&${roleGiven.id}> gewählt. Was macht der Fahrer in der Zukunft?`)
                     .addFields(
@@ -339,8 +338,8 @@ module.exports = {
                 // Stammlineup ändern
                 await CurrentSeason.methodStorage.printLineup(client, CurrentSeason.seasonData);
 
-                var futureRoleEmbed = new MessageEmbed()
-                    .setColor('#ff7272')
+                var futureRoleEmbed = new EmbedBuilder()
+                    .setColor('#fff654')
                     .setTitle('Bitte wähle den Fahrer aus')
                     .setDescription(`Du hast Fahrer <@${driverToRemove}> von Team <@&${roleGiven.id}> gewählt. Was macht der Fahrer in der Zukunft?`)
                     .addFields(

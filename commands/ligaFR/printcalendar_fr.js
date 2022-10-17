@@ -1,5 +1,4 @@
-const {SlashCommandBuilder} = require('@discordjs/builders');
-const {MessageEmbed} = require('discord.js');
+const {EmbedBuilder, SlashCommandBuilder} = require('discord.js');
 const CurrentSeason = require('./startseasonliga_fr.js')
 
 async function printCalendar(interaction){
@@ -36,8 +35,8 @@ async function printCalendar(interaction){
     if(stringCurrentRace == '' || stringFutureRaces == '' || stringPastRaces == ''){
         message.reply('Versuche den Command später nochmal')
     }else{
-        const calendarEmbed = new MessageEmbed()
-        .setColor('#b1fe8c')
+        const calendarEmbed = new EmbedBuilder()
+        .setColor('#6d6dfc')
         .setTitle(`Kalender`)
         .addFields(
             {name: 'Zukünftige Rennen', value: `${stringFutureRaces}`, inline: true},

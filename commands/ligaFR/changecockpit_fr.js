@@ -1,6 +1,5 @@
-const {SlashCommandBuilder} = require('@discordjs/builders');
 const CurrentSeason = require('./startseasonliga_fr.js')
-const {MessageEmbed} = require('discord.js');
+const {EmbedBuilder, SlashCommandBuilder} = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -49,8 +48,8 @@ module.exports = {
     
         await interaction.reply(`Tausch wurde gestartet`);
 
-        let forceRemoveDriverEmbed = new MessageEmbed()
-            .setColor('#fd5100')
+        let forceRemoveDriverEmbed = new EmbedBuilder()
+            .setColor('#e0e0e0')
             .setTitle('Bitte wähle den Fahrer aus')
             .setDescription(`Du hast Team <@&${teamObject.id}> gewählt. Welchen Fahrer willst du entfernen`)
             .addFields(
@@ -90,8 +89,8 @@ module.exports = {
                     let preCmdDriver = tempCurrentLineup.get(`${teamObject.name}`)[0];
 
                     if(preCmdDriver != 'nicht besetzt'){
-                        let clearCockpitRemoveEmbed = new MessageEmbed()
-                            .setColor('RED')
+                        let clearCockpitRemoveEmbed = new EmbedBuilder()
+                            .setColor('#ff4d4d')
                             .setTitle('️️️️️️️️️️️️️️️↩')
                             .addFields(
                                 {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
@@ -153,8 +152,8 @@ module.exports = {
                     if(driverOutID != 'nicht besetzt'){
                         let driverOutObject = await interaction.guild.members.fetch(driverOutID)
 
-                        let clearCockpitRemoveEmbed = new MessageEmbed()
-                            .setColor('RED')
+                        let clearCockpitRemoveEmbed = new EmbedBuilder()
+                            .setColor('#ff4d4d')
                             .setTitle('️️️️️️️️️️️️️️️↩')
                             .addFields(
                                 {name: `Update im Lineup`, value: `<@${driverOutID}> ist diese Woche nicht dabei`}
@@ -170,7 +169,7 @@ module.exports = {
 
                         let dateRemove = new Date().toLocaleString();
                         console.log(`changecockpitFR wurde verwendet und der Fahrer` +
-                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${dateRemove}`);
+                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(driverOutID).nickname} wurde entfernt -- ${dateRemove}`);
 
                         tempFreeCars.push(teamObject.id);         
                         
@@ -199,8 +198,8 @@ module.exports = {
                     let preCmdDriver = tempCurrentLineup.get(`${teamObject.name}`)[1]
 
                     if(preCmdDriver != 'nicht besetzt'){
-                        let clearCockpitRemoveEmbed = new MessageEmbed()
-                            .setColor('RED')
+                        let clearCockpitRemoveEmbed = new EmbedBuilder()
+                            .setColor('#ff4d4d')
                             .setTitle('️️️️️️️️️️️️️️️↩')
                             .addFields(
                                 {name: `Update im Lineup`, value: `<@${preCmdDriver}> ist diese Woche nicht dabei`}
@@ -263,8 +262,8 @@ module.exports = {
                     if(driverOutID != 'nicht besetzt'){
                         let driverOutObject = await interaction.guild.members.fetch(driverOutID)
 
-                        let clearCockpitRemoveEmbed = new MessageEmbed()
-                            .setColor('RED')
+                        let clearCockpitRemoveEmbed = new EmbedBuilder()
+                            .setColor('#ff4d4d')
                             .setTitle('️️️️️️️️️️️️️️️↩')
                             .addFields(
                                 {name: `Update im Lineup`, value: `<@${driverOutID}> ist diese Woche nicht dabei`}
@@ -279,7 +278,7 @@ module.exports = {
 
                         let dateRemove = new Date().toLocaleString();
                         console.log(`changecockpitFR wurde verwendet und der Fahrer` +
-                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${dateRemove}`);
+                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(driverOutID).nickname} wurde entfernt -- ${dateRemove}`);
 
                         tempFreeCars.push(teamObject.id);
                         if(tempSubInPerCmd.includes(driverOutID)){
