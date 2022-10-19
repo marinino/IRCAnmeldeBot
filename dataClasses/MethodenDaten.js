@@ -215,16 +215,16 @@ class MethodClass{
             .setTitle('Aktuelles Lineup')
             .setDescription(`Die AKTUELLEN Fahrer aller Teams für das Rennen in ${currentRaceLocation} sind hier aufgelistet`)
             .addFields(
-                {name: 'Mercedes ', value: `${this.setContentForLineup('Mercedes', 0, seasonData)} und ${this.setContentForLineup('Mercedes', 1, seasonData)}`},
-                {name: 'Red Bull ', value: `${this.setContentForLineup('Red Bull', 0, seasonData)} und ${this.setContentForLineup('Red Bull', 1, seasonData)}`},
-                {name: 'Ferrari ', value: `${this.setContentForLineup('Ferrari', 0, seasonData)} und ${this.setContentForLineup('Ferrari', 1, seasonData)}`},
-                {name: 'McLaren ', value: `${this.setContentForLineup('McLaren', 0, seasonData)} und ${this.setContentForLineup('McLaren', 1, seasonData)}`},
-                {name: 'Aston Martin ', value: `${this.setContentForLineup('Aston Martin', 0, seasonData)} und ${this.setContentForLineup('Aston Martin', 1, seasonData)}`},
-                {name: 'Alpine ', value: `${this.setContentForLineup('Alpine', 0, seasonData)} und ${this.setContentForLineup('Alpine', 1, seasonData)}`},
-                {name: 'Alpha Tauri ', value: `${this.setContentForLineup('Alpha Tauri', 0, seasonData)} und ${this.setContentForLineup('Alpha Tauri', 1, seasonData)}`},
-                {name: 'Alfa Romeo ', value: `${this.setContentForLineup('Alfa Romeo', 0, seasonData)} und ${this.setContentForLineup('Alfa Romeo', 1, seasonData)}`},
-                {name: 'Williams ', value: `${this.setContentForLineup('Williams', 0, seasonData)} und ${this.setContentForLineup('Williams', 1, seasonData)}`},
-                {name: 'Haas ', value: `${this.setContentForLineup('Haas', 0, seasonData)} und ${this.setContentForLineup('Haas', 1, seasonData)}`}
+                {name: 'Mercedes ', value: `${await this.setContentForLineup('Mercedes', 0, seasonData, client)} und ${await this.setContentForLineup('Mercedes', 1, seasonData, client)}`},
+                {name: 'Red Bull ', value: `${await this.setContentForLineup('Red Bull', 0, seasonData, client)} und ${await this.setContentForLineup('Red Bull', 1, seasonData, client)}`},
+                {name: 'Ferrari ', value: `${await this.setContentForLineup('Ferrari', 0, seasonData, client)} und ${await this.setContentForLineup('Ferrari', 1, seasonData, client)}`},
+                {name: 'McLaren ', value: `${await this.setContentForLineup('McLaren', 0, seasonData, client)} und ${await this.setContentForLineup('McLaren', 1, seasonData, client)}`},
+                {name: 'Aston Martin ', value: `${await this.setContentForLineup('Aston Martin', 0, seasonData, client)} und ${await this.setContentForLineup('Aston Martin', 1, seasonData, client)}`},
+                {name: 'Alpine ', value: `${await this.setContentForLineup('Alpine', 0, seasonData, client)} und ${await this.setContentForLineup('Alpine', 1, seasonData, client)}`},
+                {name: 'Alpha Tauri ', value: `${await this.setContentForLineup('Alpha Tauri', 0, seasonData, client)} und ${await this.setContentForLineup('Alpha Tauri', 1, seasonData, client)}`},
+                {name: 'Alfa Romeo ', value: `${await  this.setContentForLineup('Alfa Romeo', 0, seasonData, client)} und ${await this.setContentForLineup('Alfa Romeo', 1, seasonData, client)}`},
+                {name: 'Williams ', value: `${await this.setContentForLineup('Williams', 0, seasonData, client)} und ${await this.setContentForLineup('Williams', 1, seasonData, client)}`},
+                {name: 'Haas ', value: `${await this.setContentForLineup('Haas', 0, seasonData, client)} und ${await this.setContentForLineup('Haas', 1, seasonData, client)}`}
             )
             let date = new Date().toLocaleString();   
             console.log(`Das aktuelle Lineup wurde gesendet. Für Liga ${seasonData.getLigatitel()} -- ${date}`);
@@ -241,7 +241,7 @@ class MethodClass{
         }
     }
 
-    setContentForLineup(teamName, seat, seasonData){
+    async setContentForLineup(teamName, seat, seasonData, client){
         //Gets all the information
         let currentLineup = new Map();
         
@@ -253,7 +253,15 @@ class MethodClass{
         } else if(currentLineup.get(teamName)[seat] == 'entfernt'){
             return `entfernt`;
         } else {
-            return `<@${currentLineup.get(teamName)[seat]}>`;
+            var driverInSeat = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(currentLineup.get(teamName)[seat]);
+
+            if(driverInSeat.roles.cache.has(seasonData.getSteamRolleID())){
+                return `<@${currentLineup.get(teamName)[seat]}> <:steam:1032252108772229142>`;
+            } else if(driverInSeat.roles.cache.has(seasonData.getOriginRolleID())){
+                return `<@${currentLineup.get(teamName)[seat]}> <:origin:1032252076169900082>`;
+            }
+            // if XBox
+            // if PS
         }
     }
 

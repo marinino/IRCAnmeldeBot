@@ -28,6 +28,10 @@ class Season {
         this.alfaRomeoRolleID = '947229969656971370';
         this.williamsRolleID = '947229969656971366';
         this.haasRolleID = '947229969673760808';
+        this.steamRolleID = '1032252459332149368';
+        this.originRolleID = '1032252231052963880';
+        // Rolle XBox
+        // Rolle PS
         this.anmeldenEmoji = '✅';
         this.abmeldenEmoji = '❌';
 
@@ -174,6 +178,18 @@ class Season {
     getHaasRolleID(){
         return this.haasRolleID
     }
+
+    getSteamRolleID(){
+        return this.steamRolleID;
+    }
+
+    getOriginRolleID(){
+        return this.originRolleID;
+    }
+
+    // get XBox 
+
+    // get PS
 
     getAbmeldeEmoji(){
         return this.abmeldenEmoji
