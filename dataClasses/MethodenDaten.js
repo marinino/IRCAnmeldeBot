@@ -1346,7 +1346,7 @@ class MethodClass{
             
             }
         });
-        
+        setTimeout(() => this.reminderOpenCockpits(client, seasonData), timeTillClose - (20 * 1000))
         setTimeout(() => this.endFunction(client, seasonData), timeTillClose)
     }
 
@@ -1379,6 +1379,23 @@ class MethodClass{
         seasonData.setCurrentRaceLocationLigaFR(null);
        
         
+    }
+
+    async reminderOpenCockpits(client, seasonData){
+
+        var freeCars = seasonData.getFreeCarsLigaFR();
+        var waitlist = seasonData.getSubPersonListLigaFR();
+        var discordID = seasonData.getDiscordID();
+        var anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+        var anmeldeChannel =  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelID);
+        var ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaFR()
+
+        if(freeCars.length > 0 && waitlist.length == 0){
+            await anmeldeChannel.send(`<@&${ersatzfahrerRolleID}> es sind noch Plätze frei, immer schön rein da.`)
+            let date = new Date().toLocaleString();
+            console.log(`Reminder in Liga X wurde gesendet. -- ${date}`)
+        }
+
     }
 }
 
