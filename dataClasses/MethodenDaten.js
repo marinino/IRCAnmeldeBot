@@ -1346,7 +1346,8 @@ class MethodClass{
             
             }
         });
-        setTimeout(() => this.reminderOpenCockpits(client, seasonData), timeTillClose - (20 * 1000))
+        var timeTillReminder = timeTillClose - (20 * 1000)
+        setTimeout(() => this.reminderOpenCockpits(client, seasonData, timeTillReminder, timeTillClose), timeTillReminder)
         setTimeout(() => this.endFunction(client, seasonData), timeTillClose)
     }
 
@@ -1381,7 +1382,7 @@ class MethodClass{
         
     }
 
-    async reminderOpenCockpits(client, seasonData){
+    async reminderOpenCockpits(client, seasonData, timeTillReminder, timeTillClose){
 
         var freeCars = seasonData.getFreeCarsLigaFR();
         var waitlist = seasonData.getSubPersonListLigaFR();
@@ -1394,6 +1395,15 @@ class MethodClass{
             await anmeldeChannel.send(`<@&${ersatzfahrerRolleID}> es sind noch Plätze frei, immer schön rein da.`)
             let date = new Date().toLocaleString();
             console.log(`Reminder in Liga X wurde gesendet. -- ${date}`)
+        }else{
+            console.log(`First not`)
+            setTimeout(async () => {
+                if(freeCars.length > 0 && waitlist.length == 0){
+                    await anmeldeChannel.send(`<@&${ersatzfahrerRolleID}> es sind noch Plätze frei, immer schön rein da.`)
+                    let date = new Date().toLocaleString();
+                    console.log(`Reminder in Liga X wurde gesendet. -- ${date}`)
+                }
+            }, (timeTillClose - timeTillReminder)/2)
         }
 
     }
