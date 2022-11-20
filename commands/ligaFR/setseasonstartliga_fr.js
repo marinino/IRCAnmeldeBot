@@ -63,13 +63,13 @@ module.exports = {
             cron.schedule(`${seasonStartSecondsOfDay} ${seasonStartMinutesOfDay} ${seasonStartHourOfDay} ${seasonStartDayofMonth} ${seasonStartMonth} *`, () => {
                 if(CurrentSeason.seasonData.getSeasonCalendarLigaFR().length > 0){
                     CurrentSeason.seasonData.setSeasonActiveLigaFR(true);
-                    CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 341400000);
+                    CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 60000);
                 }
                 let startLoop = setInterval(async function(){
                     CurrentSeason.seasonData.setStartLoopLigaFR(startLoop);
                     if(CurrentSeason.seasonData.getSeasonCalendarLigaFR().length > 0){
                         if(CurrentSeason.seasonData.getSeasonActiveLigaFR() == true){
-                            CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 341400000);
+                            CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 60000);
                             CurrentSeason.seasonData.getSeasonCalendarLigaFR().forEach(element => (console.log(element)))
                             CurrentSeason.seasonData.getSeasonCalendarRacesDoneLigaFR().forEach(element => (console.log(element)))
                         }else{
@@ -86,7 +86,7 @@ module.exports = {
                         console.log(`Die Season in Liga FR wurde beendet`);
                     }
                     
-                }  , 604800000)
+                }  , 80000)
                 
             })
         }catch{

@@ -1347,7 +1347,7 @@ class MethodClass{
             }
         });
         var timeTillReminder = timeTillClose - (20 * 1000)
-        setTimeout(() => this.reminderOpenCockpits(client, seasonData, timeTillReminder, timeTillClose), timeTillReminder)
+        setTimeout(() => this.reminderOpenCockpits(client, seasonData), timeTillReminder)
         setTimeout(() => this.endFunction(client, seasonData), timeTillClose)
     }
 
@@ -1382,7 +1382,7 @@ class MethodClass{
         
     }
 
-    async reminderOpenCockpits(client, seasonData, timeTillReminder, timeTillClose){
+    async reminderOpenCockpits(client, seasonData){
 
         var freeCars = seasonData.getFreeCarsLigaFR();
         var waitlist = seasonData.getSubPersonListLigaFR();
@@ -1403,7 +1403,7 @@ class MethodClass{
                     let date = new Date().toLocaleString();
                     console.log(`Reminder in Liga X wurde gesendet. -- ${date}`)
                 }
-            }, (timeTillClose - timeTillReminder)/2)
+            }, 10 * 1000)
         }
 
     }
