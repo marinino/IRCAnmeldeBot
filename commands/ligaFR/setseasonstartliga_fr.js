@@ -87,6 +87,7 @@ module.exports = {
                     }
                     
                 }  , 80000)
+                console.log(startLoop)
                 
             })
         }catch{

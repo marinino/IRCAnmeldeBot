@@ -19,7 +19,16 @@ module.exports = {
                 .setDescription('Wann soll die Anmeldung geschlossen werden. Bitte in Format angeben Datum TT.MM HH:MM:SS')
                 .setRequired(true)),
 
-    async execute(client, interaction, command){
+    async execute(client, interaction, command, connection){
+
+        connection.ping((err) => {
+            if(err){
+                console.log(err);
+            }else{
+                console.log('Success')
+            }
+            
+        })
 
         if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
             !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
