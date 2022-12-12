@@ -6,59 +6,6 @@ const mysql = require('mysql')
 var seasonData = new SeasonData();
 var methodStorage = new MethodStorage()
 
-/*
-async function printCalendar(interaction){
-
-    // Output for races in the future
-    var stringFutureRaces = ''
-    if(seasonData.getSeasonCalendarLigaFR().length == 0){
-        stringFutureRaces = `Es sind keine \n Rennen mehr geplant`
-    }else{
-        seasonData.getSeasonCalendarLigaFR().forEach((element) => {
-        console.log(element)
-        stringFutureRaces = stringFutureRaces.concat(`${element}\n`)
-        })
-    }
-    
-    // Output of current race
-    var stringCurrentRace = ''
-    if(seasonData.getCurrentRaceLocationLigaFR() == null){
-        stringCurrentRace = `Aktuell läuft \n kein Event`
-    }else{
-        stringCurrentRace = seasonData.getCurrentRaceLocationLigaFR()
-    }
-    
-    // Outputs past races
-    var stringPastRaces = ''
-    if(seasonData.getSeasonCalendarRacesDoneLigaFR().length == 0){
-        stringPastRaces = `Bisher wurde noch kein \n Event abgeschlossen`
-    }else{
-        seasonData.getSeasonCalendarRacesDoneLigaFR().forEach((element) => {
-            stringPastRaces = stringPastRaces.concat(`${element}\n`)
-        })
-    }
-    
-    if(stringCurrentRace == '' || stringFutureRaces == '' || stringPastRaces == ''){
-        message.reply('Versuche den Command später nochmal')
-        console.log('ack')
-    }else{
-        const calendarEmbed = new EmbedBuilder()
-        .setColor('#6d6dfc')
-        .setTitle(`Kalender`)
-        .addFields(
-            {name: 'Zukünftige Rennen', value: `${stringFutureRaces}`, inline: true},
-            {name: 'Aktuelles Rennen', value: `${stringCurrentRace}`, inline: true},
-            {name: 'Gefahrene Rennen', value: `${stringPastRaces}`, inline: true}
-        )
-        interaction.reply({
-            content:`Die Season wurde erfolgreich gestartet!`,
-            embeds: [calendarEmbed]
-        })
-        console.log('ack')
-    }
-
-}
-*/
 
 module.exports = {
     seasonData,
@@ -102,136 +49,153 @@ module.exports = {
      
         var stringFutureRaces = ''
 
-        connectionAdman.connect(async error => {
-             if(error){
-              //console.log(error)
-            } else {
-              // Sets typ of League
-                await connection.query(`SELECT * FROM league_ids`, function(err, res, fields) {
-                    if(err){
-                        //console.log(err)
-                    } else {
-                        res.forEach(entry => {
-                            if(entry.name == 'Sonntag 1'){
-                                tempLeagueIDsWithSameName.push(entry.league_id);
-                            
-                                tempLeagueIDsWithSameName.forEach(async id => {
-                                  
-                                    await connection.query(`DELETE FROM league_ids WHERE league_id = ${id}`, async function(err, res, fields){
-                                        if(err){
-                                            //console.log(err)
-                                        } else {
-                                            //console.log(res)
-
-                                            await connection.query(`INSERT INTO league_ids (league_id, name) VALUES (${leagueID}, 'Sonntag 1')`, function(err, res, fields){
-                                                if(err){
-                                                    //console.log(err)
-                                                } else {
-                                                    //console.log(res)
-                                                }
-                                            })
-                                        }
-                                    })
-                                })
-                            }
-                        })
-                    }
-                })
-            }
+        var promConnect = new Promise(function(resolve, reject) {
+            connectionAdman.connect(async error => {
+                if(error){
+                  reject(error)
+                } else {
+                  resolve(`Connection established`)
+                }
+            })
         })
         
-        let p1 =  new Promise(function(resolve, reject) {
+        
+        var promGetRaces =  new Promise(function(resolve, reject) {
             connectionAdman.query(`SELECT * FROM rennen WHERE lid = ${leagueID}`, function(err, res, fields){
-                console.log(`Query done`)
                 if(err){
-                    console.log(`Query error`)
+                    console.log(`Query rennen failed`)
                     reject(err);
                 } else {
-                    console.log(`Query success`)
+                    console.log(`Query rennen succeeded`)
                     resolve(res);
-                    console.log(`Query after`)
                 }
             });
         });
+        
+        var promGetLeagues = new Promise(function(resolve, reject){
+            connection.query(`SELECT * FROM league_ids`, function(err, res, fields) {
+                if(err){
+                    console.log(`Query getLeagues failed`)
+                    reject(err)
+                } else {
+                    console.log(`Query getLeagues succeeded`)
+                    resolve(res);
+                }
+            })
+        })
 
-        p1.then(function(res) {
-            console.log(`---------------------------------------------------------------------------------`)
-
-            console.log(res)
-
-            while(res.length > 0){
-                var currentMin = new Date(res[0].datum).getTime();
-                var currentMinEvent = res[0];
-                res.forEach(event => {
-                    if(new Date(event.datum).getTime() < currentMin){
-                     
-                        currentMin = event.date;
-                        currentMinEvent = event;
+        var promDeleteLeagues = new Promise(function(resolve, reject){
+            tempLeagueIDsWithSameName.forEach(async id => {
+                connection.query(`DELETE FROM league_ids WHERE league_id = ${id}`, async function(err, res, fields){
+                    if(err){
+                        console.log(`Query deleteLeagues failed`)
+                        reject(err)
+                    } else {
+                        console.log(`Query deleteLeagues succeeded`)
+                        resolve(res);
                     }
                 })
-                
-                res.splice(res.indexOf(currentMinEvent), 1);
-                calendarSortedByDate.push(currentMinEvent);
-            } 
-            
-            calendarSortedByDate.forEach(async element => {
             })
-        },function(err) {
-         
         })
-        
-        
-        
 
-        queryPromise2 = () => {
-            return new Promise((reject, resolve) => {
-                calendarSortedByDate.forEach(async element => {
-                    connectionAdman.query(`SELECT * FROM austragungsort WHERE ausid = ${element.ausid}`, async function(err, res){
-                        if(err){
-                            return err
-                        } else {
-                            return res;
-                        }
-                    })
+        var promInsertNewLeague = new Promise(function(resolve, reject){
+            connection.query(`INSERT INTO league_ids (league_id, name) VALUES (${leagueID}, 'Sonntag 1')`, function(err, res, fields){
+                if(err){
+                    console.log(`Query insertLeague failed`)
+                    reject(err)
+                } else {
+                    console.log(`Query insertLeague succeeded`)
+                    resolve(res)
+                }
+            })
+        })
+
+        var promGetNamesOfRaces = new Promise(function (resolve, reject){
+            calendarSortedByDate.forEach(async element => {
+                connectionAdman.query(`SELECT * FROM austragungsort WHERE ausid = ${element.ausid}`, async function(err, res){
+                    if(err){
+                        reject(err)
+                    } else {
+                        resolve(res);
+                    }
                 })
             })
-        }
-
-        
-          
-       
-        
-       
-
-        
-
-        var resultAus = await queryPromise2();
-
-        resultAus.forEach(element => {
-            stringFutureRaces = stringFutureRaces.concat(`${element[0].grandprixname}\n`)
-
         })
-        
-        var embedNextRaces = new EmbedBuilder()
-            .setColor('#6d6dfc')
-            .setDescription('Zuküftige Rennen in dieser Saison')
-            .addFields( {name: 'Namen', value: `${stringFutureRaces}`} )
+    
 
-        await interaction.reply({embeds: [embedNextRaces]})
-        
+        await promConnect.then(async function(res){
+            console.log(res)
 
-           
-        /*
-        // Sets calendar for given season object
-        var calendarAsArray = calendarAsString.split(' ')
-        if(calendarAsArray.length == 0){
-            interaction.reply('Kalender leer');
-            return
-        }
-        seasonData.setSeasonCalendarLigaFR(calendarAsArray)
+            setTimeout('', 5000);
 
-        //printCalendar(interaction);
-        */
-        
+            // Next call
+            await promGetLeagues.then(async function(res){
+                res.forEach(entry => {
+                    if(entry.name == 'Sonntag 1'){
+                        tempLeagueIDsWithSameName.push(entry.league_id);
+                    }
+                })
+
+                //Next call
+                await promDeleteLeagues.then(async function(res){
+                    console.log(res)
+
+                    // Next call
+                    await promInsertNewLeague.then(async function(res){
+                        console.log(res)
+
+                        // Next call
+                        await promGetRaces.then(async function(res) {
+                            console.log(`---------------------------------------------------------------------------------`)
+                
+                            console.log(res)
+                
+                            while(res.length > 0){
+                                var currentMin = new Date(res[0].datum).getTime();
+                                var currentMinEvent = res[0];
+                                res.forEach(event => {
+                                    if(new Date(event.datum).getTime() < currentMin){
+                                     
+                                        currentMin = event.date;
+                                        currentMinEvent = event;
+                                    }
+                                })
+                                
+                                res.splice(res.indexOf(currentMinEvent), 1);
+                                calendarSortedByDate.push(currentMinEvent);
+                            } 
+                            
+                            // Next call
+                            await promGetNamesOfRaces.then(async function(res){
+                                res.forEach(element => {
+                                    stringFutureRaces = stringFutureRaces.concat(`${element[0].grandprixname}\n`)
+                        
+                                })
+                                
+                                const embedNextRaces = new EmbedBuilder()
+                                    .setColor('#6d6dfc')
+                                    .setDescription('Zuküftige Rennen in dieser Saison')
+                                    .addFields( {name: 'Namen', value: `${stringFutureRaces}`} )
+                        
+                                await interaction.reply({embeds: [embedNextRaces]})
+                            }, function(err){
+                                console.log(err)
+                            })
+                        },function(err) {
+                            console.log(err)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+
+            }, function(err){
+                console.log(err)
+            })
+        }, function(err){
+            console.log(err)
+        })
     }
 }
