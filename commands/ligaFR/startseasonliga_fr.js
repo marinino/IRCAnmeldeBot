@@ -60,75 +60,37 @@ module.exports = {
         })
         
         
-        var promGetRaces =  new Promise(function(resolve, reject) {
-            connectionAdman.query(`SELECT * FROM rennen WHERE lid = ${leagueID}`, function(err, res, fields){
-                if(err){
-                    console.log(`Query rennen failed`)
-                    reject(err);
-                } else {
-                    console.log(`Query rennen succeeded`)
-                    resolve(res);
-                }
-            });
-        });
         
-        var promGetLeagues = new Promise(function(resolve, reject){
-            connection.query(`SELECT * FROM league_ids`, function(err, res, fields) {
-                if(err){
-                    console.log(`Query getLeagues failed`)
-                    reject(err)
-                } else {
-                    console.log(`Query getLeagues succeeded`)
-                    resolve(res);
-                }
-            })
-        })
+        
+        
+        
 
-        var promDeleteLeagues = new Promise(function(resolve, reject){
-            tempLeagueIDsWithSameName.forEach(async id => {
-                connection.query(`DELETE FROM league_ids WHERE league_id = ${id}`, async function(err, res, fields){
-                    if(err){
-                        console.log(`Query deleteLeagues failed`)
-                        reject(err)
-                    } else {
-                        console.log(`Query deleteLeagues succeeded`)
-                        resolve(res);
-                    }
-                })
-            })
-        })
+        
 
-        var promInsertNewLeague = new Promise(function(resolve, reject){
-            connection.query(`INSERT INTO league_ids (league_id, name) VALUES (${leagueID}, 'Sonntag 1')`, function(err, res, fields){
-                if(err){
-                    console.log(`Query insertLeague failed`)
-                    reject(err)
-                } else {
-                    console.log(`Query insertLeague succeeded`)
-                    resolve(res)
-                }
-            })
-        })
+        
 
-        var promGetNamesOfRaces = new Promise(function (resolve, reject){
-            calendarSortedByDate.forEach(async element => {
-                connectionAdman.query(`SELECT * FROM austragungsort WHERE ausid = ${element.ausid}`, async function(err, res){
-                    if(err){
-                        reject(err)
-                    } else {
-                        resolve(res);
-                    }
-                })
-            })
-        })
+       
     
 
         await promConnect.then(async function(res){
             console.log(res)
 
-            setTimeout('', 5000);
+            setTimeout(function(){
+                console.log('test')
+            }, 5000);
 
-            // Next call
+            var promGetLeagues = new Promise(function(resolve, reject){
+                connection.query(`SELECT * FROM league_ids`, function(err, res, fields) {
+                    if(err){
+                        console.log(`Query getLeagues failed`)
+                        reject(err)
+                    } else {
+                        console.log(`Query getLeagues succeeded`)
+                        resolve(res);
+                    }
+                })
+            })
+    
             await promGetLeagues.then(async function(res){
                 res.forEach(entry => {
                     if(entry.name == 'Sonntag 1'){
@@ -136,15 +98,50 @@ module.exports = {
                     }
                 })
 
-                //Next call
+                var promDeleteLeagues = new Promise(function(resolve, reject){
+                    tempLeagueIDsWithSameName.forEach(async id => {
+                        connection.query(`DELETE FROM league_ids WHERE league_id = ${id}`, async function(err, res, fields){
+                            if(err){
+                                console.log(`Query deleteLeagues failed`)
+                                reject(err)
+                            } else {
+                                console.log(`Query deleteLeagues succeeded`)
+                                resolve(res);
+                            }
+                        })
+                    })
+                })
+
                 await promDeleteLeagues.then(async function(res){
                     console.log(res)
 
-                    // Next call
+                    var promInsertNewLeague = new Promise(function(resolve, reject){
+                        connection.query(`INSERT INTO league_ids (league_id, name) VALUES (${leagueID}, 'Sonntag 1')`, function(err, res, fields){
+                            if(err){
+                                console.log(`Query insertLeague failed`)
+                                reject(err)
+                            } else {
+                                console.log(`Query insertLeague succeeded`)
+                                resolve(res)
+                            }
+                        })
+                    })
+
                     await promInsertNewLeague.then(async function(res){
                         console.log(res)
 
-                        // Next call
+                        var promGetRaces =  new Promise(function(resolve, reject) {
+                            connectionAdman.query(`SELECT * FROM rennen WHERE lid = ${leagueID}`, function(err, res, fields){
+                                if(err){
+                                    console.log(`Query rennen failed`)
+                                    reject(err);
+                                } else {
+                                    console.log(`Query rennen succeeded`)
+                                    resolve(res);
+                                }
+                            });
+                        });
+
                         await promGetRaces.then(async function(res) {
                             console.log(`---------------------------------------------------------------------------------`)
                 
@@ -163,11 +160,40 @@ module.exports = {
                                 
                                 res.splice(res.indexOf(currentMinEvent), 1);
                                 calendarSortedByDate.push(currentMinEvent);
+
+
                             } 
+
                             
-                            // Next call
+
+                            var promGetNamesOfRaces = new Promise(function (resolve, reject){
+                                var racesNames = new Array()
+                                calendarSortedByDate.forEach(async element => {
+                                    connectionAdman.query(`SELECT * FROM austragungsort WHERE ausid = ${element.ausid}`, async function(err, res){
+                                        if(err){
+                                            reject(err)
+                                        } else {
+                                            console.log(res)
+                                            racesNames.push(res)
+                                        }
+                                    })
+                                })
+
+                                setTimeout(function(){
+                                    console.log('SEARCHING FOR NAMES')
+                                    resolve(racesNames);
+                                    console.log(racesNames)
+                                }, 2000);
+
+                                
+                            })
+
                             await promGetNamesOfRaces.then(async function(res){
+
+                                //console.log(res)
+
                                 res.forEach(element => {
+                                    //console.log(element)
                                     stringFutureRaces = stringFutureRaces.concat(`${element[0].grandprixname}\n`)
                         
                                 })
@@ -184,18 +210,21 @@ module.exports = {
                         },function(err) {
                             console.log(err)
                         })
+                            
                     }, function(err){
                         console.log(err)
                     })
                 }, function(err){
                     console.log(err)
                 })
-
             }, function(err){
                 console.log(err)
             })
         }, function(err){
             console.log(err)
-        })
+        }).then(async () => {
+            
+        }) 
+        
     }
 }
