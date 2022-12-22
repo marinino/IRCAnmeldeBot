@@ -1,6 +1,7 @@
 const {SlashCommandBuilder} = require('discord.js');
 const CurrentSeason = require('./startseasonliga_fr.js')
 const cron = require('node-cron');
+const mysql = require('mysql')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -11,7 +12,7 @@ module.exports = {
                 .setDescription('Startzeit angeben im Format TT.MM HH:MM:SS')
                 .setRequired(true)),
 
-    async execute(client, interaction, command){
+    async execute(client, interaction, command, connection){
 
         if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
             !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
@@ -22,6 +23,7 @@ module.exports = {
             console.log(`Der startseasonligaFR Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
+        /*
         // Adman, Chris
         CurrentSeason.seasonData.setMercedesDriversLigaFR(['269499201702854667', '469926134700703748']);
         // lyrex, Broncos
@@ -42,6 +44,141 @@ module.exports = {
         CurrentSeason.seasonData.setWilliamsDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
         // Senfy, Schorli
         CurrentSeason.seasonData.setHaasDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
+        */
+
+        const connectionAdman = mysql.createConnection({
+            host: 'localhost',
+            port: '3306',
+            user: 'root',
+            password: 'root',
+            database: 'adman_dummy_daten'
+            });
+
+        var promConnect = new Promise(function(resolve, reject) {
+            connectionAdman.connect(async error => {
+                if(error){
+                    reject(error)
+                } else {
+                    resolve(`Connection established`)
+                }
+            })
+        })
+
+        var leagueID = -1;
+        var mercedesDrivers = new Array();
+
+        await promConnect.then(async function(res){
+            console.log(res)
+
+            setTimeout(function(){
+                console.log('test')
+            }, 5000);
+
+            var promGetLeagueID = new Promise(function (resolve, reject){
+                connection.query(`SELECT league_id FROM league_ids WHERE name = 'Sonntag 1'`, async function(err, res){
+                    if(err){
+                        reject(err);
+                    } else {
+                        console.log('HAAAAAAAAAAAAAAAAAAAAAAAAAAALLO')
+                        resolve(res);
+                    }
+                })
+            })
+            
+            await promGetLeagueID.then(async function(res){
+                console.log(res)
+
+                leagueID = res[0].league_id
+                
+                var promGetMercedesID = new Promise(function(resolve, reject){
+                    connectionAdman.query(`SELECT id FROM team WHERE name = 'Mercedes'`, async function(err, res){
+                        if(err){
+                            reject(err)
+                        } else {
+                            resolve(res)
+                        }
+                    })
+                })
+
+                await promGetMercedesID.then(async function(res){
+                    var mercedesTeamID = res[0].id 
+
+                    var promGetMercedesDrivers = new Promise(function(resolve, reject){
+                        connectionAdman.query(`SELECT * FROM ligateamfahrer WHERE ligaid = ${leagueID} AND tid = ${mercedesTeamID}
+                                                AND fahrerrolle = 'Stammfahrer'`, async function(err, res){
+                            if(err){
+                                reject(err)
+                            } else {
+                                resolve(res)
+                            }
+                        })
+                    })
+
+                    await promGetMercedesDrivers.then(async function(res){
+                        console.log(res)
+
+                        var mercDriversPersID = new Array()
+
+                        res.forEach(entry => {
+                            if(entry.gueltigbis == 'NULL'){
+                                mercDriversPersID.push(entry.persid)
+                            } else {
+                                var currentDate = new Date();
+                                var gueltigBisDriver = new Date(entry.gueltigbis)
+                                console.log(gueltigBisDriver)
+
+                                if(currentDate - gueltigBisDriver < 0){
+                                    mercDriversPersID.push(entry.persid)
+                                } else {
+                                    console.log('Kein Stamm mehr')
+                                }
+                            }
+                        })
+
+                        mercDriversPersID.forEach(driverID => {
+                            console.log(driverID)
+                        })
+
+                        var promGetDcIDs = new Promise(function(reject, resolve){
+
+                            var mercDriversDcID = new Array()
+
+                            mercDriversPersID.forEach(persID => {
+                                connectionAdman.query(`SELECT dcid FROM person WHERE id = ${persID}`, function(err, res){
+                                    if(err){
+                                        reject(err)
+                                    } else {
+                                        mercDriversDcID.push(res[0].dcid)
+                                    }
+                                })
+                            })
+                            setTimeout(function(){
+                                console.log('SEARCHING FOR IDS')
+                                resolve(mercDriversDcID);
+                            }, 2000); 
+                            
+                        })
+
+                        await promGetDcIDs.then(function(res){
+                            console.log(res)
+                            res.forEach(driver => {
+                                console.log(driver)
+                            })
+                        }, function(err){
+                            console.log(err)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+            }, function(err){
+                console.log(err)
+            })
+        }, function(err){
+            console.log(err)
+        })
 
         var seasonStartDayofMonth = null
         var seasonStartMonth = null
