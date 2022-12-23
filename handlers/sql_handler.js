@@ -274,12 +274,12 @@ module.exports = (client) => {
      * Result are all drivers from the league in the given team
      * 
      * @param {Integer} leagueID 
-     * @param {String} teamname 
+     * @param {Integer} teamID 
      * @returns Promise
      */
-    client.getTeamDrivers = async (leagueID, teamname) => {
+    client.getTeamDrivers = async (leagueID, teamID) => {
         var promGetTeamDrivers = new Promise(function(resolve, reject){
-            connectionAdman.query(`SELECT * FROM ligateamfahrer WHERE ligaid = ${leagueID} AND tid = '${teamname}' AND fahrerrolle = 'Stammfahrer'`, async function(err, res){
+            connectionAdman.query(`SELECT * FROM ligateamfahrer WHERE ligaid = ${leagueID} AND tid = '${teamID}' AND fahrerrolle = 'Stammfahrer'`, async function(err, res){
                 if(err){
                     reject(err)
                 } else {

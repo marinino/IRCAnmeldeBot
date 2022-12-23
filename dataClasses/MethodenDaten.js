@@ -190,6 +190,8 @@ class MethodClass{
         msgLineupID = seasonData.getLineupMsgLigaFR();
         infoChannelID = seasonData.getInfoChannelIDLigaFR();
         currentRaceLocation = seasonData.getCurrentRaceLocationLigaFR();
+
+        
        
         //Deletes lineup currently displayed in channel
         if(msgLineupID != null){
@@ -1406,6 +1408,586 @@ class MethodClass{
             }, 10 * 1000)
         }
 
+    }
+
+    async getMercedesDrivers(client){
+        //Get drivers
+        var leagueID = -1;
+        var mercedesDrivers = new Array();
+
+       
+        await client.getLeagueID('Sonntag 1').then(async function(res){
+            console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+
+            leagueID = res[0].league_id
+            
+            await client.getTeamID('Mercedes').then(async function(res){
+                console.log(`Query for Team Mercedes ID was successful -- ${new Date().toLocaleString()}`)
+                var mercedesTeamID = res[0].id 
+
+                await client.getTeamDrivers(leagueID, mercedesTeamID).then(async function(res){
+                    console.log(`Query for drivers from team Mercedes was successful -- ${new Date().toLocaleString()}`)
+
+                    var mercDriversPersID = new Array()
+                    res.forEach(entry => {
+                        if(entry.gueltigbis == 'NULL'){
+                            mercDriversPersID.push(entry.persid)
+                        } else {
+                            var currentDate = new Date();
+                            var gueltigBisDriver = new Date(entry.gueltigbis)
+                            console.log(gueltigBisDriver)
+
+                            if(currentDate - gueltigBisDriver < 0){
+                                mercDriversPersID.push(entry.persid)
+                            } else {
+                                console.log('Kein Stamm mehr')
+                            }
+                        }
+                    })
+
+                    var mercDriversDcID = new Array()
+
+                    await client.getDiscordIDs(mercDriversPersID, mercDriversDcID).then(function(res){
+                        console.log(`Query for drivers Discord IDs from team Mercedes was successful -- ${new Date().toLocaleString()}`)
+                        res.forEach(driver => {
+                            mercedesDrivers.push(driver)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+            }, function(err){
+                console.log(err)
+            })
+        }, function(err){
+            console.log(err)
+        })
+
+        return mercedesDrivers
+    }
+
+    async getRedBullDrivers(client){
+        //Get drivers
+        var leagueID = -1;
+        var redBullDrivers = new Array();
+
+       
+        await client.getLeagueID('Sonntag 1').then(async function(res){
+            console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+
+            leagueID = res[0].league_id
+            
+            await client.getTeamID('Red Bull').then(async function(res){
+                console.log(`Query for Team Red Bull ID was successful -- ${new Date().toLocaleString()}`)
+                var redBullTeamID = res[0].id 
+
+                await client.getTeamDrivers(leagueID, redBullTeamID).then(async function(res){
+                    console.log(`Query for drivers from team Red Bull was successful -- ${new Date().toLocaleString()}`)
+
+                    var redBullDriversPersID = new Array()
+                    res.forEach(entry => {
+                        if(entry.gueltigbis == 'NULL'){
+                            redBullDriversPersID.push(entry.persid)
+                        } else {
+                            var currentDate = new Date();
+                            var gueltigBisDriver = new Date(entry.gueltigbis)
+                            console.log(gueltigBisDriver)
+
+                            if(currentDate - gueltigBisDriver < 0){
+                                redBullDriversPersID.push(entry.persid)
+                            } else {
+                                console.log('Kein Stamm mehr')
+                            }
+                        }
+                    })
+
+                    var redBullDriversDcID = new Array()
+
+                    await client.getDiscordIDs(redBullDriversPersID, redBullDriversDcID).then(function(res){
+                        console.log(`Query for drivers Discord IDs from team Red Bull was successful -- ${new Date().toLocaleString()}`)
+                        res.forEach(driver => {
+                            redBullDrivers.push(driver)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+            }, function(err){
+                console.log(err)
+            })
+        }, function(err){
+            console.log(err)
+        })
+
+        return redBullDrivers
+    }
+
+    async getFerrariDrivers(client){
+         //Get drivers
+         var leagueID = -1;
+         var ferrariDrivers = new Array();
+ 
+        
+         await client.getLeagueID('Sonntag 1').then(async function(res){
+             console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+ 
+             leagueID = res[0].league_id
+             
+             await client.getTeamID('Ferrari').then(async function(res){
+                 console.log(`Query for Team Ferrari ID was successful -- ${new Date().toLocaleString()}`)
+                 var ferrariTeamID = res[0].id 
+ 
+                 await client.getTeamDrivers(leagueID, ferrariTeamID).then(async function(res){
+                     console.log(`Query for drivers from team Ferrari was successful -- ${new Date().toLocaleString()}`)
+ 
+                     var ferrariDriversPersID = new Array()
+                     res.forEach(entry => {
+                         if(entry.gueltigbis == 'NULL'){
+                            ferrariDriversPersID.push(entry.persid)
+                         } else {
+                             var currentDate = new Date();
+                             var gueltigBisDriver = new Date(entry.gueltigbis)
+                             console.log(gueltigBisDriver)
+ 
+                             if(currentDate - gueltigBisDriver < 0){
+                                ferrariDriversPersID.push(entry.persid)
+                             } else {
+                                 console.log('Kein Stamm mehr')
+                             }
+                         }
+                     })
+ 
+                     var ferrariDriversDcID = new Array()
+ 
+                     await client.getDiscordIDs(ferrariDriversPersID, ferrariDriversDcID).then(function(res){
+                         console.log(`Query for drivers Discord IDs from team Ferrari was successful -- ${new Date().toLocaleString()}`)
+                         res.forEach(driver => {
+                            ferrariDrivers.push(driver)
+                         })
+                     }, function(err){
+                         console.log(err)
+                     })
+                 }, function(err){
+                     console.log(err)
+                 })
+             }, function(err){
+                 console.log(err)
+             })
+         }, function(err){
+             console.log(err)
+         })
+ 
+         return ferrariDrivers
+    }
+
+    async getMcLarenDrivers(client){
+                //Get drivers
+                var leagueID = -1;
+                var mcLarenDrivers = new Array();
+        
+               
+                await client.getLeagueID('Sonntag 1').then(async function(res){
+                    console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+        
+                    leagueID = res[0].league_id
+                    
+                    await client.getTeamID('McLaren').then(async function(res){
+                        console.log(`Query for Team McLaren ID was successful -- ${new Date().toLocaleString()}`)
+                        var mcLarenTeamID = res[0].id 
+        
+                        await client.getTeamDrivers(leagueID, mcLarenTeamID).then(async function(res){
+                            console.log(`Query for drivers from team McLaren was successful -- ${new Date().toLocaleString()}`)
+        
+                            var mcLarenDriversPersID = new Array()
+                            res.forEach(entry => {
+                                if(entry.gueltigbis == 'NULL'){
+                                    mcLarenDriversPersID.push(entry.persid)
+                                } else {
+                                    var currentDate = new Date();
+                                    var gueltigBisDriver = new Date(entry.gueltigbis)
+                                    console.log(gueltigBisDriver)
+        
+                                    if(currentDate - gueltigBisDriver < 0){
+                                        mcLarenDriversPersID.push(entry.persid)
+                                    } else {
+                                        console.log('Kein Stamm mehr')
+                                    }
+                                }
+                            })
+        
+                            var mcLarenDriversDcID = new Array()
+        
+                            await client.getDiscordIDs(mcLarenDriversPersID, mcLarenDriversDcID).then(function(res){
+                                console.log(`Query for drivers Discord IDs from team McLaren was successful -- ${new Date().toLocaleString()}`)
+                                res.forEach(driver => {
+                                    mcLarenDrivers.push(driver)
+                                })
+                            }, function(err){
+                                console.log(err)
+                            })
+                        }, function(err){
+                            console.log(err)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+        
+                return mcLarenDrivers
+    }
+
+    async getAstonMartinDrivers(client){
+         //Get drivers
+         var leagueID = -1;
+         var astonMartinDrivers = new Array();
+ 
+        
+         await client.getLeagueID('Sonntag 1').then(async function(res){
+             console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+ 
+             leagueID = res[0].league_id
+             
+             await client.getTeamID('Aston Martin').then(async function(res){
+                 console.log(`Query for Team Aston Martin ID was successful -- ${new Date().toLocaleString()}`)
+                 var astonMartinTeamID = res[0].id 
+ 
+                 await client.getTeamDrivers(leagueID, astonMartinTeamID).then(async function(res){
+                     console.log(`Query for drivers from team Aston Martin was successful -- ${new Date().toLocaleString()}`)
+ 
+                     var astonMartinDriversPersID = new Array()
+                     res.forEach(entry => {
+                         if(entry.gueltigbis == 'NULL'){
+                            astonMartinDriversPersID.push(entry.persid)
+                         } else {
+                             var currentDate = new Date();
+                             var gueltigBisDriver = new Date(entry.gueltigbis)
+                             console.log(gueltigBisDriver)
+ 
+                             if(currentDate - gueltigBisDriver < 0){
+                                astonMartinDriversPersID.push(entry.persid)
+                             } else {
+                                 console.log('Kein Stamm mehr')
+                             }
+                         }
+                     })
+ 
+                     var astonMartinDriversDcID = new Array()
+ 
+                     await client.getDiscordIDs(astonMartinDriversPersID, astonMartinDriversDcID).then(function(res){
+                         console.log(`Query for drivers Discord IDs from team Aston Martin was successful -- ${new Date().toLocaleString()}`)
+                         res.forEach(driver => {
+                            astonMartinDrivers.push(driver)
+                         })
+                     }, function(err){
+                         console.log(err)
+                     })
+                 }, function(err){
+                     console.log(err)
+                 })
+             }, function(err){
+                 console.log(err)
+             })
+         }, function(err){
+             console.log(err)
+         })
+ 
+         return astonMartinDrivers
+    }
+
+    async getAlpineDrivers(client){
+        //Get drivers
+        var leagueID = -1;
+        var alpineDrivers = new Array();
+
+        
+        await client.getLeagueID('Sonntag 1').then(async function(res){
+            console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+
+            leagueID = res[0].league_id
+            
+            await client.getTeamID('Alpine').then(async function(res){
+                console.log(`Query for Team Alpine ID was successful -- ${new Date().toLocaleString()}`)
+                var alpineTeamID = res[0].id 
+
+                await client.getTeamDrivers(leagueID, alpineTeamID).then(async function(res){
+                    console.log(`Query for drivers from team Alpine was successful -- ${new Date().toLocaleString()}`)
+
+                    var alpineDriversPersID = new Array()
+                    res.forEach(entry => {
+                        if(entry.gueltigbis == 'NULL'){
+                            alpineDriversPersID.push(entry.persid)
+                        } else {
+                            var currentDate = new Date();
+                            var gueltigBisDriver = new Date(entry.gueltigbis)
+                            console.log(gueltigBisDriver)
+
+                            if(currentDate - gueltigBisDriver < 0){
+                                alpineDriversPersID.push(entry.persid)
+                            } else {
+                                console.log('Kein Stamm mehr')
+                            }
+                        }
+                    })
+
+                    var alpineDriversDcID = new Array()
+
+                    await client.getDiscordIDs(alpineDriversPersID, alpineDriversDcID).then(function(res){
+                        console.log(`Query for drivers Discord IDs from team Alpine was successful -- ${new Date().toLocaleString()}`)
+                        res.forEach(driver => {
+                            alpineDrivers.push(driver)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+            }, function(err){
+                console.log(err)
+            })
+        }, function(err){
+            console.log(err)
+        })
+
+        return alpineDrivers
+    }
+
+    async getAlphaTauriDrivers(client){
+        //Get drivers
+        var leagueID = -1;
+        var alphaTauriDrivers = new Array();
+
+        
+        await client.getLeagueID('Sonntag 1').then(async function(res){
+            console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+
+            leagueID = res[0].league_id
+            
+            await client.getTeamID('Alpha Tauri').then(async function(res){
+                console.log(`Query for Team Alpha Tauri ID was successful -- ${new Date().toLocaleString()}`)
+                var alphaTauriTeamID = res[0].id 
+
+                await client.getTeamDrivers(leagueID, alphaTauriTeamID).then(async function(res){
+                    console.log(`Query for drivers from team Alpha Tauri was successful -- ${new Date().toLocaleString()}`)
+
+                    var alphaTauriDriversPersID = new Array()
+                    res.forEach(entry => {
+                        if(entry.gueltigbis == 'NULL'){
+                            alphaTauriDriversPersID.push(entry.persid)
+                        } else {
+                            var currentDate = new Date();
+                            var gueltigBisDriver = new Date(entry.gueltigbis)
+                            console.log(gueltigBisDriver)
+
+                            if(currentDate - gueltigBisDriver < 0){
+                                alphaTauriDriversPersID.push(entry.persid)
+                            } else {
+                                console.log('Kein Stamm mehr')
+                            }
+                        }
+                    })
+
+                    var alphaTauriDriversDcID = new Array()
+
+                    await client.getDiscordIDs(alphaTauriDriversPersID, alphaTauriDriversDcID).then(function(res){
+                        console.log(`Query for drivers Discord IDs from team Alpha Tauri was successful -- ${new Date().toLocaleString()}`)
+                        res.forEach(driver => {
+                            alphaTauriDrivers.push(driver)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+            }, function(err){
+                console.log(err)
+            })
+        }, function(err){
+            console.log(err)
+        })
+
+        return alphaTauriDrivers
+    }
+
+    async getAlfaRomeoDrivers(client){
+        //Get drivers
+        var leagueID = -1;
+        var alfaRomeoDrivers = new Array();
+
+       
+        await client.getLeagueID('Sonntag 1').then(async function(res){
+            console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+
+            leagueID = res[0].league_id
+            
+            await client.getTeamID('Alfa Romeo').then(async function(res){
+                console.log(`Query for Team Alfa Romeo ID was successful -- ${new Date().toLocaleString()}`)
+                var alfaRomeoTeamID = res[0].id 
+
+                await client.getTeamDrivers(leagueID, alfaRomeoTeamID).then(async function(res){
+                    console.log(`Query for drivers from team Alfa Romeo was successful -- ${new Date().toLocaleString()}`)
+
+                    var alfaRomeoDriversPersID = new Array()
+                    res.forEach(entry => {
+                        if(entry.gueltigbis == 'NULL'){
+                            alfaRomeoDriversPersID.push(entry.persid)
+                        } else {
+                            var currentDate = new Date();
+                            var gueltigBisDriver = new Date(entry.gueltigbis)
+                            console.log(gueltigBisDriver)
+
+                            if(currentDate - gueltigBisDriver < 0){
+                                alfaRomeoDriversPersID.push(entry.persid)
+                            } else {
+                                console.log('Kein Stamm mehr')
+                            }
+                        }
+                    })
+
+                    var alfaRomeoDriversDcID = new Array()
+
+                    await client.getDiscordIDs(alfaRomeoDriversPersID, alfaRomeoDriversDcID).then(function(res){
+                        console.log(`Query for drivers Discord IDs from team Alfa Romeo was successful -- ${new Date().toLocaleString()}`)
+                        res.forEach(driver => {
+                            alfaRomeoDrivers.push(driver)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+            }, function(err){
+                console.log(err)
+            })
+        }, function(err){
+            console.log(err)
+        })
+
+        return alfaRomeoDrivers       
+    }
+
+    async getWilliamsDrivers(client){
+        //Get drivers
+        var leagueID = -1;
+        var williamsDrivers = new Array();
+
+       
+        await client.getLeagueID('Sonntag 1').then(async function(res){
+            console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+
+            leagueID = res[0].league_id
+            
+            await client.getTeamID('Williams').then(async function(res){
+                console.log(`Query for Team Williams ID was successful -- ${new Date().toLocaleString()}`)
+                var williamsTeamID = res[0].id 
+
+                await client.getTeamDrivers(leagueID, williamsTeamID).then(async function(res){
+                    console.log(`Query for drivers from team Williams was successful -- ${new Date().toLocaleString()}`)
+
+                    var williamsDriversPersID = new Array()
+                    res.forEach(entry => {
+                        if(entry.gueltigbis == 'NULL'){
+                            williamsDriversPersID.push(entry.persid)
+                        } else {
+                            var currentDate = new Date();
+                            var gueltigBisDriver = new Date(entry.gueltigbis)
+                            console.log(gueltigBisDriver)
+
+                            if(currentDate - gueltigBisDriver < 0){
+                                williamsDriversPersID.push(entry.persid)
+                            } else {
+                                console.log('Kein Stamm mehr')
+                            }
+                        }
+                    })
+
+                    var williamsDriversDcID = new Array()
+
+                    await client.getDiscordIDs(williamsDriversPersID, williamsDriversDcID).then(function(res){
+                        console.log(`Query for drivers Discord IDs from team Williams was successful -- ${new Date().toLocaleString()}`)
+                        res.forEach(driver => {
+                            williamsDrivers.push(driver)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+            }, function(err){
+                console.log(err)
+            })
+        }, function(err){
+            console.log(err)
+        })
+
+        return williamsDrivers
+    }
+
+    async getHaasDrivers(client){
+        //Get drivers
+        var leagueID = -1;
+        var haasDrivers = new Array();
+
+
+        await client.getLeagueID('Sonntag 1').then(async function(res){
+            console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
+
+            leagueID = res[0].league_id
+            
+            await client.getTeamID('Haas').then(async function(res){
+                console.log(`Query for Team Haas ID was successful -- ${new Date().toLocaleString()}`)
+                var haasTeamID = res[0].id 
+
+                await client.getTeamDrivers(leagueID, haasTeamID).then(async function(res){
+                    console.log(`Query for drivers from team Haas was successful -- ${new Date().toLocaleString()}`)
+
+                    var haasDriversPersID = new Array()
+                    res.forEach(entry => {
+                        if(entry.gueltigbis == 'NULL'){
+                            haasDriversPersID.push(entry.persid)
+                        } else {
+                            var currentDate = new Date();
+                            var gueltigBisDriver = new Date(entry.gueltigbis)
+                            console.log(gueltigBisDriver)
+
+                            if(currentDate - gueltigBisDriver < 0){
+                                haasDriversPersID.push(entry.persid)
+                            } else {
+                                console.log('Kein Stamm mehr')
+                            }
+                        }
+                    })
+
+                    var haasDriversDcID = new Array()
+
+                    await client.getDiscordIDs(haasDriversPersID, haasDriversDcID).then(function(res){
+                        console.log(`Query for drivers Discord IDs from team Haas was successful -- ${new Date().toLocaleString()}`)
+                        res.forEach(driver => {
+                            haasDrivers.push(driver)
+                        })
+                    }, function(err){
+                        console.log(err)
+                    })
+                }, function(err){
+                    console.log(err)
+                })
+            }, function(err){
+                console.log(err)
+            })
+        }, function(err){
+            console.log(err)
+        })
+
+        return haasDrivers       
     }
 }
 
