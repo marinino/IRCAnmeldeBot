@@ -1,4 +1,4 @@
-module.exports = async (client, Discord, connection, interaction) => {
+module.exports = async (client, Discord, interaction) => {
     
     
     if(!interaction.isCommand()) return;
@@ -9,7 +9,7 @@ module.exports = async (client, Discord, connection, interaction) => {
     
     try {
         console.log('start')
-        await cmd.execute(client, interaction, cmd.data.name, connection)
+        await cmd.execute(client, interaction, cmd.data.name)
     } catch (error) {
         console.log(error)
     }
