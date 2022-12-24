@@ -45,60 +45,6 @@ module.exports = {
         // Senfy, Schorli
         CurrentSeason.seasonData.setHaasDriversLigaFR(['nicht besetzt', 'nicht besetzt']);
         */
-
-
-        var leagueID = -1;
-        var mercedesDrivers = new Array();
-
-       
-        await client.getLeagueID('Sonntag 1').then(async function(res){
-            console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
-
-            leagueID = res[0].league_id
-            
-            await client.getTeamID('Mercedes').then(async function(res){
-                console.log(`Query for Team Mercedes ID was successful -- ${new Date().toLocaleString()}`)
-                var mercedesTeamID = res[0].id 
-
-                await client.getTeamDrivers(leagueID, 'Mercedes').then(async function(res){
-                    console.log(`Query for drivers from team Mercedes was successful -- ${new Date().toLocaleString()}`)
-
-                    var mercDriversPersID = new Array()
-                    res.forEach(entry => {
-                        if(entry.gueltigbis == 'NULL'){
-                            mercDriversPersID.push(entry.persid)
-                        } else {
-                            var currentDate = new Date();
-                            var gueltigBisDriver = new Date(entry.gueltigbis)
-                            console.log(gueltigBisDriver)
-
-                            if(currentDate - gueltigBisDriver < 0){
-                                mercDriversPersID.push(entry.persid)
-                            } else {
-                                console.log('Kein Stamm mehr')
-                            }
-                        }
-                    })
-
-                    var mercDriversDcID = new Array()
-
-                    await client.getDiscordIDs(mercDriversPersID, mercDriversDcID).then(function(res){
-                        console.log(`Query for drivers Discord IDs from team Mercedes was successful -- ${new Date().toLocaleString()}`)
-                        res.forEach(driver => {
-                            console.log(driver)
-                        })
-                    }, function(err){
-                        console.log(err)
-                    })
-                }, function(err){
-                    console.log(err)
-                })
-            }, function(err){
-                console.log(err)
-            })
-        }, function(err){
-            console.log(err)
-        })
        
 
         var seasonStartDayofMonth = null

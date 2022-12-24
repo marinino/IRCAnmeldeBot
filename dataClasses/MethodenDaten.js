@@ -180,18 +180,26 @@ class MethodClass{
 
     async printLineup(client, seasonData){
         //Gets all the information
-        var currentLineup = new Map();
         let msgLineupID = null;
         let infoChannelID = null;
         let currentRaceLocation = null;
        
        
-        currentLineup = seasonData.getCurrentLineupLigaFR();
         msgLineupID = seasonData.getLineupMsgLigaFR();
         infoChannelID = seasonData.getInfoChannelIDLigaFR();
         currentRaceLocation = seasonData.getCurrentRaceLocationLigaFR();
 
-        
+        var mercedesDrivers = await this.getMercedesDrivers(client);
+        console.log(mercedesDrivers + '.............................................')
+        var redBullDrivers = await this.getRedBullDrivers(client);
+        var ferrariDrivers = await this.getFerrariDrivers(client)
+        var mcLarenDrivers = await this.getMcLarenDrivers(client);
+        var astonMartinDrivers = await this.getAstonMartinDrivers(client);
+        var alpineDrivers = await this.getAlpineDrivers(client);
+        var alphaTauriDrivers = await this.getAlphaTauriDrivers(client);
+        var alfaRomeoDrivers = await this.getAlfaRomeoDrivers(client);
+        var williamsDrivers = await this.getWilliamsDrivers(client);
+        var haasDrivers = await this.getHaasDrivers(client);
        
         //Deletes lineup currently displayed in channel
         if(msgLineupID != null){
@@ -201,61 +209,47 @@ class MethodClass{
                 console.log(`Das aktuelle Lineup wurde gelöscht. In ${seasonData.getLigatitel()} -- ${date}`)
             })
         }
+        
         //Sets content for new message
-        if(currentLineup.get('Mercedes')[0] && currentLineup.get('Mercedes')[1] &&
-            currentLineup.get('Red Bull')[0] && currentLineup.get('Red Bull')[1] &&
-            currentLineup.get('Ferrari')[0] && currentLineup.get('Ferrari')[1] &&
-            currentLineup.get('McLaren')[0] && currentLineup.get('McLaren')[1] &&
-            currentLineup.get('Aston Martin')[0] && currentLineup.get('Aston Martin')[1] &&
-            currentLineup.get('Alpine')[0] && currentLineup.get('Alpine')[1] &&
-            currentLineup.get('Alpha Tauri')[0] && currentLineup.get('Alpha Tauri')[1] &&
-            currentLineup.get('Alfa Romeo')[0] && currentLineup.get('Alfa Romeo')[1] &&
-            currentLineup.get('Williams')[0] && currentLineup.get('Williams')[1] &&
-            currentLineup.get('Haas')[0] && currentLineup.get('Haas')[1]){
-            let lineupEmbed = new EmbedBuilder()
-            .setColor('Aqua')
-            .setTitle('Aktuelles Lineup')
-            .setDescription(`Die AKTUELLEN Fahrer aller Teams für das Rennen in ${currentRaceLocation} sind hier aufgelistet`)
-            .addFields(
-                {name: 'Mercedes ', value: `${await this.setContentForLineup('Mercedes', 0, seasonData, client)} und ${await this.setContentForLineup('Mercedes', 1, seasonData, client)}`},
-                {name: 'Red Bull ', value: `${await this.setContentForLineup('Red Bull', 0, seasonData, client)} und ${await this.setContentForLineup('Red Bull', 1, seasonData, client)}`},
-                {name: 'Ferrari ', value: `${await this.setContentForLineup('Ferrari', 0, seasonData, client)} und ${await this.setContentForLineup('Ferrari', 1, seasonData, client)}`},
-                {name: 'McLaren ', value: `${await this.setContentForLineup('McLaren', 0, seasonData, client)} und ${await this.setContentForLineup('McLaren', 1, seasonData, client)}`},
-                {name: 'Aston Martin ', value: `${await this.setContentForLineup('Aston Martin', 0, seasonData, client)} und ${await this.setContentForLineup('Aston Martin', 1, seasonData, client)}`},
-                {name: 'Alpine ', value: `${await this.setContentForLineup('Alpine', 0, seasonData, client)} und ${await this.setContentForLineup('Alpine', 1, seasonData, client)}`},
-                {name: 'Alpha Tauri ', value: `${await this.setContentForLineup('Alpha Tauri', 0, seasonData, client)} und ${await this.setContentForLineup('Alpha Tauri', 1, seasonData, client)}`},
-                {name: 'Alfa Romeo ', value: `${await  this.setContentForLineup('Alfa Romeo', 0, seasonData, client)} und ${await this.setContentForLineup('Alfa Romeo', 1, seasonData, client)}`},
-                {name: 'Williams ', value: `${await this.setContentForLineup('Williams', 0, seasonData, client)} und ${await this.setContentForLineup('Williams', 1, seasonData, client)}`},
-                {name: 'Haas ', value: `${await this.setContentForLineup('Haas', 0, seasonData, client)} und ${await this.setContentForLineup('Haas', 1, seasonData, client)}`}
-            )
-            let date = new Date().toLocaleString();   
-            console.log(`Das aktuelle Lineup wurde gesendet. Für Liga ${seasonData.getLigatitel()} -- ${date}`);
-            await client.channels.cache.get(infoChannelID).send({ embeds : [lineupEmbed]}).then((msg) => {
-                //Set Waitlist Msg ID
-              
-                seasonData.setLineupMsgLigaFR(msg.id);
-               
-            });
-        } else {
-            let date = new Date().toLocaleString();
-            console.log(`Eines der Elemente in der Liste wurde nicht richtig definiert oder beim ausgeben des Lineups ist ein 
-                        anderer Fehler aufgetreten in ${seasonData.getLigatitel()} -- ${date}`);
-        }
+
+        let lineupEmbed = new EmbedBuilder()
+        .setColor('Aqua')
+        .setTitle('Aktuelles Lineup')
+        .setDescription(`Die AKTUELLEN Fahrer aller Teams für das Rennen in ${currentRaceLocation} sind hier aufgelistet`)
+        .addFields(
+            {name: 'Mercedes ', value: `${await this.setContentForLineup(mercedesDrivers[0], client, seasonData)} und ${await this.setContentForLineup(mercedesDrivers[1], client, seasonData)}`},
+            {name: 'Red Bull ', value: `${await this.setContentForLineup(redBullDrivers[0], client, seasonData)} und ${await this.setContentForLineup(redBullDrivers[1], client, seasonData)}`},
+            {name: 'Ferrari ', value: `${await this.setContentForLineup(ferrariDrivers[0], client, seasonData)} und ${await this.setContentForLineup(ferrariDrivers[1], client, seasonData)}`},
+            {name: 'McLaren ', value: `${await this.setContentForLineup(mcLarenDrivers[0], client, seasonData)} und ${await this.setContentForLineup(mcLarenDrivers[1], client, seasonData)}`},
+            {name: 'Aston Martin ', value: `${await this.setContentForLineup(astonMartinDrivers[0], client, seasonData)} und ${await this.setContentForLineup(astonMartinDrivers[1], client, seasonData)}`},
+            {name: 'Alpine ', value: `${await this.setContentForLineup(alpineDrivers[0], client, seasonData)} und ${await this.setContentForLineup(alpineDrivers[1], client, seasonData)}`},
+            {name: 'Alpha Tauri ', value: `${await this.setContentForLineup(alphaTauriDrivers[0], client, seasonData)} und ${await this.setContentForLineup(alphaTauriDrivers[1], client, seasonData)}`},
+            {name: 'Alfa Romeo ', value: `${await  this.setContentForLineup(alfaRomeoDrivers[0], client, seasonData)} und ${await this.setContentForLineup(alfaRomeoDrivers[1], client, seasonData)}`},
+            {name: 'Williams ', value: `${await this.setContentForLineup(williamsDrivers[0], client, seasonData)} und ${await this.setContentForLineup(williamsDrivers[1], client, seasonData)}`},
+            {name: 'Haas ', value: `${await this.setContentForLineup(haasDrivers[0], client, seasonData)} und ${await this.setContentForLineup(haasDrivers[1], client, seasonData)}`}
+        )
+        let date = new Date().toLocaleString();   
+        console.log(`Das aktuelle Lineup wurde gesendet. Für Liga ${seasonData.getLigatitel()} -- ${date}`);
+        await client.channels.cache.get(infoChannelID).send({ embeds : [lineupEmbed]}).then((msg) => {
+            //Set Waitlist Msg ID
+            
+            seasonData.setLineupMsgLigaFR(msg.id);
+            
+        });
+       
     }
 
-    async setContentForLineup(teamName, seat, seasonData, client){
-        //Gets all the information
-        let currentLineup = new Map();
+    async setContentForLineup(cockpitValue, client, seasonData){       
         
-        currentLineup = seasonData.getCurrentLineupLigaFR();
-       
         //Yields return value
-        if(currentLineup.get(teamName)[seat] == 'nicht besetzt'){
+        if(cockpitValue == 'nicht besetzt'){
             return `nicht besetzt`;
-        } else if(currentLineup.get(teamName)[seat] == 'entfernt'){
+        } else if(cockpitValue == 'entfernt'){
             return `entfernt`;
         } else {
-            var driverInSeat = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(currentLineup.get(teamName)[seat]);
+            console.log(cockpitValue)
+            var driverInSeat = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(cockpitValue);
+            console.log(`HUUUUUUUUUUUUUUUUUUUUUUUUURENSOHN`)
 
             if(driverInSeat.roles.cache.has(seasonData.getSteamRolleID())){
                 return `<@${currentLineup.get(teamName)[seat]}> <:steam:1032252108772229142>`;
@@ -1447,10 +1441,21 @@ class MethodClass{
 
                     var mercDriversDcID = new Array()
 
-                    await client.getDiscordIDs(mercDriversPersID, mercDriversDcID).then(function(res){
+                    await client.getDiscordIDs(mercDriversPersID, mercDriversDcID).then(async function(res){
                         console.log(`Query for drivers Discord IDs from team Mercedes was successful -- ${new Date().toLocaleString()}`)
-                        res.forEach(driver => {
+                        await res.forEach(driver => {
                             mercedesDrivers.push(driver)
+                        })
+
+                        if(mercedesDrivers.length == 0){
+                            mercedesDrivers.push('entfernt')
+                            mercedesDrivers.push('entfernt')
+                        } else if(mercedesDrivers.length == 1){
+                            mercedesDrivers.push('entfernt')
+                        }
+
+                        mercedesDrivers.forEach(driver => {
+                            console.log(driver)
                         })
                     }, function(err){
                         console.log(err)
@@ -1465,6 +1470,7 @@ class MethodClass{
             console.log(err)
         })
 
+       
         return mercedesDrivers
     }
 
@@ -1505,11 +1511,18 @@ class MethodClass{
 
                     var redBullDriversDcID = new Array()
 
-                    await client.getDiscordIDs(redBullDriversPersID, redBullDriversDcID).then(function(res){
+                    await client.getDiscordIDs(redBullDriversPersID, redBullDriversDcID).then(async function(res){
                         console.log(`Query for drivers Discord IDs from team Red Bull was successful -- ${new Date().toLocaleString()}`)
-                        res.forEach(driver => {
+                        await res.forEach(driver => {
                             redBullDrivers.push(driver)
                         })
+
+                        if(redBullDrivers.length == 0){
+                            redBullDrivers.push('entfernt')
+                            redBullDrivers.push('entfernt')
+                        } else if(redBullDrivers.length == 1){
+                            redBullDrivers.push('entfernt')
+                        }
                     }, function(err){
                         console.log(err)
                     })
@@ -1522,6 +1535,8 @@ class MethodClass{
         }, function(err){
             console.log(err)
         })
+
+       
 
         return redBullDrivers
     }
@@ -1563,11 +1578,18 @@ class MethodClass{
  
                      var ferrariDriversDcID = new Array()
  
-                     await client.getDiscordIDs(ferrariDriversPersID, ferrariDriversDcID).then(function(res){
+                     await client.getDiscordIDs(ferrariDriversPersID, ferrariDriversDcID).then(async function(res){
                          console.log(`Query for drivers Discord IDs from team Ferrari was successful -- ${new Date().toLocaleString()}`)
-                         res.forEach(driver => {
+                         await res.forEach(driver => {
                             ferrariDrivers.push(driver)
                          })
+
+                         if(ferrariDrivers.length == 0){
+                            ferrariDrivers.push('entfernt')
+                            ferrariDrivers.push('entfernt')
+                        } else if(ferrariDrivers.length == 1){
+                            ferrariDrivers.push('entfernt')
+                        }
                      }, function(err){
                          console.log(err)
                      })
@@ -1581,7 +1603,9 @@ class MethodClass{
              console.log(err)
          })
  
-         return ferrariDrivers
+       
+
+        return ferrariDrivers
     }
 
     async getMcLarenDrivers(client){
@@ -1621,11 +1645,18 @@ class MethodClass{
         
                             var mcLarenDriversDcID = new Array()
         
-                            await client.getDiscordIDs(mcLarenDriversPersID, mcLarenDriversDcID).then(function(res){
+                            await client.getDiscordIDs(mcLarenDriversPersID, mcLarenDriversDcID).then(async function(res){
                                 console.log(`Query for drivers Discord IDs from team McLaren was successful -- ${new Date().toLocaleString()}`)
-                                res.forEach(driver => {
+                                await res.forEach(driver => {
                                     mcLarenDrivers.push(driver)
                                 })
+
+                                if(mcLarenDrivers.length == 0){
+                                    mcLarenDrivers.push('entfernt')
+                                    mcLarenDrivers.push('entfernt')
+                                } else if(mcLarenDrivers.length == 1){
+                                    mcLarenDrivers.push('entfernt')
+                                }
                             }, function(err){
                                 console.log(err)
                             })
@@ -1638,6 +1669,8 @@ class MethodClass{
                 }, function(err){
                     console.log(err)
                 })
+
+              
         
                 return mcLarenDrivers
     }
@@ -1679,11 +1712,18 @@ class MethodClass{
  
                      var astonMartinDriversDcID = new Array()
  
-                     await client.getDiscordIDs(astonMartinDriversPersID, astonMartinDriversDcID).then(function(res){
+                     await client.getDiscordIDs(astonMartinDriversPersID, astonMartinDriversDcID).then(async function(res){
                          console.log(`Query for drivers Discord IDs from team Aston Martin was successful -- ${new Date().toLocaleString()}`)
-                         res.forEach(driver => {
+                         await res.forEach(driver => {
                             astonMartinDrivers.push(driver)
                          })
+
+                         if(astonMartinDrivers.length == 0){
+                            astonMartinDrivers.push('entfernt')
+                            astonMartinDrivers.push('entfernt')
+                        } else if(astonMartinDrivers.length == 1){
+                            astonMartinDrivers.push('entfernt')
+                        }
                      }, function(err){
                          console.log(err)
                      })
@@ -1697,6 +1737,8 @@ class MethodClass{
              console.log(err)
          })
  
+        
+
          return astonMartinDrivers
     }
 
@@ -1737,11 +1779,18 @@ class MethodClass{
 
                     var alpineDriversDcID = new Array()
 
-                    await client.getDiscordIDs(alpineDriversPersID, alpineDriversDcID).then(function(res){
+                    await client.getDiscordIDs(alpineDriversPersID, alpineDriversDcID).then(async function(res){
                         console.log(`Query for drivers Discord IDs from team Alpine was successful -- ${new Date().toLocaleString()}`)
-                        res.forEach(driver => {
+                        await res.forEach(driver => {
                             alpineDrivers.push(driver)
                         })
+
+                        if(alpineDrivers.length == 0){
+                            alpineDrivers.push('entfernt')
+                            alpineDrivers.push('entfernt')
+                        } else if(alpineDrivers.length == 1){
+                            alpineDrivers.push('entfernt')
+                        }
                     }, function(err){
                         console.log(err)
                     })
@@ -1754,6 +1803,8 @@ class MethodClass{
         }, function(err){
             console.log(err)
         })
+
+       
 
         return alpineDrivers
     }
@@ -1795,11 +1846,18 @@ class MethodClass{
 
                     var alphaTauriDriversDcID = new Array()
 
-                    await client.getDiscordIDs(alphaTauriDriversPersID, alphaTauriDriversDcID).then(function(res){
+                    await client.getDiscordIDs(alphaTauriDriversPersID, alphaTauriDriversDcID).then(async function(res){
                         console.log(`Query for drivers Discord IDs from team Alpha Tauri was successful -- ${new Date().toLocaleString()}`)
-                        res.forEach(driver => {
+                        await res.forEach(driver => {
                             alphaTauriDrivers.push(driver)
                         })
+
+                        if(alphaTauriDrivers.length == 0){
+                            alphaTauriDrivers.push('entfernt')
+                            alphaTauriDrivers.push('entfernt')
+                        } else if(alphaTauriDrivers.length == 1){
+                            alphaTauriDrivers.push('entfernt')
+                        }
                     }, function(err){
                         console.log(err)
                     })
@@ -1812,6 +1870,8 @@ class MethodClass{
         }, function(err){
             console.log(err)
         })
+
+       
 
         return alphaTauriDrivers
     }
@@ -1853,11 +1913,18 @@ class MethodClass{
 
                     var alfaRomeoDriversDcID = new Array()
 
-                    await client.getDiscordIDs(alfaRomeoDriversPersID, alfaRomeoDriversDcID).then(function(res){
+                    await client.getDiscordIDs(alfaRomeoDriversPersID, alfaRomeoDriversDcID).then(async function(res){
                         console.log(`Query for drivers Discord IDs from team Alfa Romeo was successful -- ${new Date().toLocaleString()}`)
-                        res.forEach(driver => {
+                        await res.forEach(driver => {
                             alfaRomeoDrivers.push(driver)
                         })
+
+                        if(alfaRomeoDrivers.length == 0){
+                            alfaRomeoDrivers.push('entfernt')
+                            alfaRomeoDrivers.push('entfernt')
+                        } else if(alfaRomeoDrivers.length == 1){
+                            alfaRomeoDrivers.push('entfernt')
+                        }
                     }, function(err){
                         console.log(err)
                     })
@@ -1870,6 +1937,8 @@ class MethodClass{
         }, function(err){
             console.log(err)
         })
+
+        
 
         return alfaRomeoDrivers       
     }
@@ -1911,11 +1980,18 @@ class MethodClass{
 
                     var williamsDriversDcID = new Array()
 
-                    await client.getDiscordIDs(williamsDriversPersID, williamsDriversDcID).then(function(res){
+                    await client.getDiscordIDs(williamsDriversPersID, williamsDriversDcID).then(async function(res){
                         console.log(`Query for drivers Discord IDs from team Williams was successful -- ${new Date().toLocaleString()}`)
-                        res.forEach(driver => {
+                        await res.forEach(driver => {
                             williamsDrivers.push(driver)
                         })
+
+                        if(williamsDrivers.length == 0){
+                            williamsDrivers.push('entfernt')
+                            williamsDrivers.push('entfernt')
+                        } else if(williamsDrivers.length == 1){
+                            williamsDrivers.push('entfernt')
+                        }
                     }, function(err){
                         console.log(err)
                     })
@@ -1928,6 +2004,8 @@ class MethodClass{
         }, function(err){
             console.log(err)
         })
+
+        
 
         return williamsDrivers
     }
@@ -1969,11 +2047,18 @@ class MethodClass{
 
                     var haasDriversDcID = new Array()
 
-                    await client.getDiscordIDs(haasDriversPersID, haasDriversDcID).then(function(res){
+                    await client.getDiscordIDs(haasDriversPersID, haasDriversDcID).then(async function(res){
                         console.log(`Query for drivers Discord IDs from team Haas was successful -- ${new Date().toLocaleString()}`)
-                        res.forEach(driver => {
+                        await res.forEach(driver => {
                             haasDrivers.push(driver)
                         })
+
+                        if(haasDrivers.length == 0){
+                            haasDrivers.push('entfernt')
+                            haasDrivers.push('entfernt')
+                        } else if(haasDrivers.length == 1){
+                            haasDrivers.push('entfernt')
+                        }
                     }, function(err){
                         console.log(err)
                     })
@@ -1986,6 +2071,8 @@ class MethodClass{
         }, function(err){
             console.log(err)
         })
+
+        
 
         return haasDrivers       
     }
