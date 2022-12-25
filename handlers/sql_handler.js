@@ -36,18 +36,16 @@ module.exports = (client) => {
                 race_location MEDIUMTEXT,
                 reacted_to_sub_in MEDIUMTEXT,
                 reacted_to_sign_out MEDIUMTEXT,
-                regular_drivers_mercedes MEDIUMTEXT,
-                regular_drivers_rb MEDIUMTEXT,
-                regular_drivers_ferrari MEDIUMTEXT,
-                regular_drivers_mclaren MEDIUMTEXT,
-                regular_drivers_aston_martin MEDIUMTEXT,
-                regular_drivers_alpine MEDIUMTEXT,
-                regular_drivers_alpha_tauri MEDIUMTEXT,
-                regular_drivers_alfa_romeo MEDIUMTEXT,
-                regular_drivers_williams MEDIUMTEXT,
-                regular_drivers_haas MEDIUMTEXT,
-                current_lineup MEDIUMTEXT,
-                regular_drivers MEDIUMTEXT,
+                current_drivers_mercedes MEDIUMTEXT,
+                current_drivers_rb MEDIUMTEXT,
+                current_drivers_ferrari MEDIUMTEXT,
+                current_drivers_mclaren MEDIUMTEXT,
+                current_drivers_aston_martin MEDIUMTEXT,
+                current_drivers_alpine MEDIUMTEXT,
+                current_drivers_alpha_tauri MEDIUMTEXT,
+                current_drivers_alfa_romeo MEDIUMTEXT,
+                current_drivers_williams MEDIUMTEXT,
+                current_drivers_haas MEDIUMTEXT,
                 free_car_msg_id BIGINT,
                 waitlist_msg_id BIGINT,
                 regular_drivers_msg_id BIGINT,
@@ -213,13 +211,13 @@ module.exports = (client) => {
      */
     client.getNamesOfRaces = async (calendarSortedByDate) => {
         var promGetNamesOfRaces = new Promise(function (resolve, reject){
-            var racesNames = new Array()
+            var racesNames = new Map()
             calendarSortedByDate.forEach(async element => {
                 connectionAdman.query(`SELECT * FROM austragungsort WHERE ausid = ${element.ausid}`, async function(err, res){
                     if(err){
                         reject(err)
                     } else {
-                        racesNames.push(res)
+                        racesNames.set(res[0], element.datum)
                     }
                 })
             })
@@ -298,7 +296,7 @@ module.exports = (client) => {
      * @returns Promise
      */
     client.getDiscordIDs = async (teamDriversPersID, teamDriversDcID) => {
-        var promGetDcIDs = new Promise(function(reject, resolve){
+        var promGetDcIDs = new Promise(function(resolve, reject){
             teamDriversPersID.forEach(persID => {
                 connectionAdman.query(`SELECT dcid FROM person WHERE id = ${persID}`, function(err, res){
                     if(err){
@@ -315,6 +313,23 @@ module.exports = (client) => {
             
         })
         return promGetDcIDs
+    }
+
+    client.insertNewRace = async() => {
+        var promInsertNewRace = new Promise(function(resolve, reject){
+            connection.query(`INSERT INTO bot_sonntag_1 (sub_person_list, sub_person_list_reinstated_drivers, free_cars, withdrawn_drivers,
+                            withdrawn_drivers_per_cmd, sub_in_drivers_per_cmd, race_location, reacted_to_sub_in, reacted_to_sign_out, 
+                            current_drivers_mercedes, current_drivers_rb, current_drivers_ferrari, current_drivers_mclaren, 
+                            current_drivers_aston_martin, current_drivers_alpine, current_drivers_alpha_tauri, current_drivers_alfa_romeo,
+                            current_drivers_williams, current_drivers_haas, free_car_msg_id, waitlist_msg_id, regular_drivers_msg_id,
+                            register_msg_id, deregister_msg_id, registration_active, season_active, past_race_locations, future_race_locations)`)
+        })
+    }
+
+    client.getDriversInCurrentLineup = async (team, currentRaceID) => {
+        var promGetDriversInCurrentLineup = new Promise(function(resolve, reject){
+            connection.query(`SELECT current_drivers_mercedes FROM bot_sonntag_1 WHERE race_id = ${currentRaceID}`)
+        })
     }
 
 }

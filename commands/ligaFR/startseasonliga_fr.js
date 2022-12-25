@@ -81,9 +81,9 @@ module.exports = {
                             await client.getNamesOfRaces(calendarSortedByDate).then(async function(res){
                                 console.log(`Query getNames in league database was successful -- ${new Date().toLocaleString()}`)
 
-                                res.forEach(element => {
-                                    //console.log(element)
-                                    stringFutureRaces = stringFutureRaces.concat(`${element[0].grandprixname}\n`)
+                                res.forEach((value, key) => {
+                                    console.log(key.grandprixname + " " + value)
+                                    stringFutureRaces = stringFutureRaces.concat(`${key.grandprixname} am ${new Date(value).toLocaleString()}\n`)
                         
                                 })
                                 

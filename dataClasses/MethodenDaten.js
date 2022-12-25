@@ -189,17 +189,21 @@ class MethodClass{
         infoChannelID = seasonData.getInfoChannelIDLigaFR();
         currentRaceLocation = seasonData.getCurrentRaceLocationLigaFR();
 
-        var mercedesDrivers = await this.getMercedesDrivers(client);
-        console.log(mercedesDrivers + '.............................................')
-        var redBullDrivers = await this.getRedBullDrivers(client);
-        var ferrariDrivers = await this.getFerrariDrivers(client)
-        var mcLarenDrivers = await this.getMcLarenDrivers(client);
-        var astonMartinDrivers = await this.getAstonMartinDrivers(client);
-        var alpineDrivers = await this.getAlpineDrivers(client);
-        var alphaTauriDrivers = await this.getAlphaTauriDrivers(client);
-        var alfaRomeoDrivers = await this.getAlfaRomeoDrivers(client);
-        var williamsDrivers = await this.getWilliamsDrivers(client);
-        var haasDrivers = await this.getHaasDrivers(client);
+        /**
+         * only test
+         * 
+         *  var mercedesDrivers = await this.getMercedesDrivers(client);
+            var redBullDrivers = await this.getRedBullDrivers(client);
+            var ferrariDrivers = await this.getFerrariDrivers(client)
+            var mcLarenDrivers = await this.getMcLarenDrivers(client);
+            var astonMartinDrivers = await this.getAstonMartinDrivers(client);
+            var alpineDrivers = await this.getAlpineDrivers(client);
+            var alphaTauriDrivers = await this.getAlphaTauriDrivers(client);
+            var alfaRomeoDrivers = await this.getAlfaRomeoDrivers(client);
+            var williamsDrivers = await this.getWilliamsDrivers(client);
+            var haasDrivers = await this.getHaasDrivers(client);
+         */
+       
        
         //Deletes lineup currently displayed in channel
         if(msgLineupID != null){
@@ -247,14 +251,12 @@ class MethodClass{
         } else if(cockpitValue == 'entfernt'){
             return `entfernt`;
         } else {
-            console.log(cockpitValue)
             var driverInSeat = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(cockpitValue);
-            console.log(`HUUUUUUUUUUUUUUUUUUUUUUUUURENSOHN`)
 
             if(driverInSeat.roles.cache.has(seasonData.getSteamRolleID())){
-                return `<@${currentLineup.get(teamName)[seat]}> <:steam:1032252108772229142>`;
+                return `<@${cockpitValue}> <:steam:1032252108772229142>`;
             } else if(driverInSeat.roles.cache.has(seasonData.getOriginRolleID())){
-                return `<@${currentLineup.get(teamName)[seat]}> <:origin:1032252076169900082>`;
+                return `<@${cockpitValue}> <:origin:1032252076169900082>`;
             }
             // if XBox
             // if PS
