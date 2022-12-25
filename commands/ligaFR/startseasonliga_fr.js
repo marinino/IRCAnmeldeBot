@@ -69,13 +69,17 @@ module.exports = {
                                 var currentMinEvent = res[0];
                                 res.forEach(event => {
                                     if(new Date(event.datum).getTime() < currentMin){
-                                        currentMin = event.date;
+                                        currentMin = new Date(event.datum);
                                         currentMinEvent = event;
                                     }
                                 })
                                 
                                 res.splice(res.indexOf(currentMinEvent), 1);
-                                calendarSortedByDate.push(currentMinEvent);
+                                console.log(currentMinEvent.datum)
+                                if(currentMinEvent.datum > new Date()){
+                                    calendarSortedByDate.push(currentMinEvent);
+                                }
+                                
                             } 
 
                             await client.getNamesOfRaces(calendarSortedByDate).then(async function(res){
