@@ -406,6 +406,43 @@ module.exports = (client) => {
         return promUpdateCurrentLineupMsg
     }
 
-    
+    client.updateFreeCarsList = async (listOfCars, raceID) => {
+        var promUpdateFreeCarsList = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET free_cars = '${listOfCars}' WHERE race_id = ${raceID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateFreeCarsList
+    }
+
+    client.updateSubPersonList = async (listOfSubsReady, raceID) => {
+        var promUpdateSubPersonList = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET sub_person_list = '${listOfSubsReady}' WHERE race_id = ${raceID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateSubPersonList
+    }
+
+    client.updateWithdrawnDrivers = async (listOfDriversWithdrawn, raceID) => {
+        var promUpdateWithdrawnDrivers = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET withdrawn_drivers = '${listOfDriversWithdrawn}' WHERE race_id = ${raceID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateWithdrawnDrivers
+    }
 
 }

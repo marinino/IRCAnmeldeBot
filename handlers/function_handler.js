@@ -1,4 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
+const cli = require('npm/lib/cli');
 
 module.exports = (client) => {
 
@@ -580,52 +581,55 @@ module.exports = (client) => {
         }
     }
 
-    client.checkSubCanBeMade = async (client, fromForceRemove, positionForForce, driverForForce, carForForce, seasonData) => {
+    client.checkSubCanBeMade = async (client, fromForceRemove, positionForForce, driverForForce, carForForce) => {
         //Gets all the information
-        let freeCars = new Array();
-        let subPersonList = new Array();
-        let subPersonListReinstatedDrivers = new Array();
-        let withdrawnDrivers = new Array();
-        let stammfahrerRolleID = new Array();
-        let ersatzfahrerRolleID = null;
-        let anmeldeChannelID = null;
-        let currentLineup = new Map();
-        
-        freeCars = seasonData.getFreeCarsLigaFR();
-        subPersonList = seasonData.getSubPersonListLigaFR();
-        subPersonListReinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLigaFR();
-        withdrawnDrivers = seasonData.getWithdrawnDriversLigaFR();
-        stammfahrerRolleID = seasonData.getStammfahrerRolleIDLigaFR();
-        ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaFR();
-        anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
-        currentLineup = seasonData.getCurrentLineupLigaFR();
+
+        var freeCars = new Array();
+        var subPersonList = new Array();
+        var subPersonListReinstatedDrivers = new Array();
+        var withdrawnDrivers = new Array();
+        var currentLineup = new Map();
+
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()}`)
+
+            freeCars = res[0].free_cars.split(',')
+            subPersonList = res[0].sub_person_list.split(',')
+            subPersonListReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            withdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            currentLineup = await client.getCurrentLineup();
+        }, function(err){
+            console.log(`Error getting last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()} \n ${err}`)
+        })
        
+        var stammfahrerRolleID = client.getStammfahrerRolleIDLigaFR();
+        var ersatzfahrerRolleID = client.getErsatzfahrerRolleIDLigaFR();
+        var anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
 
         if(freeCars.length > 0 && ((subPersonList.length + subPersonListReinstatedDrivers.length) > 0)){
             
             let driverToStart = null;
             if(subPersonListReinstatedDrivers.length > 0){
                 var driverToStartTemp = subPersonListReinstatedDrivers.shift();
-                driverToStart = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(driverToStartTemp);
+                driverToStart = await client.guilds.cache.get(client.getDiscordID()).members.fetch(driverToStartTemp);
             } else {
                 var driverToStartTemp = subPersonList.shift();
-                driverToStart = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(driverToStartTemp);
+                driverToStart = await client.guilds.cache.get(client.getDiscordID()).members.fetch(driverToStartTemp);
             }
             let carToTake = freeCars.shift();
             if(driverToStart == null){
-                let date = new Date();
-                console.log(`Wurde checkSubCanBeMade ausgeführt, aber der driverToStart war in irgendeiner Weise falsch. 
-                            DriverToStart war null. In ${seasonData.getLigatitel()} -- ${date}`);
+                console.log(`Wurde checkSubCanBeMade ausgeführt, aber der driverToStart war in irgendeiner Weise falsch. `+
+                            `DriverToStart war null. In ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
                 return;
             }
-            let date = new Date();
-            console.log(`Prüfsumme für ${seasonData.getLigatitel()}, Methode checkSubCanBeMade. Das Auto was gerade belegt wird hat ID ${carToTake}, der 
-                        Fahrer der es nimmt hat die ID ${driverToStartTemp}. Beides darf nicht null oder undefined sein in ${seasonData.getLigatitel()}. -- ${date}`);
-            if(!fromForceRemove && await driverToStart.roles.cache.has(stammfahrerRolleID) && await client.checkIfCarisFree(client, carToTake, seasonData)){
-                let mainTeamNameString = await client.findMainTeamString(driverToStart, seasonData);
+            console.log(`Prüfsumme für ${client.getLigatitel()}, Methode checkSubCanBeMade. Das Auto was gerade belegt wird hat ID ${carToTake}, der `+
+                        `Fahrer der es nimmt hat die ID ${driverToStartTemp}. Beides darf nicht null oder undefined sein in ${client.getLigatitel()}. ` + 
+                        `-- ${new Date().toLocaleString()}`);
+            if(!fromForceRemove && await driverToStart.roles.cache.has(stammfahrerRolleID) && await client.checkIfCarisFree(client, carToTake)){
+                let mainTeamNameString = await client.findMainTeamString(driverToStart);
                 var seatOpen = false;
                 let mainTeamIDString = null;
-                client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.find(role => {
+                client.guilds.cache.get(client.getDiscordID()).roles.cache.find(role => {
                     if(role.name == mainTeamNameString){
                         mainTeamIDString = role.id;
                     }
@@ -638,8 +642,8 @@ module.exports = (client) => {
                     subDriverPosition = 1;
                     seatOpen = true;
                 } else {
-                    var driverOfMainTeamOne = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(currentLineup.get(mainTeamNameString)[0])
-                    var driverOfMainTeamTwo = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(currentLineup.get(mainTeamNameString)[1])
+                    var driverOfMainTeamOne = await client.guilds.cache.get(client.getDiscordID()).members.fetch(currentLineup.get(mainTeamNameString)[0])
+                    var driverOfMainTeamTwo = await client.guilds.cache.get(client.getDiscordID()).members.fetch(currentLineup.get(mainTeamNameString)[1])
 
                     if(driverOfMainTeamOne.roles.cache.has(ersatzfahrerRolleID)){
                         subDriverPosition = 0;
@@ -652,11 +656,11 @@ module.exports = (client) => {
                 if(subDriverPosition != null){
                     subDriverID = currentLineup.get(mainTeamNameString)[subDriverPosition];
                 } else {
-                    let date = new Date()
-                    console.log(`Methode: CheckSubCanBeMade, Fall: 1 => Stammfahrer kommt zurück, subDriverPosition war null in ${seasonData.getLigatitel()} -- ${date}`)
+                    console.log(`Methode: CheckSubCanBeMade, Fall: 1 => Stammfahrer kommt zurück, subDriverPosition war null in ${client.getLigatitel()} ` + 
+                                `-- ${new Date().toLocaleString()}`)
                     return;
                 }
-                await client.regularDriverBack(client, subDriverID, carToTake, mainTeamIDString, driverToStart.id, seatOpen, subDriverPosition, seasonData);
+                await client.regularDriverBack(client, subDriverID, carToTake, mainTeamIDString, driverToStart.id, seatOpen, subDriverPosition);
                 let regularDriverBackEmbed = new EmbedBuilder()
                 .setColor('#fff654')
                 .setTitle('🔄')
@@ -675,29 +679,28 @@ module.exports = (client) => {
                         driverInEmbed.addFields(
                             {name: `Update im Lineup`, value: `<@${subDriverID}> bekommt den <@&${carToTake}>`}
                         )
-                        await client.guilds.cache.get(seasonData.getDiscordID()).members.cache.get(subDriverID).send(`Es ergab sich eine ` +
-                        `Verschiebung im Lineup, du fährst am Wochenende den ${client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(carToTake).name}`);
+                        await client.guilds.cache.get(client.getDiscordID()).members.cache.get(subDriverID).send(`Es ergab sich eine ` +
+                        `Verschiebung im Lineup, du fährst am Wochenende den ${client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name}`);
                     }
                     await client.channels.cache.get(anmeldeChannelID).send({embeds : [driverInEmbed]}).then(() => {
-                        client.channels.cache.get(seasonData.getLogChannelID()).send({embeds : [driverInEmbed]});
+                        client.channels.cache.get(client.getLogChannelID()).send({embeds : [driverInEmbed]});
                     });
                 }
                 await client.channels.cache.get(anmeldeChannelID).send({embeds : [regularDriverBackEmbed]}).then(() => {
-                    client.channels.cache.get(seasonData.getLogChannelID()).send({embeds : [regularDriverBackEmbed]});
+                    client.channels.cache.get(client.getLogChannelID()).send({embeds : [regularDriverBackEmbed]});
                     driverToStart.send(`Gute Nachrichten, ` +
                     `du hast deinen Stammplatz für diese Woche wieder! 😄`);
                 });
-                let date = new Date().toLocaleString();
                 if(subDriverID && subDriverID != 'nicht besetzt'){
-                    console.log(`${client.guilds.cache.get(seasonData.getDiscordID()).members.cache.get(subDriverID).nickname} übernimmt einen ` + 
-                                `${client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(carToTake).name} und ` + 
-                                `${driverToStart.nickname} bekommt seinen Stammplatz wieder -- ${date}`);
+                    console.log(`${client.guilds.cache.get(client.getDiscordID()).members.cache.get(subDriverID).nickname} übernimmt einen ` + 
+                                `${client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name} und ` + 
+                                `${driverToStart.nickname} bekommt seinen Stammplatz wieder -- ${new Date().toLocaleString()}`);
                 } else {
-                    console.log(`${driverToStart.nickname} bekommt seinen Stammplatz wieder -- ${date}`);
+                    console.log(`${driverToStart.nickname} bekommt seinen Stammplatz wieder -- ${new Date().toLocaleString()}`);
                 }
             
-            } else if(!fromForceRemove && driverToStart.roles.cache.has(ersatzfahrerRolleID) && await client.checkIfCarisFree(client, carToTake, seasonData)){
-                await client.changeLineupNormalSub(client, driverToStart.id, carToTake, seasonData);
+            } else if(!fromForceRemove && driverToStart.roles.cache.has(ersatzfahrerRolleID) && await client.checkIfCarisFree(client, carToTake)){
+                await client.changeLineupNormalSub(client, driverToStart.id, carToTake);
                 let driverInEmbed = new EmbedBuilder()
                 .setColor('#fff654')
                 .setTitle('➡️')
@@ -705,15 +708,15 @@ module.exports = (client) => {
                     {name: `Update im Lineup`, value: `<@${driverToStart.id}> bekommt den <@&${carToTake}>`}
                 );
                 await client.channels.cache.get(anmeldeChannelID).send({embeds : [driverInEmbed]}).then(() => {
-                    client.channels.cache.get(seasonData.getLogChannelID()).send({embeds : [driverInEmbed]});
+                    client.channels.cache.get(client.getLogChannelID()).send({embeds : [driverInEmbed]});
                     driverToStart.send(`Gute Nachrichten, du fährst diese Woche den ` + 
-                    `${client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(carToTake).name}! Viel Glück beim Rennen 🍀`);
+                    `${client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name}! Viel Glück beim Rennen 🍀`);
                 });
                 let date = new Date().toLocaleString();
                 console.log(`${driverToStart.nickname} bekommt ` + 
-                            `den ${client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(carToTake).name} -- ${date}`);
+                            `den ${client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name} -- ${date}`);
             } else if(fromForceRemove && driverForForce == null && carForForce == null){
-                await client.changeLineupAfterForceOpen(driverToStart.id, client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(carToTake).name, positionForForce, seasonData);
+                await client.changeLineupAfterForceOpen(driverToStart.id, client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name, positionForForce, seasonData);
                 let subDriverInEmbed = new EmbedBuilder()
                 .setColor('#fff654')
                 .setTitle('➡️')
@@ -721,17 +724,16 @@ module.exports = (client) => {
                     {name: `Update im Lineup`, value: `<@${driverToStart.id}> bekommt den <@&${carToTake}>`}
                 );
                 await client.channels.cache.get(anmeldeChannelID).send({embeds : [subDriverInEmbed]}).then(() => {
-                    client.channels.cache.get(seasonData.getLogChannelID()).send({embeds : [subDriverInEmbed]});
+                    client.channels.cache.get(client.getLogChannelID()).send({embeds : [subDriverInEmbed]});
                     driverToStart.send(`Gute Nachrichten, du fährst diese Woche den ` + 
-                    `${client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(carToTake).name}! Viel Glück beim Rennen 🍀`);
+                    `${client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name}! Viel Glück beim Rennen 🍀`);
                 });
-                let date = new Date().toLocaleString();
                 console.log(`${driverToStart.nickname} bekommt` + 
-                            ` den ${client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(carToTake).name} -- ${date}`);
+                            ` den ${client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name} -- ${new Date().toLocaleString()}`);
             }
         } else {
             if(fromForceRemove && driverForForce != null && carForForce != null){
-                await client.changeLineupAfterForceDedicated(driverForForce, carForForce, positionForForce, seasonData);
+                await client.changeLineupAfterForceDedicated(driverForForce, carForForce, positionForForce);
                 let subDriverInEmbed = new EmbedBuilder()
                 .setColor('#fff654')
                 .setTitle('➡️')
@@ -739,69 +741,88 @@ module.exports = (client) => {
                     {name: `Update im Lineup`, value: `<@${driverForForce}> bekommt den ${carForForce}`}
                 );
                 await client.channels.cache.get(anmeldeChannelID).send({embeds : [subDriverInEmbed]}).then(() => {
-                    client.channels.cache.get(seasonData.getLogChannelID()).send({embeds : [subDriverInEmbed]});
-                    client.guilds.cache.get(seasonData.getDiscordID()).members.cache.get(driverForForce).send(`Gute Nachrichten, du fährst diese Woche den ` + 
+                    client.channels.cache.get(client.getLogChannelID()).send({embeds : [subDriverInEmbed]});
+                    client.guilds.cache.get(client.getDiscordID()).members.cache.get(driverForForce).send(`Gute Nachrichten, du fährst diese Woche den ` + 
                     `${(carForForce)}! Viel Glück beim Rennen 🍀`);
                 });
-                let date = new Date().toLocaleString();
-                console.log(`${client.guilds.cache.get(seasonData.getDiscordID()).members.cache.get(driverForForce).user.username} bekommt` + 
-                            ` den ${carForForce} -- ${date}`);
+                console.log(`${client.guilds.cache.get(client.getDiscordID()).members.cache.get(driverForForce).user.username} bekommt` + 
+                            ` den ${carForForce} -- ${new Date().toLocaleString()}`);
             }
         }
-        await client.setWaitlistMsgContent(client, seasonData);
-        await client.printLineup(client, seasonData)
+        await client.setWaitlistMsgContent(client);
+        await client.printLineup(client)
     }
 
-    client.addCarOfWithdrawnDriverToFreeCars = async (memberUser, seasonData, client) => {
+    client.addCarOfWithdrawnDriverToFreeCars = async (memberUser, client) => {
         //Gets all the information
-        let freeCars = new Map();
+        var freeCars = new Array();
+        var currentRaceID = -1
        
-        freeCars = seasonData.getFreeCarsLigaFR();
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table for information to add car to free cars list -- ${new Date().toLocaleString()}`)
+
+            freeCars = res[0].free_cars.split(',')
+            currentRaceID = res[0].race_id
+        }, function(err){
+            console.log(`Error getting last entry in table for information to add car to free cars list -- ${new Date().toLocaleString()} \n ${err}`)
+        })
         
         //Changes locally
-        var member = await client.guilds.cache.get(seasonData.getDiscordID()).members.fetch(memberUser.id);
-        if(member.roles.cache.has(seasonData.getMercedesRolleID())){
-            await freeCars.unshift(seasonData.getMercedesRolleID());
-        } else if(member.roles.cache.has(seasonData.getRedBullRolleID())){
-            await freeCars.unshift(seasonData.getRedBullRolleID());
-        } else if(member.roles.cache.has(seasonData.getFerrariRolleID())){
-            await freeCars.unshift(seasonData.getFerrariRolleID());
-        } else if(member.roles.cache.has(seasonData.getMcLarenRolleID())){
-            await freeCars.unshift(seasonData.getMcLarenRolleID());
-        } else if(member.roles.cache.has(seasonData.getAstonMartinRolleID())){
-            await freeCars.unshift(seasonData.getAstonMartinRolleID());
-        }  else if(member.roles.cache.has(seasonData.getAlpineRolleID())){
-            await freeCars.unshift(seasonData.getAlpineRolleID());
-        } else if(member.roles.cache.has(seasonData.getAlphaTauriRolleID())){
-            await freeCars.unshift(seasonData.getAlphaTauriRolleID());
-        } else if(member.roles.cache.has(seasonData.getAlfaRomeoRolleID())){
-            await freeCars.unshift(seasonData.getAlfaRomeoRolleID());
-        } else if(member.roles.cache.has(seasonData.getWilliamsRolleID())){
-            await freeCars.unshift(seasonData.getWilliamsRolleID());
-        } else if(member.roles.cache.has(seasonData.getHaasRolleID())){
-            await freeCars.unshift(seasonData.getHaasRolleID());
+        var member = await client.guilds.cache.get(client.getDiscordID()).members.fetch(memberUser.id);
+        if(member.roles.cache.has(client.getMercedesRolleID())){
+            freeCars.unshift(client.getMercedesRolleID());
+        } else if(member.roles.cache.has(client.getRedBullRolleID())){
+            freeCars.unshift(client.getRedBullRolleID());
+        } else if(member.roles.cache.has(client.getFerrariRolleID())){
+            freeCars.unshift(client.getFerrariRolleID());
+        } else if(member.roles.cache.has(client.getMcLarenRolleID())){
+            freeCars.unshift(client.getMcLarenRolleID());
+        } else if(member.roles.cache.has(client.getAstonMartinRolleID())){
+            freeCars.unshift(client.getAstonMartinRolleID());
+        }  else if(member.roles.cache.has(client.getAlpineRolleID())){
+            freeCars.unshift(client.getAlpineRolleID());
+        } else if(member.roles.cache.has(client.getAlphaTauriRolleID())){
+            freeCars.unshift(client.getAlphaTauriRolleID());
+        } else if(member.roles.cache.has(client.getAlfaRomeoRolleID())){
+            freeCars.unshift(client.getAlfaRomeoRolleID());
+        } else if(member.roles.cache.has(client.getWilliamsRolleID())){
+            freeCars.unshift(client.getWilliamsRolleID());
+        } else if(member.roles.cache.has(client.getHaasRolleID())){
+            freeCars.unshift(client.getHaasRolleID());
         }
         //Makes changes globally
-       
-        await seasonData.setFreeCarsLigaFR(freeCars);
+        
+        var freeCarsAsString = await client.convertArrayToString(freeCars)
+        await client.updateFreeCarsList(freeCarsAsString, currentRaceID).then(function(res){
+            console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error updating free cars list in database -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+
        
     }
 
     client.setWaitlistMsgContent = async (client, seasonData) => {
         //Gets all the information
-        let subPersonList = new Map();
-        let subPersonListReinstatedDrivers = new Map();
-        let freeCars = new Map();
-        let waitListMsgID = null;
-        let freeCarsMsgID = null;
-        let anmeldeChannelID = null;
-        
-        subPersonList = seasonData.getSubPersonListLigaFR();
-        subPersonListReinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLigaFR();
-        freeCars = seasonData.getFreeCarsLigaFR();
-        waitListMsgID = seasonData.getWaitlistMsgIDLigaFR();
-        freeCarsMsgID = seasonData.getFreeCarMsgIDLigaFR();
-        anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
+        let subPersonList = new Array();
+        let subPersonListReinstatedDrivers = new Array();
+        let freeCars = new Array();
+        let waitListMsgID = -1;
+        let freeCarsMsgID = -1;
+
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()}`)
+
+            freeCars = res[0].free_cars.split(',')
+            subPersonList = res[0].sub_person_list.split(',')
+            subPersonListReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            waitListMsgID = res[0].waitlist_msg_id
+            freeCarsMsgID = res[0].free_car_msg_id
+        }, function(err){
+            console.log(`Error getting last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+
+        var anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
        
         //Make local changes
         let waitListContent = subPersonListReinstatedDrivers.concat(subPersonList);
@@ -829,55 +850,35 @@ module.exports = (client) => {
         });
     }
 
-    client.setDefaultLineup = async (client) => {
-
-        var mercedesDrivers = client.getMercedesDrivers(client);
-        var redBullDrivers = client.getRedBullDrivers(client);
-        var ferrariDrivers = client.getFerrariDrivers(client);
-        var mcLarenDrivers = client.getMcLarenDrivers(client);
-        var astonMartinDrivers = client.getAstonMartinDrivers(client);
-        var alpineDrivers = client.getAlpineDrivers(client);
-        var alphaTauriDrivers = client.getAlphaTauriDrivers(client);
-        var alfaRomeoDrivers = client.getAlfaRomeoDrivers(client);
-        var williamsDrivers = client.getWilliamsDrivers(client);
-        var haasDrivers = client.getHaasDrivers(client);
-
-
-    }
-
-    client.findMainTeamString = async (member, seasonData) => {
-        if(member.roles.cache.has(seasonData.getMercedesRolleID())){
+    client.findMainTeamString = async (member) => {
+        if(member.roles.cache.has(client.getMercedesRolleID())){
             return 'Mercedes';
-        } else if(member.roles.cache.has(seasonData.getRedBullRolleID())){
+        } else if(member.roles.cache.has(client.getRedBullRolleID())){
             return 'Red Bull';
-        } else if(member.roles.cache.has(seasonData.getFerrariRolleID())){
+        } else if(member.roles.cache.has(client.getFerrariRolleID())){
             return 'Ferrari';
-        } else if(member.roles.cache.has(seasonData.getMcLarenRolleID())){
+        } else if(member.roles.cache.has(client.getMcLarenRolleID())){
             return 'McLaren';
-        } else if(member.roles.cache.has(seasonData.getAstonMartinRolleID())){
+        } else if(member.roles.cache.has(client.getAstonMartinRolleID())){
             return 'Aston Martin';
-        } else if(member.roles.cache.has(seasonData.getAlpineRolleID())){
+        } else if(member.roles.cache.has(client.getAlpineRolleID())){
             return 'Alpine';
-        } else if(member.roles.cache.has(seasonData.getAlphaTauriRolleID())){
+        } else if(member.roles.cache.has(client.getAlphaTauriRolleID())){
             return 'Alpha Tauri';
-        } else if(member.roles.cache.has(seasonData.getAlfaRomeoRolleID())){
+        } else if(member.roles.cache.has(client.getAlfaRomeoRolleID())){
             return 'Alfa Romeo';
-        } else if(member.roles.cache.has(seasonData.getWilliamsRolleID())){
+        } else if(member.roles.cache.has(client.getWilliamsRolleID())){
             return 'Williams';
-        } else if(member.roles.cache.has(seasonData.getHaasRolleID())){
+        } else if(member.roles.cache.has(client.getHaasRolleID())){
             return 'Haas';
-        } else {
-
         }
     }
 
-    client.checkIfCarisFree = async (client, carToTake, seasonData) => {
+    client.checkIfCarisFree = async (client, carToTake) => {
         //Gets all the information
-        let currentLineup = new Map();
+        let currentLineup = await client.getCurrentLineup();
         
-        currentLineup = seasonData.getCurrentLineupLigaFR();
-        
-        let teamNameString = client.guilds.cache.get(seasonData.getDiscordID()).roles.cache.get(carToTake).name;
+        let teamNameString = client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name;
         if(currentLineup.get(teamNameString)[0] == `nicht besetzt` || currentLineup.get(teamNameString)[1] == `nicht besetzt`){
             return true;
         } else {
@@ -952,26 +953,19 @@ module.exports = (client) => {
 
     client.clearChannels = async (client) => {
         //Gets all the information
-        let anmeldeChannelID = null;
-        let abmeldeChannelID = null;
-        
-        anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
-        abmeldeChannelID = client.getAbmeldeChannelIDLigaFR();
-       
+        let anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
+        let abmeldeChannelID = client.getAbmeldeChannelIDLigaFR();     
     
         await client.channels.cache.get(anmeldeChannelID).bulkDelete(100).then(() => {
-            let date = new Date().toLocaleString();
-            console.log(`Der Anmelde-Channel in ${client.getLigatitel()} wurde gecleart -- ${date}`)
+            console.log(`Der Anmelde-Channel in ${client.getLigatitel()} wurde gecleart -- ${new Date().toLocaleString()}`)
         });
         await client.channels.cache.get(abmeldeChannelID).bulkDelete(100).then(() => {
-            let date = new Date().toLocaleString();
-            console.log(`Der Abmelde-Channel in ${client.getLigatitel()} wurde gecleart -- ${date}`)
+            console.log(`Der Abmelde-Channel in ${client.getLigatitel()} wurde gecleart -- ${new Date().toLocaleString()}`)
         });
     }
 
     client.sendWaitlistMsg = async (client) => {
-        let anmeldeChannelID = null;
-        anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
+        let anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();;
 
         var returnValue = -1
 
@@ -983,8 +977,7 @@ module.exports = (client) => {
     }
 
     client.sendFreeCarsMsg = async (client) => {
-        let anmeldeChannelID = null;
-        anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
+        let anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
 
         var returnValue = -1
 
@@ -997,29 +990,30 @@ module.exports = (client) => {
 
     client.sendOpenMsg = async (client, currentRaceLocation) => { 
         //Gets all the information
-        let ersatzfahrerRolleID = null;
-        let anmeldeChannelID = null;
-        anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
-        ersatzfahrerRolleID = client.getErsatzfahrerRolleIDLigaFR();
-    
+        let ersatzfahrerRolleID = client.getAnmeldeChannelIDLigaFR();
+        let anmeldeChannelID = client.getErsatzfahrerRolleIDLigaFR()
+       
         await client.channels.cache.get(anmeldeChannelID).send(`<@&${ersatzfahrerRolleID}> die Anmeldung für das ` + 
                                                               `Ligarennen in ${currentRaceLocation} ist hiermit eröffnet!`).then(() => {
-            let date = new Date().toLocaleString();
-            console.log(`Die Anmeldung für ${client.getLigatitel()} in ${currentRaceLocation} wurde eröffnet. -- ${date}`);
+            console.log(`Die Anmeldung für ${client.getLigatitel()} in ${currentRaceLocation} wurde eröffnet. -- ${new Date().toLocaleString()}`);
         });
-       
-       
-        
     }
 
-    client.subDriverIn = async (client, driverObject, seasonData) => {     
-        let anmeldeChannelID = null;     
+    client.subDriverIn = async (client, driverObject) => {     
+        var anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();     
         let subPersonList = new Array();
         let withdrawnDrivers = new Array();
+        var currentRaceID = -1
        
-        anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
-        subPersonList = seasonData.getSubPersonListLigaFR();
-        withdrawnDrivers = seasonData.getWithdrawnDriversLigaFR();
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()}`)
+
+            subPersonList = res[0].sub_person_list.split(',')
+            withdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            currentRaceID = res[0].race_id
+        }, function(err){
+            console.log(`Error getting last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()} \n ${err}`)
+        })
        
 
         if(driverObject.id){
@@ -1037,21 +1031,74 @@ module.exports = (client) => {
         .addFields(
             {name: `Update`, value: `<@${driverObject.id}> hat sich für diese Woche angemeldet`}
         );
-        await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(anmeldeChannelID).send({ embeds : [subInEmbed]}).then(() => {
-            client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getLogChannelID()).send({ embeds : [subInEmbed]});
+        await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(anmeldeChannelID).send({ embeds : [subInEmbed]}).then(() => {
+            client.guilds.cache.get(client.getDiscordID()).channels.cache.get(client.getLogChannelID()).send({ embeds : [subInEmbed]});
         });
-        let date = new Date().toLocaleString();
-        console.log(`${driverObject.username} hat sich erfolgreich angemeldet in ${seasonData.getLigatitel()} -- ${date}`);
+        console.log(`${driverObject.username} hat sich erfolgreich angemeldet in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
         
         //Make changes global
-        
-       
-        await seasonData.setSubPersonListLigaFR(subPersonList);
-        await seasonData.setWithdrawnDriversLigaFR(withdrawnDrivers);      
+        var subPersonListAsString = await client.convertArrayToString(subPersonList)
+        var withdrawnDriversAsString = await client.convertArrayToString(withdrawnDrivers)
+        await client.updateSubPersonList(subPersonListAsString, currentRaceID);
+        await client.updateWithdrawnDrivers(withdrawnDriversAsString, currentRaceID);      
        
 
         await client.checkSubCanBeMade(client, false, null, null, null, seasonData);
     }
+// HIER WEITERMACHEN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     client.regularDriverWithdraw = async (client, driverObject, seasonData) => {
         //Get current info
@@ -2581,5 +2628,16 @@ module.exports = (client) => {
         }
 
         return mapToReturn
+    }
+
+    client.convertArrayToString = async(arrayToConvert) => {
+        var stringToReturn = '';
+
+        arrayToConvert.forEach(entry => {
+            stringToReturn.concat(`${entry},`)
+        })
+        stringToReturn = stringToReturn.slice(0, -1)
+
+        return stringToReturn
     }
 }
