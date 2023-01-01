@@ -1,7 +1,4 @@
 const {SlashCommandBuilder} = require('discord.js');
-const CurrentSeason = require('./startseasonliga_fr.js')
-const cron = require('node-cron');
-const mysql = require('mysql')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -63,39 +60,6 @@ module.exports = {
 
         interaction.reply(`Die Saison startet am ${seasonStartDayofMonth}.${seasonStartMonth} um ${seasonStartHourOfDay}:${seasonStartMinutesOfDay}:${seasonStartSecondsOfDay}`)
    
-        try{
-            cron.schedule(`${seasonStartSecondsOfDay} ${seasonStartMinutesOfDay} ${seasonStartHourOfDay} ${seasonStartDayofMonth} ${seasonStartMonth} *`, () => {
-                if(CurrentSeason.seasonData.getSeasonCalendarLigaFR().length > 0){
-                    CurrentSeason.seasonData.setSeasonActiveLigaFR(true);
-                    CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 60000);
-                }
-                let startLoop = setInterval(async function(){
-                    CurrentSeason.seasonData.setStartLoopLigaFR(startLoop);
-                    if(CurrentSeason.seasonData.getSeasonCalendarLigaFR().length > 0){
-                        if(CurrentSeason.seasonData.getSeasonActiveLigaFR() == true){
-                            CurrentSeason.methodStorage.startFunction(client, interaction, CurrentSeason.seasonData, 60000);
-                            CurrentSeason.seasonData.getSeasonCalendarLigaFR().forEach(element => (console.log(element)))
-                            CurrentSeason.seasonData.getSeasonCalendarRacesDoneLigaFR().forEach(element => (console.log(element)))
-                        }else{
-                            var date = new Date().toLocaleString()
-                            console.log(`Der Ligabetrieb in Liga FR ist Pausiert oder zu Ende -- ${date}`)
-                        }
-                    
-                    }else{
-                        clearInterval(CurrentSeason.seasonData.getStartLoopLigaFR());
-                        
-                        CurrentSeason.seasonData.setSeasonActiveLigaFR(false);
-                        CurrentSeason.seasonData.setSeasonCalendarLigaFR(new Array());
-                        CurrentSeason.seasonData.setSeasonCalendarRacesDoneLigaFR(new Array());
-                        console.log(`Die Season in Liga FR wurde beendet`);
-                    }
-                    
-                }  , 80000)
-                console.log(startLoop)
-                
-            })
-        }catch{
-            console.log(`Seasonstart konnte nicht durchgeführt werden in Liga FR`)
-        }
+        
     }  
 }

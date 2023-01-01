@@ -1,5 +1,4 @@
 const {SlashCommandBuilder} = require('discord.js');
-const CurrentSeason = require('./startseasonliga_fr.js')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -12,8 +11,8 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
-            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+        if(!interaction.member.roles.cache.has(client.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(client.getLigaleiterRolleID())){
             interaction.reply('Du hast keine Berechtigung diesen Command auszuführen');
             return;
         }else{

@@ -26,7 +26,7 @@ module.exports = (client) => {
     client.createBotDataBase = async () => {
         var promCreateBotDataBase = new Promise(function(resolve, reject){
             connection.query(`CREATE TABLE IF NOT EXISTS bot_sonntag_1(
-                race_id INT NOT NULL,
+                race_id INT NOT NULL AUTO_INCREMENT,
                 sub_person_list MEDIUMTEXT,
                 sub_person_list_reinstated_drivers MEDIUMTEXT,
                 free_cars MEDIUMTEXT,
@@ -46,15 +46,13 @@ module.exports = (client) => {
                 current_drivers_alfa_romeo MEDIUMTEXT,
                 current_drivers_williams MEDIUMTEXT,
                 current_drivers_haas MEDIUMTEXT,
-                free_car_msg_id BIGINT,
-                waitlist_msg_id BIGINT,
-                regular_drivers_msg_id BIGINT,
-                register_msg_id BIGINT,
-                deregister_msg_id BIGINT,
-                registration_active BOOL DEFAULT 0,
-                season_active BOOL DEFAULT 0,
-                past_race_locations MEDIUMTEXT,
-                future_race_locations MEDIUMTEXT,
+                free_car_msg_id MEDIUMTEXT,
+                waitlist_msg_id MEDIUMTEXT,
+                regular_drivers_msg_id MEDIUMTEXT,
+                register_msg_id MEDIUMTEXT,
+                deregister_msg_id MEDIUMTEXT,
+                lineup_msg_id MEDIUMTEXT,
+                registration_active BOOL,
                 PRIMARY KEY(race_id)
                 )`, function(error, result, fields) {
                     if(error){
@@ -315,21 +313,99 @@ module.exports = (client) => {
         return promGetDcIDs
     }
 
-    client.insertNewRace = async() => {
+    client.insertNewRace = async (mercedesDrivers, redBullDrivers, ferrariDrivers, mcLarenDrivers, astonMartinDrivers, alpineDrivers, alphaTauriDrivers, alfaRomeoDrivers, 
+                                    williamsDrivers, haasDrivers, waitlistMsgID, freeCarsMsgID, regularDriversMsgID, registerMsgID, deregisterMsgID, raceLocation, lineupMsgID) => {
+        console.log('CRASHPOINT 1')
         var promInsertNewRace = new Promise(function(resolve, reject){
+            console.log('CRASHPOINT 2')
             connection.query(`INSERT INTO bot_sonntag_1 (sub_person_list, sub_person_list_reinstated_drivers, free_cars, withdrawn_drivers,
                             withdrawn_drivers_per_cmd, sub_in_drivers_per_cmd, race_location, reacted_to_sub_in, reacted_to_sign_out, 
                             current_drivers_mercedes, current_drivers_rb, current_drivers_ferrari, current_drivers_mclaren, 
                             current_drivers_aston_martin, current_drivers_alpine, current_drivers_alpha_tauri, current_drivers_alfa_romeo,
                             current_drivers_williams, current_drivers_haas, free_car_msg_id, waitlist_msg_id, regular_drivers_msg_id,
-                            register_msg_id, deregister_msg_id, registration_active, season_active, past_race_locations, future_race_locations)`)
+                            register_msg_id, deregister_msg_id, lineup_msg_id, registration_active) VALUES ('', '', '', '', '', '', '${raceLocation}', '', '', '${mercedesDrivers}',
+                            '${redBullDrivers}', '${ferrariDrivers}', '${mcLarenDrivers}', '${astonMartinDrivers}', '${alpineDrivers}', 
+                            '${alphaTauriDrivers}', '${alfaRomeoDrivers}', '${williamsDrivers}', '${haasDrivers}', '${freeCarsMsgID}', '${waitlistMsgID}',
+                            '${regularDriversMsgID}', '${registerMsgID}', '${deregisterMsgID}', '${lineupMsgID}', 1)`, function(err, res){
+                console.log('CRASHPOINT 3')
+                if(err){
+                    reject(err)
+                } else {
+                    console.log('CRASHPOINT 4')
+                    resolve(res)
+                    console.log('CRASHPOINT 5')
+                }
+            })
         })
+
+        return promInsertNewRace
     }
 
-    client.getDriversInCurrentLineup = async (team, currentRaceID) => {
-        var promGetDriversInCurrentLineup = new Promise(function(resolve, reject){
-            connection.query(`SELECT current_drivers_mercedes FROM bot_sonntag_1 WHERE race_id = ${currentRaceID}`)
+    client.getLastRaceInDatabase = async() => {
+        var promGetTeamsMsgID = new Promise(function(resolve, reject){
+            connection.query(`SELECT * FROM bot_sonntag_1 ORDER BY race_id DESC LIMIT 1`, function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            })
         })
+        return promGetTeamsMsgID
     }
+
+    client.setReactedToSubIn = async(reactedToSubInString, raceID) => {
+        var promSetReactedToSubIn = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET reacted_to_sub_in = '${reactedToSubInString}' WHERE race_id = ${raceID}`, function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            })
+        })
+        return promSetReactedToSubIn
+    }
+
+    client.setReactedToSignOut = async(reactedToSubInString, raceID) => {
+        var promSetReactedToSignOut = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET reacted_to_sign_out = '${reactedToSubInString}' WHERE race_id = ${raceID}`, function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            })
+        })
+        return promSetReactedToSignOut
+    }
+
+    client.updateCurrentDriversInDatabase = async(field, value, raceID) => {
+        var promUpdateCurrentDriversInDatabase = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET ${field} = '${value}' WHERE race_id = ${raceID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateCurrentDriversInDatabase
+    }
+
+    client.updateCurrentLineupMsg = async (msgID, raceID) => {
+        var promUpdateCurrentLineupMsg = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET lineup_msg_id = '${msgID}' WHERE race_id = ${raceID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateCurrentLineupMsg
+    }
+
+    
 
 }

@@ -1,5 +1,4 @@
 const {SlashCommandBuilder} = require('discord.js');
-const CurrentSeason = require('./startseasonliga_fr.js')
 const cron = require('node-cron');
 
 module.exports = {

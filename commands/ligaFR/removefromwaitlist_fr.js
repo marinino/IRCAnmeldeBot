@@ -1,5 +1,4 @@
 const {EmbedBuilder, SlashCommandBuilder} = require('discord.js');
-const CurrentSeason = require('./startseasonliga_fr.js');
 
 module.exports = {
     data: new SlashCommandBuilder()

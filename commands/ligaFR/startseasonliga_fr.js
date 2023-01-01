@@ -1,15 +1,9 @@
 const {SlashCommandBuilder, EmbedBuilder, Embed} = require('discord.js');
-const SeasonData = require('../../dataClasses/VariablenDaten.js');
-const MethodStorage = require('../../dataClasses/MethodenDaten.js');
-const mysql = require('mysql')
+const cron = require('node-cron');
 
-var seasonData = new SeasonData();
-var methodStorage = new MethodStorage()
-
+var racesPlanned = new Map();
 
 module.exports = {
-    seasonData,
-    methodStorage,
     data: new SlashCommandBuilder()
         .setName('startseasonliga_fr')
         .setDescription('Starts season and sets calendar')
@@ -22,22 +16,19 @@ module.exports = {
 
         
 
-        if(!interaction.member.roles.cache.has(seasonData.getRennleiterRolleID()) &&
-            !interaction.member.roles.cache.has(seasonData.getLigaleiterRolleID())){
+        if(!interaction.member.roles.cache.has(client.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(client.getLigaleiterRolleID())){
             interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             //console.log('ack')
             return;
         }else{
             var date = new Date().toLocaleString()
-            //console.log(`Der startseason_fr Command wurde von ${interaction.user.username} verwendet -- ${date}`)
+            console.log(`Der startseason_fr Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
         // Gets parameter
         const leagueID = interaction.options.getNumber('id')
 
-        
-
-       
         var tempLeagueIDsWithSameName = new Array()
         var calendarSortedByDate = new Array()
      
@@ -85,6 +76,8 @@ module.exports = {
                             await client.getNamesOfRaces(calendarSortedByDate).then(async function(res){
                                 console.log(`Query getNames in league database was successful -- ${new Date().toLocaleString()}`)
 
+                                racesPlanned = res;
+
                                 res.forEach((value, key) => {
                                     console.log(key.grandprixname + " " + value)
                                     stringFutureRaces = stringFutureRaces.concat(`${key.grandprixname} am ${new Date(value).toLocaleString()}\n`)
@@ -116,5 +109,34 @@ module.exports = {
         }, function(err){
             console.log(err)
         })
+
+        try{
+            cron.schedule(`51 16 * * 5`, async () => {
+
+                if(racesPlanned.size > 0){
+                    var [nextRaceKey] = racesPlanned.keys()
+                    console.log(nextRaceKey)
+
+                    var nextRaceDate = new Date(racesPlanned.get(nextRaceKey))
+                    console.log(nextRaceDate)
+
+                    // 604800000 is one week in ms
+                    if(nextRaceDate - new Date() < 604800000){
+                        
+                        var timeTillClose = nextRaceDate - new Date()
+                        await client.startFunction(client, interaction, timeTillClose, nextRaceKey.grandprixname);
+                        console.log('RACEEEEEEEEEEEEEEEEEEEEE')
+                    } else {
+                        console.log(`Checked for planned races but none found in the next week. -- ${new Date().toLocaleString()}`)
+                    }
+
+                } else {
+                    console.log(`Checked for planned races, none where found. -- ${new Date().toLocaleString()}`)
+                }
+                
+            })
+        }catch{
+            console.log(`Seasonstart konnte nicht durchgeführt werden in Liga FR`)
+        }
     }
 }
