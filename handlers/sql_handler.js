@@ -253,7 +253,7 @@ module.exports = (client) => {
      * @param {String} teamname 
      * @returns Promise
      */
-    client.getTeamID = async (teamname) => {
+    client.getTeamIDOnlyID = async (teamname) => {
         var promGetTeamID = new Promise(function(resolve, reject){
             connectionAdman.query(`SELECT id FROM team WHERE name = '${teamname}'`, async function(err, res){
                 if(err){
@@ -469,6 +469,97 @@ module.exports = (client) => {
             }
         })
         return promUpdateRegistration
+    }
+
+    client.updateWithdrawnDriversPerCmd = async (listOfDriversWithdrawn, raceID) => {
+        var promUpdateWithdrawnDriversPerCmd = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET withdrawn_drivers_per_cmd = '${listOfDriversWithdrawn}' WHERE race_id = ${raceID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateWithdrawnDriversPerCmd
+    }
+
+    client.updateSubInDriversPerCmd = async (listOfDriversSubIn, raceID) => {
+        var promUpdateSubInDriversPerCmd = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET sub_in_drivers_per_cmd = '${listOfDriversSubIn}' WHERE race_id = ${raceID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateSubInDriversPerCmd
+    }
+
+    client.insertNewRegularDriver = async (gueltigAbDate, teamID, persID, ligaID) => {
+        var promInsertNewRegularDriver = new Promise(function(resolve, reject){
+            connectionAdman.query(`INSERT INTO ligateamfahrer (fahrerolle, gueltigab, ligaid, persid, tid) VALUES ('Stammfahrer', ${gueltigAbDate}, ${ligaID}, ${persID}, ${teamID})`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promInsertNewRegularDriver
+    }
+
+    client.getTeamID = async (teamname) => {
+        var promGetTeamID = new Promise(function(resolve, reject){
+            connectionAdman.query(`SELECT * FROM team WHERE name = '${teamname}'`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promGetTeamID
+    }
+
+    client.getPersID = async (personDiscordID) => {
+        var promInsertNewRegularDriver = new Promise(function(resolve, reject){
+            connectionAdman.query(`SELECT * FROM person WHERE dcid = ${personDiscordID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promInsertNewRegularDriver
+    }
+
+    client.getLigaID = async (liganame) => {
+        var promInsertNewRegularDriver = new Promise(function(resolve, reject){
+            connection.query(`SELECT * FROM league_ids WHERE name = '${liganame}'`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promInsertNewRegularDriver
+    }
+
+    client.updateRegularDriver = async (date, teamID, persID, ligaID) => {
+        var promUpdateRegularDriver = new Promise(function(resolve, reject){
+            connectionAdman.query(`UPDATE SET gueltigbis = ${date} WHERE gueltigbis = NULL AND tid = ${teamID}, persid = ${persID}, ligaid = ${ligaID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateRegularDriver
     }
 
 }

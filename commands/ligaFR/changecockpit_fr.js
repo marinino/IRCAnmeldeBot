@@ -26,20 +26,40 @@ module.exports = {
 
         const driverIn = interaction.options.getUser('driver');
         const teamObject = interaction.options.getRole('team');
-        const abmeldeChannel = CurrentSeason.seasonData.getAbmeldeChannelIDLigaFR();
-        const logChannelID = CurrentSeason.seasonData.getLogChannelID();
-        const discordID = CurrentSeason.seasonData.getDiscordID();
-        const messageEmbededAnmelden = CurrentSeason.seasonData.getMessageEmbedAnmeldenLigaFR();
-        var tempCurrentLineup = CurrentSeason.seasonData.getCurrentLineupLigaFR();
-        var tempReactedToSubIn = CurrentSeason.seasonData.getReactedToSubInLigaFR();
-        var tempSubPersonList = CurrentSeason.seasonData.getSubPersonListLigaFR();
-        var tempSubInPerCmd = CurrentSeason.seasonData.getSubInDriversPerCommandLigaFR();
-        var tempFreeCars = CurrentSeason.seasonData.getFreeCarsLigaFR();
-        var tempWithdrawnDrivers = CurrentSeason.seasonData.getWithdrawnDriversLigaFR();
-        var tempReinstatedDrivers = CurrentSeason.seasonData.getsubPersonListReinstatedDriversLigaFR();
+        const abmeldeChannel = await client.getAbmeldeChannelIDLigaFR();
+        const logChannelID = await client.getLogChannelID();
+        const discordID = await client.getDiscordID();
+
+        var messageEmbededAnmelden = -1
+        var raceID = -1
+        var tempCurrentLineup = new Map();
+        var tempReactedToSubIn = new Map();
+        var tempSubPersonList = new Array();
+        var tempSubInPerCmd = new Array();
+        var tempFreeCars = new Array();
+        var tempWithdrawnDrivers = new Array();
+        var tempReinstatedDrivers = new Array();
+
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table for changecockpit command -- ${new Date().toLocaleString()}`)
+
+            messageEmbededAnmelden = res[0].register_msg_id
+            raceID = res[0].race_id
+            tempCurrentLineup = await client.getCurrentLineup();
+            var reactedToSubInString = res[0].reacted_to_sub_in
+            tempReactedToSubIn = await client.convertStringToMap(reactedToSubInString)
+            tempSubPersonList = res[0].sub_person_list.split(',')
+            tempSubInPerCmd = res[0].sub_in_drivers_per_cmd.split(',')
+            tempFreeCars = res[0].free_cars.split(',')
+            tempWithdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            tempReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+        }, function(err){
+            console.log(`Error getting last entry in table for changecockpit command -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+       
 
         if(driverIn != null){
-            if(await CurrentSeason.methodStorage.checkDriverInLineup(driverIn.id, CurrentSeason.seasonData)){
+            if(await client.checkDriverInLineup(driverIn.id)){
                 interaction.reply('Fahrer ist schon in Lineup oder auf Warteliste');
                 return
             }
@@ -54,14 +74,14 @@ module.exports = {
             .addFields(
               {name: 'Erster Fahrer', value: `1️⃣ - <@${tempCurrentLineup.get(`${teamObject.name}`)[0]}>`},
               {name: `Zweiter Fahrer`, value: `2️⃣ - <@${tempCurrentLineup.get(`${teamObject.name}`)[1]}>`},
-              {name: 'Abbrechen', value: `${CurrentSeason.seasonData.getAbmeldeEmoji()} - Um Vorgang abzubrechen`}
+              {name: 'Abbrechen', value: `${await client.getAbmeldeEmoji()} - Um Vorgang abzubrechen`}
             )
   
-        let messageForceRemoveDriverEmbed = await client.channels.cache.get(CurrentSeason.seasonData.getCommandChannelID()).send({ embeds: [forceRemoveDriverEmbed] });
+        let messageForceRemoveDriverEmbed = await client.channels.cache.get(await client.getCommandChannelID()).send({ embeds: [forceRemoveDriverEmbed] });
 
         await messageForceRemoveDriverEmbed.react('1️⃣');
         await messageForceRemoveDriverEmbed.react('2️⃣');
-        await messageForceRemoveDriverEmbed.react(CurrentSeason.seasonData.getAbmeldeEmoji());
+        await messageForceRemoveDriverEmbed.react(await client.getAbmeldeEmoji());
 
         const collectorConfirm = messageForceRemoveDriverEmbed.createReactionCollector({ dispose: true});
 
@@ -100,18 +120,26 @@ module.exports = {
                         });
 
                         tempWithdrawnDrivers.push(preCmdDriver);
-                        CurrentSeason.seasonData.setWithdrawnDriversLigaFR(tempWithdrawnDrivers);
-
-                        let dateRemove = new Date().toLocaleString();
+                        var withdrawnDriversAsString = await client.convertArrayToString(tempWithdrawnDrivers)
+                        await client.updateWithdrawnDrivers(withdrawnDriversAsString, raceID).then(function(res){
+                            console.log(`Successfully updated withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
+   
                         console.log(`changecockpitFR wurde verwendet und der Fahrer` +
-                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${dateRemove}`);
+                            `${client.guilds.cache.get(await client.getDiscordID()).members.cache.get(preCmdDriver).username} wurde entfernt -- ${new Date().toLocaleString()}`);
                     }
 
                     tempSubInPerCmd.push(driverIn.id)
-                    CurrentSeason.seasonData.setSubInDriversPerCommandLigaFR(tempSubInPerCmd);
+                    var subInAsString = await client.convertArrayToString(tempSubInPerCmd)
+                    await client.updateSubInDriversPerCmd(subInAsString, raceID).then(function(res){
+                        console.log(`Successfully updated sub in drivers per cmd list in database -- ${new Date().toLocaleString()}`)
+                    }, function(err){
+                        console.log(`Error updating sub in drivers per cmd list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                    })
 
-                    let dateIn = new Date().toLocaleString();
-                    console.log(`changecockpitFR wurde verwendet und der Fahrer ${driverIn.username} wurde erfolgreich ins Lineup genommen -- ${dateIn}`);
+                    console.log(`changecockpitFR wurde verwendet und der Fahrer ${driverIn.username} wurde erfolgreich ins Lineup genommen -- ${new Date().toLocaleString()}`);
 
                     if(tempSubPersonList.includes(driverIn.id)){
                         tempSubPersonList.splice(tempSubPersonList.indexOf(driverIn.id), 1)
@@ -133,20 +161,45 @@ module.exports = {
                     if(tempReactedToSubIn.has(preCmdDriver)){
                         messageEmbededAnmelden.reactions.resolve(tempReactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver);
                         tempReactedToSubIn.delete(preCmdDriver);
+
+                        var reactedToSubInAsString = await client.convertMapToString(tempReactedToSubIn)
+                        await client.setReactedToSubIn(reactedToSubInAsString, raceID).then(function(res){
+                            console.log(`Successfully updated reacted to sub in list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating reacted to sub in list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
+
                         CurrentSeason.seasonData.setReactedToSubInLigaFR(tempReactedToSubIn);
                     }
 
-                    CurrentSeason.seasonData.setFreeCarsLigaFR(tempFreeCars);
-                    CurrentSeason.seasonData.setSubPersonListLigaFR(tempSubPersonList);
-                    CurrentSeason.seasonData.setsubPersonListReinstatedDriversLigaFR(tempReinstatedDrivers);
+                    var freeCarsAsString = await client.convertArrayToString(tempFreeCars)
+                    await client.updateFreeCarsList(freeCarsAsString, raceID).then(function(res){
+                        console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
+                    }, function(err){
+                        console.log(`Error updating free cars list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                    })
+
+                    var subPersonListAsString = await client.convertArrayToString(tempSubPersonList)
+                    await client.updateSubPersonList(subPersonListAsString, raceID).then(function(res){
+                        console.log(`Successfully updated sub person list in database -- ${new Date().toLocaleString()}`)
+                    }, function(err){
+                        console.log(`Error updating sub person list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                    })
+
+                    var reinstatedDriversAsString = await client.convertArrayToString(tempReinstatedDrivers)
+                    await client.updateReinstatedDrivers(reinstatedDriversAsString, raceID).then(function(res){
+                        console.log(`Successfully updated reinstated drivers list in database -- ${new Date().toLocaleString()}`)
+                    }, function(err){
+                        console.log(`Error updating reinstated drivers list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                    })
 
                     if(preCmdDriver != 'nicht besetzt'){
-                        await CurrentSeason.methodStorage.removeFromCurrentLineup(client, preCmdDriver, teamObject.id, CurrentSeason.seasonData);
+                        await client.removeFromCurrentLineup(client, preCmdDriver, teamObject.id);
                     }
-                    await CurrentSeason.methodStorage.checkSubCanBeMade(client, false, null, null, null, CurrentSeason.seasonData)
+                    await client.checkSubCanBeMade(client, false, null, null, null)
                 }else{
 
-                    let driverOutID = tempCurrentLineup.get(`${teamObject.name}`)[0]
+                    var driverOutID = tempCurrentLineup.get(`${teamObject.name}`)[0]
                     
                     if(driverOutID != 'nicht besetzt'){
                         let driverOutObject = await interaction.guild.members.fetch(driverOutID)
@@ -164,11 +217,15 @@ module.exports = {
 
 
                         tempWithdrawnDrivers.push(driverOutID);
-                        CurrentSeason.seasonData.setWithdrawnDriversLigaFR(tempWithdrawnDrivers);
+                        var withdrawnDriversAsString = await client.convertArrayToString(tempWithdrawnDrivers)
+                        await client.updateWithdrawnDrivers(withdrawnDriversAsString, raceID).then(function(res){
+                            console.log(`Successfully updated withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
 
-                        let dateRemove = new Date().toLocaleString();
                         console.log(`changecockpitFR wurde verwendet und der Fahrer` +
-                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(driverOutID).nickname} wurde entfernt -- ${dateRemove}`);
+                            `${client.guilds.cache.get(await client.getDiscordID()).members.cache.get(driverOutID).nickname} wurde entfernt -- ${new Date().toLocaleString()}`);
 
                         tempFreeCars.push(teamObject.id);         
                         
@@ -176,13 +233,23 @@ module.exports = {
                             tempSubInPerCmd.splice(tempSubInPerCmd.indexOf(driverOutID), 1);
                         }
     
-                        CurrentSeason.seasonData.setFreeCarsLigaFR(tempFreeCars);
-                        CurrentSeason.seasonData.setSubInDriversPerCommandLigaFR(tempSubInPerCmd);
+                        var freeCarsAsString = await client.convertArrayToString(tempFreeCars)
+                        await client.updateFreeCarsList(freeCarsAsString, raceID).then(function(res){
+                            console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating free cars list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
+                        var subPersonPerCmdListAsString = await client.convertArrayToString(tempSubInPerCmd)
+                        await client.updateSubInDriversPerCmd(subPersonPerCmdListAsString, raceID).then(function(res){
+                            console.log(`Successfully updated sub person per cmd list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating sub person per cmd list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
     
-                        await CurrentSeason.methodStorage.removeFromCurrentLineup(client, driverOutObject, teamObject.id, CurrentSeason.seasonData);
-                        await CurrentSeason.methodStorage.checkSubCanBeMade(client, false, null, null, null, CurrentSeason.seasonData)
+                        await client.removeFromCurrentLineup(client, driverOutObject, teamObject.id);
+                        await client.checkSubCanBeMade(client, false, null, null, null)
                     } else {
-                        interaction.channel.send(`Leeres Cockpit kann nicht enfernt werden`)
+                        await interaction.channel.send(`Leeres Cockpit kann nicht enfernt werden`)
                     }
                     
                 }
@@ -209,18 +276,26 @@ module.exports = {
                         });
 
                         tempWithdrawnDrivers.push(preCmdDriver);
-                        CurrentSeason.seasonData.setWithdrawnDriversLigaFR(tempWithdrawnDrivers);
+                        var withdrawnDriversAsString = await client.convertArrayToString(tempWithdrawnDrivers)
+                        await client.updateWithdrawnDrivers(withdrawnDriversAsString, raceID).then(function(res){
+                            console.log(`Successfully updated withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
 
-                        let dateRemove = new Date().toLocaleString();
                         console.log(`changecockpitFR wurde verwendet und der Fahrer` +
-                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${dateRemove}`);
+                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${new Date().toLocaleString()}`);
                     }
 
                     tempSubInPerCmd.push(driverIn.id)
-                    CurrentSeason.seasonData.setSubInDriversPerCommandLigaFR(tempSubInPerCmd);
+                    var subInAsString = await client.convertArrayToString(tempSubInPerCmd)
+                    await client.updateSubInDriversPerCmd(subInAsString, raceID).then(function(res){
+                        console.log(`Successfully updated sub in drivers per cmd list in database -- ${new Date().toLocaleString()}`)
+                    }, function(err){
+                        console.log(`Error updating sub in drivers per cmd list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                    })
 
-                    let dateIn = new Date().toLocaleString();
-                    console.log(`changecockpitFR wurde verwendet und der Fahrer ${driverIn.username} wurde erfolgreich ins Lineup genommen -- ${dateIn}`);
+                    console.log(`changecockpitFR wurde verwendet und der Fahrer ${driverIn.username} wurde erfolgreich ins Lineup genommen -- ${new Date().toLocaleString()}`);
 
                     if(tempSubPersonList.includes(driverIn.id)){
                         tempSubPersonList.splice(tempSubPersonList.indexOf(driverIn.id), 1)
@@ -242,17 +317,39 @@ module.exports = {
                     if(tempReactedToSubIn.has(preCmdDriver)){
                         messageEmbededAnmelden.reactions.resolve(tempReactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver);
                         tempReactedToSubIn.delete(preCmdDriver);
-                        CurrentSeason.seasonData.setReactedToSubInLigaFR(tempReactedToSubIn);
+                        var reactedToSubInAsString = await client.convertMapToString(tempReactedToSubIn)
+                        await client.setReactedToSubIn(reactedToSubInAsString, raceID).then(function(res){
+                            console.log(`Successfully updated reacted to sub in list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating reacted to sub in list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
                     }
 
-                    CurrentSeason.seasonData.setFreeCarsLigaFR(tempFreeCars);
-                    CurrentSeason.seasonData.setSubPersonListLigaFR(tempSubPersonList);
-                    CurrentSeason.seasonData.setsubPersonListReinstatedDriversLigaFR(tempReinstatedDrivers);
+                    var freeCarsAsString = await client.convertArrayToString(tempFreeCars)
+                    await client.updateFreeCarsList(freeCarsAsString, raceID).then(function(res){
+                        console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
+                    }, function(err){
+                        console.log(`Error updating free cars list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                    })
+
+                    var subPersonListAsString = await client.convertArrayToString(tempSubPersonList)
+                    await client.updateSubPersonList(subPersonListAsString, raceID).then(function(res){
+                        console.log(`Successfully updated sub person list in database -- ${new Date().toLocaleString()}`)
+                    }, function(err){
+                        console.log(`Error updating sub person list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                    })
+
+                    var reinstatedDriversAsString = await client.convertArrayToString(tempReinstatedDrivers)
+                    await client.updateReinstatedDrivers(reinstatedDriversAsString, raceID).then(function(res){
+                        console.log(`Successfully updated reinstated drivers list in database -- ${new Date().toLocaleString()}`)
+                    }, function(err){
+                        console.log(`Error updating reinstated drivers list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                    })
                     
                     if(preCmdDriver != 'nicht besetzt'){
-                        await CurrentSeason.methodStorage.removeFromCurrentLineup(client, preCmdDriver, teamObject.id, CurrentSeason.seasonData);
+                        await client.removeFromCurrentLineup(client, preCmdDriver, teamObject.id);
                     }
-                    await CurrentSeason.methodStorage.checkSubCanBeMade(client, false, null, null, null, CurrentSeason.seasonData)
+                    await client.checkSubCanBeMade(client, false, null, null, null)
                 }else{
                 
                     let driverOutID = tempCurrentLineup.get(`${teamObject.name}`)[1]
@@ -273,24 +370,38 @@ module.exports = {
                         });
 
                         tempWithdrawnDrivers.push(driverOutID);
-                        CurrentSeason.seasonData.setWithdrawnDriversLigaFR(tempWithdrawnDrivers);
+                        var withdrawnDriversAsString = await client.convertArrayToString(tempWithdrawnDrivers)
+                        await client.updateWithdrawnDrivers(withdrawnDriversAsString, raceID).then(function(res){
+                            console.log(`Successfully updated withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
 
-                        let dateRemove = new Date().toLocaleString();
                         console.log(`changecockpitFR wurde verwendet und der Fahrer` +
-                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(driverOutID).nickname} wurde entfernt -- ${dateRemove}`);
+                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(driverOutID).nickname} wurde entfernt -- ${new Date().toLocaleString()}`);
 
                         tempFreeCars.push(teamObject.id);
                         if(tempSubInPerCmd.includes(driverOutID)){
                             tempSubInPerCmd.splice(tempSubInPerCmd.indexOf(driverOutID), 1);
                         }
     
-                        CurrentSeason.seasonData.setFreeCarsLigaFR(tempFreeCars);
-                        CurrentSeason.seasonData.setSubInDriversPerCommandLigaFR(tempSubInPerCmd);
+                        var freeCarsAsString = await client.convertArrayToString(tempFreeCars)
+                        await client.updateFreeCarsList(freeCarsAsString, raceID).then(function(res){
+                            console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating free cars list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
+                        var subPersonPerCmdListAsString = await client.convertArrayToString(tempSubInPerCmd)
+                        await client.updateSubInDriversPerCmd(subPersonPerCmdListAsString, raceID).then(function(res){
+                            console.log(`Successfully updated sub person per cmd list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating sub person per cmd list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
     
-                        await CurrentSeason.methodStorage.removeFromCurrentLineup(client, driverOutObject, teamObject.id, CurrentSeason.seasonData);
-                        await CurrentSeason.methodStorage.checkSubCanBeMade(client, false, null, null, null, CurrentSeason.seasonData)
+                        await client.removeFromCurrentLineup(client, driverOutObject, teamObject.id);
+                        await client.checkSubCanBeMade(client, false, null, null, null)
                     }else {
-                        interaction.channel.send(`Leeres Cockpit kann nicht enfernt werden`)
+                        await interaction.channel.send(`Leeres Cockpit kann nicht enfernt werden`)
                     }
                     
                    

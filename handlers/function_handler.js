@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js');
-const cli = require('npm/lib/cli');
 
 module.exports = (client) => {
 
@@ -953,8 +952,8 @@ module.exports = (client) => {
 
     client.clearChannels = async (client) => {
         //Gets all the information
-        let anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
-        let abmeldeChannelID = client.getAbmeldeChannelIDLigaFR();     
+        var anmeldeChannelID = await client.getAnmeldeChannelIDLigaFR();
+        var abmeldeChannelID = await client.getAbmeldeChannelIDLigaFR();     
     
         await client.channels.cache.get(anmeldeChannelID).bulkDelete(100).then(() => {
             console.log(`Der Anmelde-Channel in ${client.getLigatitel()} wurde gecleart -- ${new Date().toLocaleString()}`)
@@ -990,8 +989,8 @@ module.exports = (client) => {
 
     client.sendOpenMsg = async (client, currentRaceLocation) => { 
         //Gets all the information
-        let ersatzfahrerRolleID = client.getAnmeldeChannelIDLigaFR();
-        let anmeldeChannelID = client.getErsatzfahrerRolleIDLigaFR()
+        var ersatzfahrerRolleID = await client.getErsatzfahrerRolleIDLigaFR();
+        var anmeldeChannelID = await client.getAnmeldeChannelIDLigaFR()
        
         await client.channels.cache.get(anmeldeChannelID).send(`<@&${ersatzfahrerRolleID}> die Anmeldung für das ` + 
                                                               `Ligarennen in ${currentRaceLocation} ist hiermit eröffnet!`).then(() => {
@@ -1366,9 +1365,9 @@ module.exports = (client) => {
 
         var returnValue = -1 
 
-        await client.channels.cache.get(anmeldeChannelID).send({ embeds: [embedAnmeldung] }).then((msg) => {
+        await client.channels.cache.get(anmeldeChannelID).send({ embeds: [embedAnmeldung] }).then(async (msg) => {
            
-            msg.react(client.getAnmeldeEmoji());
+            await msg.react(await client.getAnmeldeEmoji());
             returnValue = msg.id;
             
         });
@@ -1390,9 +1389,9 @@ module.exports = (client) => {
         
         var returnValue = -1 
 
-        await client.channels.cache.get(abmeldeChannelID).send({ embeds: [embedAbmeldung] }).then((msg) => {
+        await client.channels.cache.get(abmeldeChannelID).send({ embeds: [embedAbmeldung] }).then(async (msg) => {
            
-            msg.react(client.getAbmeldeEmoji());
+            await msg.react(await client.getAbmeldeEmoji());
             returnValue = msg.id;
           
         });
@@ -1407,10 +1406,10 @@ module.exports = (client) => {
         //Get information
         //Only check at begining
         
-        anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
-        abmeldeChannelID = client.getAbmeldeChannelIDLigaFR();
-        ersatzfahrerRolleID = client.getErsatzfahrerRolleIDLigaFR();
-        stammfahrerRolleID = client.getStammfahrerRolleIDLigaFR();
+        var anmeldeChannelID = await client.getAnmeldeChannelIDLigaFR();
+        var abmeldeChannelID = await client.getAbmeldeChannelIDLigaFR();
+        var ersatzfahrerRolleID = await client.getErsatzfahrerRolleIDLigaFR();
+        var stammfahrerRolleID = await client.getStammfahrerRolleIDLigaFR();
       
         //Do stuff
        
@@ -1465,7 +1464,7 @@ module.exports = (client) => {
             await client.getLastRaceInDatabase().then(async function(res){
                 console.log(`Successfully got last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()}`)
                
-                client.convertStringToMap(res[0].reacted_to_sub_in)
+                reactedToSubIn = await client.convertStringToMap(res[0].reacted_to_sub_in)
             }, async function(err){
                 console.log(`Error while getting last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()} \n ${err}`)
             })       
@@ -1569,7 +1568,7 @@ module.exports = (client) => {
             var reactedToSignOut = new Map()
             await client.getLastRaceInDatabase().then(async function(res){
                 console.log(`Successfully got last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()}`)
-                reactedToSignOut = client.convertStringToMap(res[0].reacted_to_sign_out)
+                reactedToSignOut = await client.convertStringToMap(res[0].reacted_to_sign_out)
             }, async function(err){
                 console.log(`Error while getting last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()} \n ${err}`)
             })       
@@ -1594,19 +1593,19 @@ module.exports = (client) => {
                         reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleID)){
                         //Local change 
                         
-                        if(reactedToSubIn.has(user.id)){
+                        if(reactedToSignOut.has(user.id)){
                             let date = new Date().toLocaleString();
                             console.log(`${user.username} hat auf Abmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${client.getLigatitel()} -- ${date}`);
                         } else {
-                            reactedToSubIn.set(user.id, reaction.id)
-
+                            reactedToSignOut.set(user.id, reaction.id)
+                            console.log('Map ', reactedToSignOut)
                             //await seasonData.setReactedToSignOutLigaFR(reactedToSubIn);
                             var IDofCurrentRaceEvent = -1
                             await client.getLastRaceInDatabase().then(async function(res){
                                 console.log(`Successfully got last race entry in DB to get ID -- ${new Date().toLocaleString()}`)
                                 IDofCurrentRaceEvent = res[0].race_id
 
-                                var stringForDatabase = await client.convertMapToString(reactedToSubIn)
+                                var stringForDatabase = await client.convertMapToString(reactedToSignOut)
 
                                 await client.setReactedToSignOut(stringForDatabase, IDofCurrentRaceEvent).then(async function(res){
                                     console.log(`Successfully set reacted_to_sign_out to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
@@ -1898,48 +1897,31 @@ module.exports = (client) => {
         })     
     }
 
-
-
-
-
-
-
-
-
-
-    // HIER WEITERMACHEN
-
-
-
-
-
-
-
-
-
-
-
-
     client.reminderOpenCockpits = async (client) => {
 
-        var freeCars = seasonData.getFreeCarsLigaFR();
-        var waitlist = seasonData.getSubPersonListLigaFR();
-        var discordID = seasonData.getDiscordID();
-        var anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
-        var anmeldeChannel =  await client.guilds.cache.get(discordID).channels.cache.get(anmeldeChannelID);
-        var ersatzfahrerRolleID = seasonData.getErsatzfahrerRolleIDLigaFR()
+        var freeCars = new Array();
+        var waitlist = new Array();
+        var anmeldeChannel =  await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(client.getAnmeldeChannelIDLigaFR());
+        var ersatzfahrerRolleID = client.getErsatzfahrerRolleIDLigaFR()
+
+        await client.getLastRaceInDatabase().then(function(res){
+            console.log(`Successfully got last entry in table for ID of current race -- ${new Date().toLocaleString()}`)
+
+            freeCars = res[0].free_cars
+            waitlist = res[0].sub_person_list
+        }, function(err){
+            console.log(`Error getting last entry in table for ID of current race -- ${new Date().toLocaleString()} \n ${err}`)
+        })
 
         if(freeCars.length > 0 && waitlist.length == 0){
             await anmeldeChannel.send(`<@&${ersatzfahrerRolleID}> es sind noch Plätze frei, immer schön rein da.`)
-            let date = new Date().toLocaleString();
-            console.log(`Reminder in Liga X wurde gesendet. -- ${date}`)
+            console.log(`Reminder in Liga X wurde gesendet. -- ${new Date().toLocaleString()}`)
         }else{
             console.log(`First not`)
             setTimeout(async () => {
                 if(freeCars.length > 0 && waitlist.length == 0){
                     await anmeldeChannel.send(`<@&${ersatzfahrerRolleID}> es sind noch Plätze frei, immer schön rein da.`)
-                    let date = new Date().toLocaleString();
-                    console.log(`Reminder in Liga X wurde gesendet. -- ${date}`)
+                    console.log(`Reminder in Liga X wurde gesendet. -- ${new Date().toLocaleString()}`)
                 }
             }, 10 * 1000)
         }
@@ -1954,10 +1936,10 @@ module.exports = (client) => {
        
         await client.getLeagueID('Sonntag 1').then(async function(res){
             console.log(`Query for league ID was successful -- ${new Date().toLocaleString()}`)
-
+        
             leagueID = res[0].league_id
-            
-            await client.getTeamID('Mercedes').then(async function(res){
+        
+            await client.getTeamIDOnlyID('Mercedes').then(async function(res){
                 console.log(`Query for Team Mercedes ID was successful -- ${new Date().toLocaleString()}`)
                 var mercedesTeamID = res[0].id 
 
@@ -2027,7 +2009,7 @@ module.exports = (client) => {
 
             leagueID = res[0].league_id
             
-            await client.getTeamID('Red Bull').then(async function(res){
+            await client.getTeamIDOnlyID('Red Bull').then(async function(res){
                 console.log(`Query for Team Red Bull ID was successful -- ${new Date().toLocaleString()}`)
                 var redBullTeamID = res[0].id 
 
@@ -2094,7 +2076,7 @@ module.exports = (client) => {
  
              leagueID = res[0].league_id
              
-             await client.getTeamID('Ferrari').then(async function(res){
+             await client.getTeamIDOnlyID('Ferrari').then(async function(res){
                  console.log(`Query for Team Ferrari ID was successful -- ${new Date().toLocaleString()}`)
                  var ferrariTeamID = res[0].id 
  
@@ -2161,7 +2143,7 @@ module.exports = (client) => {
         
                     leagueID = res[0].league_id
                     
-                    await client.getTeamID('McLaren').then(async function(res){
+                    await client.getTeamIDOnlyID('McLaren').then(async function(res){
                         console.log(`Query for Team McLaren ID was successful -- ${new Date().toLocaleString()}`)
                         var mcLarenTeamID = res[0].id 
         
@@ -2228,7 +2210,7 @@ module.exports = (client) => {
  
              leagueID = res[0].league_id
              
-             await client.getTeamID('Aston Martin').then(async function(res){
+             await client.getTeamIDOnlyID('Aston Martin').then(async function(res){
                  console.log(`Query for Team Aston Martin ID was successful -- ${new Date().toLocaleString()}`)
                  var astonMartinTeamID = res[0].id 
  
@@ -2295,7 +2277,7 @@ module.exports = (client) => {
 
             leagueID = res[0].league_id
             
-            await client.getTeamID('Alpine').then(async function(res){
+            await client.getTeamIDOnlyID('Alpine').then(async function(res){
                 console.log(`Query for Team Alpine ID was successful -- ${new Date().toLocaleString()}`)
                 var alpineTeamID = res[0].id 
 
@@ -2362,7 +2344,7 @@ module.exports = (client) => {
 
             leagueID = res[0].league_id
             
-            await client.getTeamID('Alpha Tauri').then(async function(res){
+            await client.getTeamIDOnlyID('Alpha Tauri').then(async function(res){
                 console.log(`Query for Team Alpha Tauri ID was successful -- ${new Date().toLocaleString()}`)
                 var alphaTauriTeamID = res[0].id 
 
@@ -2429,7 +2411,7 @@ module.exports = (client) => {
 
             leagueID = res[0].league_id
             
-            await client.getTeamID('Alfa Romeo').then(async function(res){
+            await client.getTeamIDOnlyID('Alfa Romeo').then(async function(res){
                 console.log(`Query for Team Alfa Romeo ID was successful -- ${new Date().toLocaleString()}`)
                 var alfaRomeoTeamID = res[0].id 
 
@@ -2496,7 +2478,7 @@ module.exports = (client) => {
 
             leagueID = res[0].league_id
             
-            await client.getTeamID('Williams').then(async function(res){
+            await client.getTeamIDOnlyID('Williams').then(async function(res){
                 console.log(`Query for Team Williams ID was successful -- ${new Date().toLocaleString()}`)
                 var williamsTeamID = res[0].id 
 
@@ -2563,7 +2545,7 @@ module.exports = (client) => {
 
             leagueID = res[0].league_id
             
-            await client.getTeamID('Haas').then(async function(res){
+            await client.getTeamIDOnlyID('Haas').then(async function(res){
                 console.log(`Query for Team Haas ID was successful -- ${new Date().toLocaleString()}`)
                 var haasTeamID = res[0].id 
 
@@ -2621,14 +2603,14 @@ module.exports = (client) => {
 
     client.convertMapToString = async(mapToConvert) => {
         var stringToReturn = ''
-
+        console.log('MAP given', mapToConvert)
         mapToConvert.forEach((value, key) => {
-            stringToReturn.concat(`{${key}:${value}},`)
+            stringToReturn = stringToReturn.concat(`{${key}:${value}},`)
         })
         if(stringToReturn.length > 0){
             stringToReturn = stringToReturn.slice(0, -1)
         }
-        
+        console.log('String to return', stringToReturn)
         return stringToReturn
     }
 

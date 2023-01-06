@@ -11,31 +11,46 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
-            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+        if(!interaction.member.roles.cache.has(await client.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(await client.getLigaleiterRolleID())){
             interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
-            var date = new Date().toLocaleString()
-            console.log(`Der placedriveronwaitlistFR Command wurde von ${interaction.user.username} verwendet -- ${date}`)
+            console.log(`Der placedriveronwaitlistFR Command wurde von ${interaction.user.username} verwendet -- ${new Date().toLocaleString()}`)
         }
 
         const driver = interaction.options.getUser('driver');
-        var tempSubPersonList = CurrentSeason.seasonData.getSubPersonListLigaFR();
-        var tempReinstatedDrivers = CurrentSeason.seasonData.getsubPersonListReinstatedDriversLigaFR();
+        var tempSubPersonList = new Array()
+        var tempReinstatedDrivers = new Array();
+        var raceID = -1
 
-        interaction.reply(`Hinzufügen wurde gestartet`);
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table for placedriveronwaitlist command -- ${new Date().toLocaleString()}`)
+            
+            tempSubPersonList = res[0].sub_person_list.split(',')
+            tempReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            raceID = res[0].race_id
+        }, function(err){
+            console.log(`Error getting last entry in table for placedriveronwaitlist command -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+        
+
+        await interaction.reply(`Hinzufügen wurde gestartet`);
 
         if(!(tempSubPersonList.includes(driver.id)) && !(tempReinstatedDrivers.includes(driver.id)) && 
-            !(await CurrentSeason.methodStorage.checkDriverInLineup(driver.id, CurrentSeason.seasonData))){
+            !(await client.checkDriverInLineup(driver.id))){
             tempSubPersonList.push(driver.id);
-            CurrentSeason.seasonData.setSubPersonListLigaFR(tempSubPersonList);
-
-            var date = new Date().toLocaleString()
-            console.log(`${driver.username} wurde erfolgreich auf die Warteliste gepackt -- ${date}`)
-            await CurrentSeason.methodStorage.setWaitlistMsgContent(client, CurrentSeason.seasonData);
+            var subPersonListAsString = await client.convertArrayToString(tempSubPersonList)
+            await client.updateSubPersonList(subPersonListAsString, raceID).then(function(res){
+                console.log(`Successfully updated sub person list in database -- ${new Date().toLocaleString()}`)
+            }, function(err){
+                console.log(`Error updating sub person list in database -- ${new Date().toLocaleString()} \n ${err}`)
+            })
+           
+            console.log(`${driver.username} wurde erfolgreich auf die Warteliste gepackt -- ${new Date().toLocaleString()}`)
+            await client.setWaitlistMsgContent(client);
         } else {
-            interaction.channel.send(`Fahrer ist schon im Lineup oder auf der Warteliste`);
+            await interaction.channel.send(`Fahrer ist schon im Lineup oder auf der Warteliste`);
         }
 
     }  

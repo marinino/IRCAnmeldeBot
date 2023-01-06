@@ -21,18 +21,28 @@ module.exports = {
         }
 
         const userToRemove = interaction.options.getUser('fahrer');
-        var tempWithdrawnDriversPerCommand = CurrentSeason.seasonData.getWithdrawnDriversPerCommandLigaFR();
+        var tempWithdrawnDriversPerCommand = new Array();
+        var raceID = -1;
 
+        await client.getLastRaceInDatabase().then(function(res){
+            console.log(`Successfully got last entry in table for abmelden command -- ${new Date().toLocaleString()}`)
+
+            tempWithdrawnDriversPerCommand = res[0].withdrawn_drivers_per_cmd.split(',')
+            raceID = res[0].race_id
+        }, function(err){
+            console.log(`Error getting last entry in table for abmelden command -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+       
         if(tempWithdrawnDriversPerCommand.includes(userToRemove.id)){
-            interaction.reply('Der Farhrer wurde schon per Command abgemeldet');
+            await interaction.reply('Der Farhrer wurde schon per Command abgemeldet');
             return;
         }else{
-            let markedUserID = userToRemove.id;
+            var markedUserID = userToRemove.id;
 
-            let confirmMessage = await interaction.channel.send(`Bist du sicher, dass du ${userToRemove.username} abmelden möchtest?`);
+            var confirmMessage = await interaction.channel.send(`Bist du sicher, dass du ${userToRemove.username} abmelden möchtest?`);
 
-            await confirmMessage.react(CurrentSeason.seasonData.getAnmeldeEmoji());
-            await confirmMessage.react(CurrentSeason.seasonData.getAbmeldeEmoji());
+            await confirmMessage.react(await client.getAnmeldeEmoji());
+            await confirmMessage.react(await client.getAbmeldeEmoji());
 
         
             interaction.reply(`${userToRemove.username} wird per Command abgemeldet`)
@@ -52,42 +62,41 @@ module.exports = {
                 if(!(reaction.message.guild)){
                     return;
                 }
-                if(reaction.emoji.name == CurrentSeason.seasonData.getAnmeldeEmoji()){
+                if(reaction.emoji.name == await client.getAnmeldeEmoji()){
 
                     if(userToRemove && 
-                        client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(markedUserID).roles.cache.has(CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR())){                
+                        client.guilds.cache.get(await client.getDiscordID()).members.cache.get(markedUserID).roles.cache.has(await client.getStammfahrerRolleIDLigaFR())){                
 
-                        CurrentSeason.methodStorage.regularDriverWithdraw(client, userToRemove, CurrentSeason.seasonData);
-                        CurrentSeason.seasonData.setWithdrawnDriversPerCommandLigaFR(tempWithdrawnDriversPerCommand.concat([userToRemove.id]));
+                        await client.regularDriverWithdraw(client, userToRemove);
+                        tempWithdrawnDriversPerCommand.push(userToRemove.id)
+                        var withdrawnDriverAsString = await client.convertArrayToString(tempWithdrawnDriversPerCommand)
+                        await client.updateWithdrawnDriversPerCmd(withdrawnDriverAsString, raceID).then(function(res){
+                            console.log(`Successfully updated withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()}`)
+                        }, function(err){
+                            console.log(`Error updating withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                        })
 
-                        let date = new Date().toLocaleString();
-                        console.log(`abmeldenFR wurde erfolgreich mit ${userToRemove.username} durchgeführt -- ${date}`);
-                
-   
+                        console.log(`abmeldenFR wurde erfolgreich mit ${userToRemove.username} durchgeführt -- ${new Date().toLocaleString()}`);
+            
                     }else if(userToRemove &&
-                        !(client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(markedUserID).roles.cache.has(CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR()))){
-                        
-                            let date = new Date().toLocaleString();
-                            console.log(`Es ist etwas schiefgelaufen beim abmeldenFR Command. ${userToRemove.username} hat nicht die Rolle Stammfahrer Liga 1. -- ${date}`);
+                        !(client.guilds.cache.get(await client.getDiscordID()).members.cache.get(markedUserID).roles.cache.has(await client.getStammfahrerRolleIDLigaFR()))){
+                            console.log(`Es ist etwas schiefgelaufen beim abmeldenFR Command. ${userToRemove.username} hat nicht die Rolle Stammfahrer Liga 1. -- ${new Date().toLocaleString()}`);
                        
                     }else{
-                       
-                        let date = new Date().toLocaleString();
-                        console.log(`Bei abmeldenFR war der userToRemove undefiniert oder null. -- ${date}`);
+              
+                        console.log(`Bei abmeldenFR war der userToRemove undefiniert oder null. -- ${new Date().toLocaleString()}`);
                         
                     }
                     await confirmMessage.delete();
-                } else if(reaction.emoji.name == CurrentSeason.seasonData.getAbmeldeEmoji()){
+                } else if(reaction.emoji.name == await client.getAbmeldeEmoji()){
                     await confirmMessage.reply('Der Vorgang wurde erfolgreich abgebrochen!').then(() => {
-                        let date = new Date().toLocaleString();
-                        console.log(`abmeldenFR wurde gestartet und abgebrochen -- ${date}`)
+                        console.log(`abmeldenFR wurde gestartet und abgebrochen -- ${new Date().toLocaleString()}`)
                     });
                     await confirmMessage.delete();
                 } else {
                     await confirmMessage.reply('Es wurde mit dem falschen Emoji reagiert').then(() => {
-                        let date = new Date().toLocaleString();
-                        console.log(`abmeldenFR wurde gestartet und es wurde mit dem falschen Emoji reagiert -- ${date}`)
-                        })
+                        console.log(`abmeldenFR wurde gestartet und es wurde mit dem falschen Emoji reagiert -- ${new Date().toLocaleString()}`)
+                    })
                     await reaction.users.remove(user.id);
                 }
             })

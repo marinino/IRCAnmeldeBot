@@ -20,51 +20,50 @@ module.exports = {
             console.log(`Der forceremoveFR Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
-        interaction.reply(`Entfernung wurde gestartet`);
+        await interaction.reply(`Entfernung wurde gestartet`);
 
         const roleGiven = interaction.options.getRole('role');
-        const roleName = roleGiven.name
         // Get Array of regular drivers
-        let tempTeamDrivers = new Array()
-        if(roleName == `Mercedes`){
-            tempTeamDrivers = CurrentSeason.seasonData.getMercedesDriversLigaFR();
-        } else if(roleName == `Red Bull`){
-            tempTeamDrivers = CurrentSeason.seasonData.getRedBullDriversLigaFR();
-        } else if(roleName == `Ferrari`){
-            tempTeamDrivers = CurrentSeason.seasonData.getFerrariDriversLigaFR();
-        } else if(roleName == `McLaren`){
-            tempTeamDrivers = CurrentSeason.seasonData.getMcLarenDriversLigaFR();
-        } else if(roleName == `Aston Martin`){
-            tempTeamDrivers = CurrentSeason.seasonData.getAstonMartinDriversLigaFR();
-        } else if(roleName == `Alpine`){
-            tempTeamDrivers = CurrentSeason.seasonData.getAlpineDriversLigaFR();
-        } else if(roleName == `Alpha Tauri`){
-            tempTeamDrivers = CurrentSeason.seasonData.getAlphaTauriDriversLigaFR();
-        } else if(roleName == `Alfa Romeo`){
-            tempTeamDrivers = CurrentSeason.seasonData.getAlfaRomeoDriversLigaFR();
-        } else if(roleName == `Williams`){
-            tempTeamDrivers = CurrentSeason.seasonData.getWilliamsDriversLigaFR();
-        } else if(roleName == `Haas`){
-            tempTeamDrivers = CurrentSeason.seasonData.getHaasDriversLigaFR();
+        let currentTeamDrivers = new Array()
+        if(roleGiven.name == 'Mercedes'){
+            currentTeamDrivers = await client.getMercedesDrivers(client)
+        } else if(roleGiven.name == 'Red Bull'){
+            currentTeamDrivers = await client.getRedBullDrivers(client)
+        } else if(roleGiven.name == 'Ferrari'){
+            currentTeamDrivers = await client.getFerrariDrivers(client)
+        } else if(roleGiven.name == 'McLaren'){
+            currentTeamDrivers = await client.getMcLarenDrivers(client)
+        } else if(roleGiven.name == 'Aston Martin'){
+            currentTeamDrivers = await client.getAstonMartinDrivers(client)
+        } else if(roleGiven.name == 'Alpine'){
+            currentTeamDrivers = await client.getAlpineDrivers(client)
+        } else if(roleGiven.name == 'Alpha Tauri'){
+            currentTeamDrivers = await client.getAlphaTauriDrivers(client)
+        } else if(roleGiven.name == 'Alfa Romeo'){   
+            currentTeamDrivers = await client.getAlfaRomeoDrivers(client)
+        } else if(roleGiven.name == 'Williams'){
+            currentTeamDrivers = await client.getWilliamsDrivers(client)
+        } else if(roleGiven.name == 'Haas'){
+            currentTeamDrivers = await client.getHaasDrivers(client)
         }
 
-        var tempLineup = CurrentSeason.seasonData.getCurrentLineupLigaFR();
+        var currentLineup = await client.getCurrentLineup()
 
         var forceRemoveDriverEmbed = new EmbedBuilder()
             .setColor('#fff654')
             .setTitle('Bitte wähle den Fahrer aus')
             .setDescription(`Du hast Team <@&${roleGiven.id}> gewählt. Welchen Fahrer willst du entfernen`)
             .addFields(
-                {name: 'Erster Fahrer', value: `1️⃣ - <@${tempLineup.get(`${roleName}`)[0]}>`},
-                {name: `Zweiter Fahrer`, value: `2️⃣ - <@${tempLineup.get(`${roleName}`)[1]}>`},
-                {name: 'Abbrechen', value: `${CurrentSeason.seasonData.getAbmeldeEmoji()} - Um Vorgang abzubrechen`}
+                {name: 'Erster Fahrer', value: `1️⃣ - <@${currentTeamDrivers[0]}>`},
+                {name: `Zweiter Fahrer`, value: `2️⃣ - <@${currentTeamDrivers[1]}>`},
+                {name: 'Abbrechen', value: `${await client.getAbmeldeEmoji()} - Um Vorgang abzubrechen`}
             )
 
-        var messageForceRemoveDriverLineup = await client.channels.cache.get(CurrentSeason.seasonData.getCommandChannelID()).send({ embeds: [forceRemoveDriverEmbed] });
+        var messageForceRemoveDriverLineup = await client.channels.cache.get(await client.getCommandChannelID()).send({ embeds: [forceRemoveDriverEmbed] });
 
         await messageForceRemoveDriverLineup.react('1️⃣');
         await messageForceRemoveDriverLineup.react('2️⃣');
-        await messageForceRemoveDriverLineup.react(CurrentSeason.seasonData.getAbmeldeEmoji());
+        await messageForceRemoveDriverLineup.react(await client.getAbmeldeEmoji());
 
         const collectorConfirmSelectDriver = messageForceRemoveDriverLineup.createReactionCollector({ dispose: true });
 
@@ -87,15 +86,93 @@ module.exports = {
             if(reaction.emoji.name == '1️⃣'){
 
                 // Get driver to remove
-                var driverToRemove = tempLineup.get(roleName)[0];
+                var driverToRemove = currentTeamDrivers[0];
 
                 // Set new lineup
-                tempTeamDrivers[0] = 'entfernt';
-                await CurrentSeason.methodStorage.sendTeams(client, CurrentSeason.seasonData);
-                tempLineup.get(roleName)[0] = 'entfernt';
-                CurrentSeason.seasonData.setCurrentLineupLigaFR(tempLineup)
-                // Stammlineup ändern
-                await CurrentSeason.methodStorage.printLineup(client, CurrentSeason.seasonData);
+                if(currentLineup.get(roleGiven.name).includes(driverToRemove)){
+                    currentLineup.get(roleGiven.name)[currentLineup.get(roleGiven.name).indexOf(`${driverToRemove}`)] = 'entfernt'
+                }
+                await client.setCurrentLineup(roleGiven, currentLineup)
+                await client.printLineup(client)
+
+                // SQL STATEMENT
+                var teamID = -1
+                var ligaID = -1
+                var persID = -1
+    
+                await client.getTeamID(teamRole.name).then(function(res){
+                    console.log(`Successfully got teamID of team ${teamRole.name} -- ${new Date().toLocaleString()}`)
+    
+                    teamID = res[0].id
+                }, function(err){
+                    console.log(`Error getting teamID of team ${teamRole.name} -- ${new Date().toLocaleString()} \n ${err}`)
+                })
+    
+                await client.getPersID(driverIn.id).then(function(res){
+                    console.log(`Successfully got persID of ${driverIn.username} -- ${new Date().toLocaleString()}`)
+    
+                    persID = res[0].id
+                }, function(err){
+                    console.log(`Error getting teamID of ${teamRole.name} -- ${new Date().toLocaleString()} \n ${err}`)
+                })
+    
+                await client.getLigaID(await client.getLigatitel()).then(async function(res){
+                    console.log(`Successfully got ligaID of ${await client.getLigatitel()} -- ${new Date().toLocaleString()}`)
+    
+                    ligaID = res[0].id
+                }, async function(err){
+                    console.log(`Error getting ligaID of team ${await client.getLigatitel()} -- ${new Date().toLocaleString()} \n ${err}`)
+                })
+    
+                var dateGueltigAb = new Date()
+                var dateGueltigAbYear = dateGueltigAb.getFullYear()
+                var dateGueltigAbMonth = dateGueltigAb.getMonth() + 1
+                var dateGueltigAbMonthFormatted = -1
+                if(dateGueltigAbMonth < 10){
+                    dateGueltigAbMonthFormatted = dateGueltigAbMonth.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbMonthFormatted = dateGueltigAbMonth
+                }
+                var dateGueltigAbDay = dateGueltigAb.getDay() + 1
+                var dateGueltigAbDayFormatted = -1
+                if(dateGueltigAbDay < 10){
+                    dateGueltigAbDayFormatted = dateGueltigAbDay.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbDayFormatted = dateGueltigAbDay
+                }
+                var dateGueltigAbHours = dateGueltigAb.getHours()
+                var dateGueltigAbHoursFormatted = -1
+                if(dateGueltigAbHours < 10){
+                    dateGueltigAbHoursFormatted = dateGueltigAbHours.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbHoursFormatted = dateGueltigAbHours
+                }
+                var dateGueltigAbMinutes = dateGueltigAb.getMinutes()
+                var dateGueltigAbMinutesFormatted = -1
+                if(dateGueltigAbMinutes < 10){
+                    dateGueltigAbMinutesFormatted = dateGueltigAbMinutes.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbMinutesFormatted = dateGueltigAbMinutes
+                }
+                var dateGueltigAbSeconds = dateGueltigAb.getSeconds()
+                var dateGueltigAbSecondsFormatted = -1
+                if(dateGueltigAbSeconds < 10){
+                    dateGueltigAbSecondsFormatted = dateGueltigAbSeconds.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbSecondsFormatted = dateGueltigAbSeconds
+                } 
+    
+                var finalDateString = `${dateGueltigAbYear}-${dateGueltigAbMonthFormatted}-${dateGueltigAbDayFormatted} `+
+                                        `${dateGueltigAbHoursFormatted}:${dateGueltigAbMinutesFormatted}:${dateGueltigAbSecondsFormatted}`
+                
+                await client.updateRegularDriver(finalDateString, teamID, persID, ligaID).then(function(res){
+                    console.log(`Successfully updated new regular driver -- ${new Date().toLocaleString()}`)
+                }, function(err){
+                    console.log(`Error updating new regular driver -- ${new Date().toLocaleString()} \n ${err}`)
+                })
+
+                await client.sendTeams(client);
+               
 
                 var futureRoleEmbed = new EmbedBuilder()
                     .setColor('#fff654')
@@ -103,17 +180,15 @@ module.exports = {
                     .setDescription(`Du hast Fahrer <@${driverToRemove}> von Team <@&${roleGiven.id}> gewählt. Was macht der Fahrer in der Zukunft?`)
                     .addFields(
                         {name: 'Option 1', value: `1️⃣ - Ehemaliger Fahrer`},
-                        {name: 'Option 2', value: `2️⃣ - Ersatzfahrer für diese Liga`},
+                        {name: 'Option 2', value: `2️⃣ - Stammfahrer Liga Sonntag 1`},
                         {name: 'Option 3', value: `3️⃣ - Stammfahrer Liga Sonntag 2`},
-                        {name: 'Option 4', value: `4️⃣ - Stammfahrer Liga Sonntag 1`},
+                        {name: 'Option 4', value: `4️⃣ - Stammfahrer Liga Samstag 1`},
                         {name: 'Option 5', value: `5️⃣ - Stammfahrer Liga Samstag 2`},
-                        {name: 'Option 6', value: `6️⃣ - Stammfahrer Liga Samstag 1`},
-                        {name: 'Option 7', value: `7️⃣ - Stammfahrer Liga Origin`},
-                        {name: 'Option 8', value: `8️⃣ - Nichts davon`},
-                        {name: 'Abbrechen', value: `${CurrentSeason.seasonData.getAbmeldeEmoji()} - Um Vorgang abzubrechen`}
+                        {name: 'Option 6', value: `6️⃣ - Nichts davon`},
+                        {name: 'Abbrechen', value: `${await client.getAbmeldeEmoji()} - Um Vorgang abzubrechen`}
                     )
 
-                var messageFutureRoleEmbed = await client.channels.cache.get(CurrentSeason.seasonData.getCommandChannelID()).send({ embeds: [futureRoleEmbed] });
+                var messageFutureRoleEmbed = await client.channels.cache.get(await client.getCommandChannelID()).send({ embeds: [futureRoleEmbed] });
                 
                 await messageFutureRoleEmbed.react('1️⃣');
                 await messageFutureRoleEmbed.react('2️⃣');
@@ -121,9 +196,7 @@ module.exports = {
                 await messageFutureRoleEmbed.react('4️⃣');
                 await messageFutureRoleEmbed.react('5️⃣');
                 await messageFutureRoleEmbed.react('6️⃣');
-                await messageFutureRoleEmbed.react('7️⃣');
-                await messageFutureRoleEmbed.react('8️⃣');
-                await messageFutureRoleEmbed.react(CurrentSeason.seasonData.getAbmeldeEmoji());
+                await messageFutureRoleEmbed.react(await client.getAbmeldeEmoji());
 
                 const collectorConfirmFutureRoles = messageFutureRoleEmbed.createReactionCollector({ dispose: true});
 
@@ -147,10 +220,10 @@ module.exports = {
                      */
                     if(reaction.emoji.name == '1️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getEhemaligerFahrerRolleID());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
-                        let fahrerF1Role = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getFahrerF1RolleID());
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getEhemaligerFahrerRolleID());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let fahrerF1Role = await interaction.guild.roles.cache.find(async role => role.id === await client.getFahrerF1RolleID());
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -162,14 +235,14 @@ module.exports = {
                     } 
                     /**
                      * 
-                     * Team Mercedes, Fahrer 1, Ersatzfahrer Liga FR
+                     * Team Mercedes, Fahrer 1, Ersatzfahrer SO 1
                      * 
                      */
                     else if(reaction.emoji.name == '2️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaFR());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSO1());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -179,14 +252,14 @@ module.exports = {
                     }
                     /**
                      * 
-                     * Team Mercedes, Fahrer 1, Stammfahrer Sonntag 2
+                     * Team Mercedes, Fahrer 1, Stammfahrer SO 2
                      * 
                      */
                     else if(reaction.emoji.name == '3️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaSO2());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSO2());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -197,14 +270,14 @@ module.exports = {
                     } 
                     /**
                      * 
-                     * Team Mercedes, Fahrer 1, Stammfahrer Sonntag 1
+                     * Team Mercedes, Fahrer 1, Stammfahrer SA 1
                      * 
                      */
                     else if(reaction.emoji.name == '4️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaSO1());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSA1());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -220,9 +293,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '5️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaSA2());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSA2());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -238,44 +311,8 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '6️⃣'){
 
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaSA1());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
-                
-                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
-        
-                        await roleRemoveMember.roles.remove(regDriverRole);
-                        await roleRemoveMember.roles.remove(teamRole);
-                        await roleRemoveMember.roles.add(futureRole);
-
-                    }
-                    /**
-                     * 
-                     * Team Mercedes, Fahrer 1, Stammfahrer Freitag
-                     * 
-                     */
-                    else if(reaction.emoji.name == '7️⃣'){
-
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaOrigin());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
-                
-                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
-        
-                        await roleRemoveMember.roles.remove(regDriverRole);
-                        await roleRemoveMember.roles.remove(teamRole);
-                        await roleRemoveMember.roles.add(futureRole);
-
-                    }
-                    /**
-                     * 
-                     * Team Mercedes, Fahrer 1, Nichts davon
-                     * 
-                     */
-                    else if(reaction.emoji.name == '8️⃣'){
-
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => await role.id === roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -288,34 +325,10 @@ module.exports = {
                      * Vorgang abbrechen
                      * 
                      */
-                    else if(reaction.emoji.name == CurrentSeason.seasonData.getAbmeldeEmoji()){
+                    else if(reaction.emoji.name == await client.getAbmeldeEmoji()){
                         await interaction.channel.send(`Der Vorgang wurde erfolgreich abgebrochen`)
                     } else {
                         await reaction.users.remove(user.id);
-                    }
-
-                    // Set drivers
-                    
-                    if(roleName == `Mercedes`){
-                        CurrentSeason.seasonData.setMercedesDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Red Bull`){
-                        CurrentSeason.seasonData.setRedBullDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Ferrari`){
-                        CurrentSeason.seasonData.setFerrariDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `McLaren`){
-                        CurrentSeason.seasonData.setMcLarenDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Aston Martin`){
-                        CurrentSeason.seasonData.setAstonMartinDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Alpine`){
-                        CurrentSeason.seasonData.setAlpineDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Alpha Tauri`){
-                        CurrentSeason.seasonData.setAlphaTauriDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Alfa Romeo`){
-                        CurrentSeason.seasonData.setAlfaRomeoDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Williams`){
-                        CurrentSeason.seasonData.setWilliamsDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Haas`){
-                        CurrentSeason.seasonData.setHaasDriversLigaFR(tempTeamDrivers);
                     }
 
                 })
@@ -327,15 +340,93 @@ module.exports = {
             if(reaction.emoji.name == '2️⃣'){
                 
                 // Get driver to remove
-                var driverToRemove = tempLineup.get(roleName)[1];
+                var driverToRemove = currentTeamDrivers[1];
 
                 // Set new lineup
-                tempTeamDrivers[1] = 'entfernt';
-                await CurrentSeason.methodStorage.sendTeams(client, CurrentSeason.seasonData);
-                tempLineup.get(roleName)[1] = 'entfernt';
-                CurrentSeason.seasonData.setCurrentLineupLigaFR(tempLineup)
-                // Stammlineup ändern
-                await CurrentSeason.methodStorage.printLineup(client, CurrentSeason.seasonData);
+                if(currentLineup.get(roleGiven.name).includes(driverToRemove)){
+                    currentLineup.get(roleGiven.name)[currentLineup.get(roleGiven.name).indexOf(`${driverToRemove}`)] = 'entfernt'
+                }
+                await client.setCurrentLineup(roleGiven, currentLineup)
+                await client.printLineup(client)
+
+                // SQL STATEMENT
+                var teamID = -1
+                var ligaID = -1
+                var persID = -1
+    
+                await client.getTeamID(teamRole.name).then(function(res){
+                    console.log(`Successfully got teamID of team ${teamRole.name} -- ${new Date().toLocaleString()}`)
+    
+                    teamID = res[0].id
+                }, function(err){
+                    console.log(`Error getting teamID of team ${teamRole.name} -- ${new Date().toLocaleString()} \n ${err}`)
+                })
+    
+                await client.getPersID(driverIn.id).then(function(res){
+                    console.log(`Successfully got persID of ${driverIn.username} -- ${new Date().toLocaleString()}`)
+    
+                    persID = res[0].id
+                }, function(err){
+                    console.log(`Error getting teamID of ${teamRole.name} -- ${new Date().toLocaleString()} \n ${err}`)
+                })
+    
+                await client.getLigaID(await client.getLigatitel()).then(async function(res){
+                    console.log(`Successfully got ligaID of ${await client.getLigatitel()} -- ${new Date().toLocaleString()}`)
+    
+                    ligaID = res[0].id
+                }, async function(err){
+                    console.log(`Error getting ligaID of team ${await client.getLigatitel()} -- ${new Date().toLocaleString()} \n ${err}`)
+                })
+    
+                var dateGueltigAb = new Date()
+                var dateGueltigAbYear = dateGueltigAb.getFullYear()
+                var dateGueltigAbMonth = dateGueltigAb.getMonth() + 1
+                var dateGueltigAbMonthFormatted = -1
+                if(dateGueltigAbMonth < 10){
+                    dateGueltigAbMonthFormatted = dateGueltigAbMonth.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbMonthFormatted = dateGueltigAbMonth
+                }
+                var dateGueltigAbDay = dateGueltigAb.getDay() + 1
+                var dateGueltigAbDayFormatted = -1
+                if(dateGueltigAbDay < 10){
+                    dateGueltigAbDayFormatted = dateGueltigAbDay.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbDayFormatted = dateGueltigAbDay
+                }
+                var dateGueltigAbHours = dateGueltigAb.getHours()
+                var dateGueltigAbHoursFormatted = -1
+                if(dateGueltigAbHours < 10){
+                    dateGueltigAbHoursFormatted = dateGueltigAbHours.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbHoursFormatted = dateGueltigAbHours
+                }
+                var dateGueltigAbMinutes = dateGueltigAb.getMinutes()
+                var dateGueltigAbMinutesFormatted = -1
+                if(dateGueltigAbMinutes < 10){
+                    dateGueltigAbMinutesFormatted = dateGueltigAbMinutes.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbMinutesFormatted = dateGueltigAbMinutes
+                }
+                var dateGueltigAbSeconds = dateGueltigAb.getSeconds()
+                var dateGueltigAbSecondsFormatted = -1
+                if(dateGueltigAbSeconds < 10){
+                    dateGueltigAbSecondsFormatted = dateGueltigAbSeconds.toString().padStart(2, '0')
+                } else {
+                    dateGueltigAbSecondsFormatted = dateGueltigAbSeconds
+                } 
+    
+                var finalDateString = `${dateGueltigAbYear}-${dateGueltigAbMonthFormatted}-${dateGueltigAbDayFormatted} `+
+                                        `${dateGueltigAbHoursFormatted}:${dateGueltigAbMinutesFormatted}:${dateGueltigAbSecondsFormatted}`
+                
+                await client.updateRegularDriver(finalDateString, teamID, persID, ligaID).then(function(res){
+                    console.log(`Successfully updated new regular driver -- ${new Date().toLocaleString()}`)
+                }, function(err){
+                    console.log(`Error updating new regular driver -- ${new Date().toLocaleString()} \n ${err}`)
+                })
+
+                await client.sendTeams(client);
+               
 
                 var futureRoleEmbed = new EmbedBuilder()
                     .setColor('#fff654')
@@ -343,17 +434,15 @@ module.exports = {
                     .setDescription(`Du hast Fahrer <@${driverToRemove}> von Team <@&${roleGiven.id}> gewählt. Was macht der Fahrer in der Zukunft?`)
                     .addFields(
                         {name: 'Option 1', value: `1️⃣ - Ehemaliger Fahrer`},
-                        {name: 'Option 2', value: `2️⃣ - Ersatzfahrer für diese Liga`},
+                        {name: 'Option 2', value: `2️⃣ - Stammfahrer Liga Sonntag 1`},
                         {name: 'Option 3', value: `3️⃣ - Stammfahrer Liga Sonntag 2`},
-                        {name: 'Option 4', value: `4️⃣ - Stammfahrer Liga Sonntag 1`},
+                        {name: 'Option 4', value: `4️⃣ - Stammfahrer Liga Samstag 1`},
                         {name: 'Option 5', value: `5️⃣ - Stammfahrer Liga Samstag 2`},
-                        {name: 'Option 6', value: `6️⃣ - Stammfahrer Liga Samstag 1`},
-                        {name: 'Option 7', value: `7️⃣ - Stammfahrer Liga Origin`},
-                        {name: 'Option 8', value: `8️⃣ - Nichts davon`},
-                        {name: 'Abbrechen', value: `${CurrentSeason.seasonData.getAbmeldeEmoji()} - Um Vorgang abzubrechen`}
+                        {name: 'Option 6', value: `6️⃣ - Nichts davon`},
+                        {name: 'Abbrechen', value: `${await client.getAbmeldeEmoji()} - Um Vorgang abzubrechen`}
                     )
 
-                var messageFutureRoleEmbed = await client.channels.cache.get(CurrentSeason.seasonData.getCommandChannelID()).send({ embeds: [futureRoleEmbed] });
+                var messageFutureRoleEmbed = await client.channels.cache.get(await client.getCommandChannelID()).send({ embeds: [futureRoleEmbed] });
                 
                 await messageFutureRoleEmbed.react('1️⃣');
                 await messageFutureRoleEmbed.react('2️⃣');
@@ -361,9 +450,7 @@ module.exports = {
                 await messageFutureRoleEmbed.react('4️⃣');
                 await messageFutureRoleEmbed.react('5️⃣');
                 await messageFutureRoleEmbed.react('6️⃣');
-                await messageFutureRoleEmbed.react('7️⃣');
-                await messageFutureRoleEmbed.react('8️⃣');
-                await messageFutureRoleEmbed.react(CurrentSeason.seasonData.getAbmeldeEmoji());
+                await messageFutureRoleEmbed.react(await client.getAbmeldeEmoji());
 
                 const collectorConfirmFutureRoles = messageFutureRoleEmbed.createReactionCollector({ dispose: true});
 
@@ -387,10 +474,10 @@ module.exports = {
                      */
                      if(reaction.emoji.name == '1️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getEhemaligerFahrerRolleID());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
-                        let fahrerF1Role = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getFahrerF1RolleID());
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getEhemaligerFahrerRolleID());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let fahrerF1Role = await interaction.guild.roles.cache.find(async role => role.id === await client.getFahrerF1RolleID());
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -402,14 +489,14 @@ module.exports = {
                     } 
                     /**
                      * 
-                     * Team Mercedes, Fahrer 1, Ersatzfahrer Liga FR
+                     * Team Mercedes, Fahrer 1, Ersatzfahrer SO 1
                      * 
                      */
                     else if(reaction.emoji.name == '2️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaFR());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSO1());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -424,9 +511,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '3️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaSO2());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSO2());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -437,14 +524,14 @@ module.exports = {
                     } 
                     /**
                      * 
-                     * Team Mercedes, Fahrer 1, Stammfahrer Sonntag 1
+                     * Team Mercedes, Fahrer 1, Stammfahrer SA 1
                      * 
                      */
                     else if(reaction.emoji.name == '4️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaSO1());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSA1());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -460,9 +547,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '5️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaSA2());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSA2());
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -478,44 +565,8 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '6️⃣'){
 
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaSA1());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
-                
-                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
-        
-                        await roleRemoveMember.roles.remove(regDriverRole);
-                        await roleRemoveMember.roles.remove(teamRole);
-                        await roleRemoveMember.roles.add(futureRole);
-
-                    }
-                    /**
-                     * 
-                     * Team Mercedes, Fahrer 1, Stammfahrer Origin
-                     * 
-                     */
-                    else if(reaction.emoji.name == '7️⃣'){
-
-                        let futureRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getErsatzfahrerRolleIDLigaOrigin());
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
-                
-                        let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
-        
-                        await roleRemoveMember.roles.remove(regDriverRole);
-                        await roleRemoveMember.roles.remove(teamRole);
-                        await roleRemoveMember.roles.add(futureRole);
-
-                    }
-                    /**
-                     * 
-                     * Team Mercedes, Fahrer 1, Nichts davon
-                     * 
-                     */
-                    else if(reaction.emoji.name == '8️⃣'){
-
-                        let regDriverRole = await interaction.guild.roles.cache.find(role => role.id === CurrentSeason.seasonData.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(role => role.id === roleGiven.id);
+                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -528,35 +579,11 @@ module.exports = {
                      * Vorgang abbrechen
                      * 
                      */
-                    else if(reaction.emoji.name == CurrentSeason.seasonData.getAbmeldeEmoji()){
+                    else if(reaction.emoji.name == await client.getAbmeldeEmoji()){
                         await interaction.channel.send(`Der Vorgang wurde erfolgreich abgebrochen`)
                     } else {
                         await reaction.users.remove(user.id);
                     }
-
-                    // Set Array of regular drivers
-                    if(roleName == `Mercedes`){
-                        CurrentSeason.seasonData.setMercedesDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Red Bull`){
-                        CurrentSeason.seasonData.setRedBullDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Ferrari`){
-                        CurrentSeason.seasonData.setFerrariDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `McLaren`){
-                        CurrentSeason.seasonData.setMcLarenDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Aston Martin`){
-                        CurrentSeason.seasonData.setAstonMartinDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Alpine`){
-                        CurrentSeason.seasonData.setAlpineDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Alpha Tauri`){
-                        CurrentSeason.seasonData.setAlphaTauriDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Alfa Romeo`){
-                        CurrentSeason.seasonData.setAlfaRomeoDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Williams`){
-                        CurrentSeason.seasonData.setWilliamsDriversLigaFR(tempTeamDrivers);
-                    } else if(roleName == `Haas`){
-                        CurrentSeason.seasonData.setHaasDriversLigaFR(tempTeamDrivers);
-                    }
-
                 })
 
             }
@@ -565,7 +592,7 @@ module.exports = {
             * Vorgang abbrechen
             * 
             */
-            else if(reaction.emoji.name == CurrentSeason.seasonData.getAbmeldeEmoji()){
+            else if(reaction.emoji.name == await client.getAbmeldeEmoji()){
                 await interaction.channel.send(`Der Vorgang wurde erfolgreich abgebrochen`)
             } else {
                 await reaction.users.remove(user.id);

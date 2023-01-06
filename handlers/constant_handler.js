@@ -91,11 +91,11 @@ module.exports = (client) => {
     // get PS
 
     client.getAbmeldeEmoji = () => {
-        return '✅'
+        return '❌'
     }
 
     client.getAnmeldeEmoji = () => {
-        return '❌'
+        return '✅'
     }
 
     // LIGA ABHÄNGIG
@@ -136,7 +136,21 @@ module.exports = (client) => {
 
     // LIGA FR
 
+    client.getErsatzfahrerRolleIDLigaSO1 = () => {
+        return 0
+    }
 
+    client.getErsatzfahrerRolleIDLigaSO2 = () => {
+        return '947229969686335530'
+    }
+
+    client.getErsatzfahrerRolleIDLigaSA1 = () => {
+        return '947229969686335529'
+    }
+
+    client.getErsatzfahrerRolleIDLigaSA2 = () => {
+        return 0
+    }
 
  
 

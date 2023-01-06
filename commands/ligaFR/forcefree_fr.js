@@ -11,8 +11,8 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
-            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+        if(!interaction.member.roles.cache.has(await client.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(await client.getLigaleiterRolleID())){
             interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
@@ -20,34 +20,46 @@ module.exports = {
             console.log(`Der forcefreeFR Command wurde von ${interaction.user.username} verwendet -- ${date}`)
         }
 
-        interaction.reply(`Öffnen wurde gestartet`);
+        await interaction.reply(`Öffnen wurde gestartet`);
 
         const teamRole = interaction.options.getRole('team');
-        var tempCurrentLineup = CurrentSeason.seasonData.getCurrentLineupLigaFR();
-        var tempFreeCars = CurrentSeason.seasonData.getFreeCarsLigaFR();
 
+        var tempFreeCars = new Array();
+        var tempCurrentLineup = await client.getCurrentLineup();
+
+        await client.getLastRaceInDatabase().then(function(res){
+            console.log(`Successfully got last entry in table for forcefree command -- ${new Date().toLocaleString()}`)
+
+            tempFreeCars = res[0].free_cars.split(',')
+        }, function(err){
+            console.log(`Error getting last entry in table for forcefree command -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+        
         tempFreeCars.push(teamRole.id);
-        CurrentSeason.seasonData.setFreeCarsLigaFR(tempFreeCars);
+
+        var freeCarsAsString = await client.convertArrayToString(tempFreeCars)
+        await client.updateReinstatedDrivers(freeCarsAsString, raceID).then(function(res){
+            console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error updating free cars list in database -- ${new Date().toLocaleString()} \n ${err}`)
+        })
 
         if(tempCurrentLineup.get(teamRole.name)[0] == 'entfernt'){
             tempCurrentLineup.get(teamRole.name)[0] = 'nicht besetzt';
-            CurrentSeason.seasonData.setCurrentLineupLigaFR(tempCurrentLineup);
-            CurrentSeason.methodStorage.checkSubCanBeMade(client, true, 0, null, null, CurrentSeason.seasonData);
-            
-            var date = new Date().toLocaleString()
-            console.log(`Cockpit 1 von ${teamRole.name} wurde auf nicht besetzt gestellt -- ${date}`)
+            await client.setCurrentLineup(teamRole.name, tempCurrentLineup)
+            await client.checkSubCanBeMade(client, true, 0, null, null);
+
+            console.log(`Cockpit 1 von ${teamRole.name} wurde auf nicht besetzt gestellt -- ${new Date().toLocaleString()}`)
         } else if(tempCurrentLineup.get(teamRole.name)[1] == 'entfernt'){
             tempCurrentLineup.get(teamRole.name)[1] = 'nicht besetzt';
-            CurrentSeason.seasonData.setCurrentLineupLigaFR(tempCurrentLineup);
-            CurrentSeason.methodStorage.checkSubCanBeMade(client, true, 1, null, null, CurrentSeason.seasonData);
+            await client.setCurrentLineup(teamRole.name, tempCurrentLineup)
+            await client.checkSubCanBeMade(client, true, 1, null, null);
 
-            var date = new Date().toLocaleString()
-            console.log(`Cockpit 2 von ${teamRole.name} wurde auf nicht besetzt gestellt -- ${date}`)
+            console.log(`Cockpit 2 von ${teamRole.name} wurde auf nicht besetzt gestellt -- ${new Date().toLocaleString()}`)
         } else {
-            interaction.channel.send(`Falsches Team übergeben`);
+            await interaction.channel.send(`Falsches Team übergeben`);
 
-            var date = new Date().toLocaleString()
-            console.log(`Kein Cockpit von ${teamRole.name} war entfernt -- ${date}`)
+            console.log(`Kein Cockpit von ${teamRole.name} war entfernt -- ${new Date().toLocaleString()}`)
         }
     }  
 }
