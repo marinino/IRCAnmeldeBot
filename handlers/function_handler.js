@@ -1039,107 +1039,79 @@ module.exports = (client) => {
         //Make changes global
         var subPersonListAsString = await client.convertArrayToString(subPersonList)
         var withdrawnDriversAsString = await client.convertArrayToString(withdrawnDrivers)
-        await client.updateSubPersonList(subPersonListAsString, currentRaceID);
-        await client.updateWithdrawnDrivers(withdrawnDriversAsString, currentRaceID);      
+        await client.updateSubPersonList(subPersonListAsString, currentRaceID).then(function(res){
+            console.log(`Successfully updated subs list list in database -- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error updating free subs list in database -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+        await client.updateWithdrawnDrivers(withdrawnDriversAsString, currentRaceID).then(function(res){
+            console.log(`Successfully updated withdrawn drivers list in database -- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error updating withdrawn drivers list in database -- ${new Date().toLocaleString()} \n ${err}`)
+        })     
        
 
-        await client.checkSubCanBeMade(client, false, null, null, null, seasonData);
+        await client.checkSubCanBeMade(client, false, null, null, null);
     }
 // HIER WEITERMACHEN
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    client.regularDriverWithdraw = async (client, driverObject, seasonData) => {
+    client.regularDriverWithdraw = async (client, driverObject) => {
         //Get current info
-        let abmeldeChannelID = null;
-        let withdrawnDrivers = new Array();
+        var abmeldeChannelID = client.getAbmeldeChannelIDLigaFR();
+        var withdrawnDrivers = new Array();
+        var currentRaceID = -1
         
-        abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaFR();   
-        withdrawnDrivers = seasonData.getWithdrawnDriversLigaFR();
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table to withdraw drivers -- ${new Date().toLocaleString()}`)
+
+            withdrawnDrivers = res[0].free_cars.split(',')
+            currentRaceID = res[0].race_id
+        }, function(err){
+            console.log(`Error getting last entry in table to withdraw drivers -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+        
        
         //Do stuff
         withdrawnDrivers.push(driverObject.id);
-        await client.addCarOfWithdrawnDriverToFreeCars(driverObject, seasonData, client);
-        await client.removeFromCurrentLineup(client, driverObject, null, seasonData);
+        await client.addCarOfWithdrawnDriverToFreeCars(driverObject, client);
+        await client.removeFromCurrentLineup(client, driverObject, null);
         let driverWithdrawnEmbed = new EmbedBuilder()
         .setColor('#ff4d4d')
         .setTitle('⬅️')
         .addFields(
             {name: `Update im Lineup`, value: `<@${driverObject.id}> ist diese Woche nicht dabei`}
         )
-        await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(abmeldeChannelID).send({ embeds : [driverWithdrawnEmbed]}).then(() => {
-            client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getLogChannelID()).send({ embeds : [driverWithdrawnEmbed]});
+        await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(abmeldeChannelID).send({ embeds : [driverWithdrawnEmbed]}).then(() => {
+            client.guilds.cache.get(client.getDiscordID()).channels.cache.get(client.getLogChannelID()).send({ embeds : [driverWithdrawnEmbed]});
         });
-        let date = new Date().toLocaleString();
-        console.log(`${driverObject.username} hat sich erfolgreich abgemeldet in ${seasonData.getLigatitel()} -- ${date}`); 
+        console.log(`${driverObject.username} hat sich erfolgreich abgemeldet in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`); 
         
         //Make changes global
-        
-        await seasonData.setWithdrawnDriversLigaFR(withdrawnDrivers);      
+        var withdrawnDriversAsString = await client.convertArrayToString(withdrawnDrivers)
+        await client.updateWithdrawnDrivers(withdrawnDriversAsString, currentRaceID).then(function(res){
+            console.log(`Successfully updated withdrawn drivers list in database -- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error updating withdrawn drivers list in database -- ${new Date().toLocaleString()} \n ${err}`)
+        })
        
-
-        await client.checkSubCanBeMade(client, false, null, null, null, seasonData);
+        await client.checkSubCanBeMade(client, false, null, null, null);
     }
 
-    client.subDriverRemoveSubInOnWaitlist = async (client, driverObject, seasonData) => {
+    client.subDriverRemoveSubInOnWaitlist = async (client, driverObject) => {
         //Get current info
-        let anmeldeChannelID = null;//
-        let subPersonList = new Array();//
+        var anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();//
+        var subPersonList = new Array();//
+        var currentRaceID = -1;
+
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table to withdraw drivers -- ${new Date().toLocaleString()}`)
+
+            subPersonList = res[0].sub_person_list.split(',')
+            currentRaceID = res[0].race_id
+        }, function(err){
+            console.log(`Error getting last entry in table to withdraw drivers -- ${new Date().toLocaleString()} \n ${err}`)
+        })
         
-        anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
-        subPersonList = seasonData.getSubPersonListLigaFR();
-       
         //Do stuff
         subPersonList.splice(subPersonList.indexOf(driverObject.id), 1); 
         let subInRemoveEmbed = new EmbedBuilder()
@@ -1148,60 +1120,80 @@ module.exports = (client) => {
         .addFields(
             {name: `Update im Lineup`, value: `<@${driverObject.id}> ist diese Woche doch nicht dabei`}
         );
-        await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(anmeldeChannelID).send({ embeds : [subInRemoveEmbed]}).then(() => {
-            client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getLogChannelID()).send({ embeds : [subInRemoveEmbed]});
+        await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(anmeldeChannelID).send({ embeds : [subInRemoveEmbed]}).then(() => {
+            client.guilds.cache.get(client.getDiscordID()).channels.cache.get(client.getLogChannelID()).send({ embeds : [subInRemoveEmbed]});
         });
-        let date = new Date().toLocaleString();
-        console.log(`${driverObject.username} wurde erfolgreich von der Warteliste entfernt in ${seasonData.getLigatitel()} -- ${date}`);
+        console.log(`${driverObject.username} wurde erfolgreich von der Warteliste entfernt in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
         
         //Make changes global
-       
-        await seasonData.setSubPersonListLigaFR(subPersonList);     
+        var subPersonListAsString = await client.convertArrayToString(subPersonList)
+        await client.updateSubPersonList(subPersonListAsString, currentRaceID).then(function(res){
+            console.log(`Successfully updated sub person list in database -- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error updating sub person list in database -- ${new Date().toLocaleString()} \n ${err}`)
+        })    
         
 
-        await client.checkSubCanBeMade(client, false, null, null, null, seasonData);
+        await client.checkSubCanBeMade(client, false, null, null, null);
     }
 
-    client.subDriverRemoveSubInInLineup = async (client, driverObject, seasonData) => {
+    client.subDriverRemoveSubInInLineup = async (client, driverObject) => {
         //Get current info
-        let anmeldeChannelID = null;//
-        let freeCars = new Array()//
-       
-        anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
-        freeCars = seasonData.getFreeCarsLigaFR();
+        var anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();//
+        var freeCars = new Array()//
+        var currentRaceID = -1
+
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table to withdraw drivers -- ${new Date().toLocaleString()}`)
+
+            freeCars = res[0].free_cars.split(',')
+            currentRaceID = res[0].race_id
+        }, function(err){
+            console.log(`Error getting last entry in table to withdraw drivers -- ${new Date().toLocaleString()} \n ${err}`)
+        })
       
         //Do stuff
-        let freeCar = await client.findCurrentCockpitOfSub(driverObject, seasonData);
+        var freeCar = await client.findCurrentCockpitOfSub(driverObject);
         freeCars.unshift(freeCar);
-        await client.removeFromCurrentLineup(client, driverObject, freeCar, seasonData);
-        let subInRemoveEmbed = new EmbedBuilder()
+        await client.removeFromCurrentLineup(client, driverObject, freeCar);
+        var subInRemoveEmbed = new EmbedBuilder()
         .setColor('#ff4d4d')
         .setTitle('️️️️️️️️️️️️️️️↩')
         .addFields(
             {name: `Update im Lineup`, value: `<@${driverObject.id}> ist diese Woche doch nicht dabei`}
         );
-        await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(anmeldeChannelID).send({ embeds : [subInRemoveEmbed]}).then(() => {
-            client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getLogChannelID()).send({ embeds : [subInRemoveEmbed]});
+        await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(anmeldeChannelID).send({ embeds : [subInRemoveEmbed]}).then(() => {
+            client.guilds.cache.get(client.getDiscordID()).channels.cache.get(client.getLogChannelID()).send({ embeds : [subInRemoveEmbed]});
         });
-        let date = new Date().toLocaleString();
-        console.log(`${driverObject.nickname} wurde erfolgreich aus Lineup genommen in ${seasonData.getLigatitel()} -- ${date}`);
+        console.log(`${driverObject.nickname} wurde erfolgreich aus Lineup genommen in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
         
         //Make changes global
-       
-        await seasonData.setFreeCarsLigaFR(freeCars);    
+        var freeCarsAsString = await client.convertArrayToString(freeCars)
+        await client.updateFreeCarsList(freeCarsAsString, currentRaceID).then(function(res){
+            console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error updating free cars list in database -- ${new Date().toLocaleString()} \n ${err}`)
+        })  
         
-        await client.checkSubCanBeMade(client, false, null, null, null, seasonData);
+        await client.checkSubCanBeMade(client, false, null, null, null);
     }
 
-    client.regularDriverRemoveWithdraw = async (client, driverObject, seasonData) => {
+    client.regularDriverRemoveWithdraw = async (client, driverObject) => {
         //Get current info
-        let anmeldeChannelID = null;
-        let withdrawnDrivers = new Array();
-        let reinstatedDrivers = new Array();
-        
-        anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
-        withdrawnDrivers = seasonData.getWithdrawnDriversLigaFR();
-        reinstatedDrivers = seasonData.getsubPersonListReinstatedDriversLigaFR();
+        var anmeldeChannelID = await seasonData.getAnmeldeChannelIDLigaFR();
+        var withdrawnDrivers = new Array();
+        var reinstatedDrivers = new Array();
+        var currentRaceID = -1
+
+        await client.getLastRaceInDatabase().then(async function(res){
+            console.log(`Successfully got last entry in table to withdraw drivers -- ${new Date().toLocaleString()}`)
+
+            withdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            reinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            currentRaceID = res[0].race_id
+        }, function(err){
+            console.log(`Error getting last entry in table to withdraw drivers -- ${new Date().toLocaleString()} \n ${err}`)
+        })
         
         //Do stuff
         reinstatedDrivers.push(driverObject.id);
@@ -1212,20 +1204,28 @@ module.exports = (client) => {
         .addFields(
             {name: `Update`, value: `<@${driverObject.id}> ist diese Woche doch dabei`}
         );
-        await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(anmeldeChannelID).send({ embeds : [withdrawRemoveEmbed]}).then(() => {
-            client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(seasonData.getLogChannelID()).send({ embeds : [withdrawRemoveEmbed]});
+        await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(anmeldeChannelID).send({ embeds : [withdrawRemoveEmbed]}).then(() => {
+            client.guilds.cache.get(client.getDiscordID()).channels.cache.get(client.getLogChannelID()).send({ embeds : [withdrawRemoveEmbed]});
         })
-        let date = new Date().toLocaleString();
-        console.log(`Die Abmeldung von ${driverObject.username} wurde erfolgreich zurückgenommen  ${seasonData.getLigatitel()} -- ${date}`);
+        console.log(`Die Abmeldung von ${driverObject.username} wurde erfolgreich zurückgenommen  ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
         
         //Make changes global
-       
-    
-        await seasonData.setsubPersonListReinstatedDriversLigaFR(reinstatedDrivers);
-        await seasonData.setWithdrawnDriversLigaFR(withdrawnDrivers);      
-        
 
-        await client.checkSubCanBeMade(client, false, null, null, null, seasonData);
+        var reinstatedDriversAsString = await client.convertArrayToString(reinstatedDrivers)
+        var withdrawnDriverAsString = await client.convertArrayToString(withdrawnDrivers)
+
+        await client.updateWithdrawnDrivers(withdrawnDriverAsString, currentRaceID).then(function(res){
+            console.log(`Successfully updated withdrawn drivers list in database -- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error updating withdrawn drivers list in database -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+        await client.updateReinstatedDrivers(reinstatedDriversAsString, currentRaceID).then(function(res){
+            console.log(`Successfully updated reinstated drivers list in database -- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error updating reinstated drivers list in database -- ${new Date().toLocaleString()} \n ${err}`)
+        })
+
+        await client.checkSubCanBeMade(client, false, null, null, null);
     }
 
     client.sendTeams = async (client) => {
@@ -1289,44 +1289,39 @@ module.exports = (client) => {
         return returnValue
     }
 
-    client.findCurrentCockpitOfSub = async (driverObject, seasonData) => {
+    client.findCurrentCockpitOfSub = async (driverObject) => {
         //Get current info
-        let currentLineup = new Array();
-       
-        currentLineup = seasonData.getCurrentLineupLigaFR();
-        
+        var currentLineup = await client.getCurrentLineup();        
 
         //Do stuff
         if(currentLineup.get('Mercedes').includes(driverObject.id)){
-            return seasonData.getMercedesRolleID();
+            return client.getMercedesRolleID();
         } else if(currentLineup.get('Red Bull').includes(driverObject.id)){
-            return seasonData.getRedBullRolleID();
+            return client.getRedBullRolleID();
         } else if(currentLineup.get('Ferrari').includes(driverObject.id)){
-            return seasonData.getFerrariRolleID();
+            return client.getFerrariRolleID();
         } else if(currentLineup.get('McLaren').includes(driverObject.id)){
-            return seasonData.getMcLarenRolleID();
+            return client.getMcLarenRolleID();
         } else if(currentLineup.get('Aston Martin').includes(driverObject.id)){
-            return seasonData.getAstonMartinRolleID();
+            return client.getAstonMartinRolleID();
         } else if(currentLineup.get('Alpine').includes(driverObject.id)){
-            return seasonData.getAlpineRolleID();
+            return client.getAlpineRolleID();
         } else if(currentLineup.get('Alpha Tauri').includes(driverObject.id)){
-            return seasonData.getAlphaTauriRolleID();
+            return client.getAlphaTauriRolleID();
         } else if(currentLineup.get('Alfa Romeo').includes(driverObject.id)){
-            return seasonData.getAlfaRomeoRolleID();
+            return client.getAlfaRomeoRolleID();
         } else if(currentLineup.get('Williams').includes(driverObject.id)){
-            return seasonData.getWilliamsRolleID();
+            return client.getWilliamsRolleID();
         } else if(currentLineup.get('Haas').includes(driverObject.id)){
-            return seasonData.getHaasRolleID();
+            return client.getHaasRolleID();
         } else {
-            console.log(`WIR SIND DURCH GEFALLEN! findCurrentCockpitOfSub in ${seasonData.getLigatitel()}`)
+            console.log(`WIR SIND DURCH GEFALLEN! findCurrentCockpitOfSub in ${client.getLigatitel()}`)
         }
     }
 
-    client.checkDriverInLineup = async (driverID, seasonData) => {
+    client.checkDriverInLineup = async (driverID, client) => {
         //Get current info
-        let currentLineup = new Array();
-        currentLineup = seasonData.getCurrentLineupLigaFR();
-       
+        var currentLineup = await client.getCurrentLineup();
 
         if(currentLineup.get('Mercedes').includes(driverID)){
             return true;
@@ -1737,7 +1732,7 @@ module.exports = (client) => {
                                     client.subDriverRemoveSubInOnWaitlist(client, reaction.message.guild.members.cache.get(user.id));
                                 }
                                 // Fahrer ist nicht mehr auf Warteliste
-                                else if(await client.checkDriverInLineup(user.id)) {
+                                else if(await client.checkDriverInLineup(user.id, client)) {
                                     client.subDriverRemoveSubInInLineup(client, reaction.message.guild.members.cache.get(user.id));
                                 } else {
                                     let date = new Date().toLocaleString();
@@ -1871,38 +1866,61 @@ module.exports = (client) => {
         setTimeout(() => client.endFunction(client), timeTillClose)
     }
 
-    client.endFunction = async (client, seasonData) => {
+    client.endFunction = async (client, currentRaceLocation) => {
         //Get info
-        let anmeldeChannelID = null;
-        let abmeldeChannelID = null;
-        let currentRaceLocation = null;
-        let seasonCalendarRacesDone = new Map();
-        
-        anmeldeChannelID = seasonData.getAnmeldeChannelIDLigaFR();
-        abmeldeChannelID = seasonData.getAbmeldeChannelIDLigaFR();
-        currentRaceLocation = seasonData.getCurrentRaceLocationLigaFR();
-        seasonCalendarRacesDone = seasonData.getSeasonCalendarRacesDoneLigaFR();
+        var anmeldeChannelID = client.getAnmeldeChannelIDLigaFR();
+        var abmeldeChannelID = client.getAbmeldeChannelIDLigaFR();
+        var currentRaceID = -1
       
         //Do stuff
-        
-        seasonData.setAnmeldungActiveLigaFR(false);
-       
-        await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(anmeldeChannelID).send(`Die Anmeldung für das Rennen in ${currentRaceLocation} wurde beendet`).then(() => {
-            console.log(`Die Anmeldung in ${seasonData.getLigatitel()} wurde beendet`);
+        await client.getLastRaceInDatabase().then(function(res){
+            console.log(`Successfully got last entry in table for ID of current race -- ${new Date().toLocaleString()}`)
+
+            currentRaceID = res[0].race_id
+        }, function(err){
+            console.log(`Error getting last entry in table for ID of current race -- ${new Date().toLocaleString()} \n ${err}`)
         })
         
-        await client.guilds.cache.get(seasonData.getDiscordID()).channels.cache.get(abmeldeChannelID).send(`Die Abmeldung für das Rennen in ${currentRaceLocation} wurde beendet`).then(() => {
-            console.log(`Die Abmeldung in ${seasonData.getLigatitel()} wurde beendet`);
+        await client.updateRegistration(0, currentRaceID).then(function(res){
+            console.log(`Successfully set registartion_active to false for event with race_id ${currentRaceID} ` + 
+                         `-- ${new Date().toLocaleString()}`)
+        }, function(err){
+            console.log(`Error setting registartion_active to false for event with race_id ${currentRaceID} ` + 
+                         `-- ${new Date().toLocaleString()} \n ${err}`)
         })
-        seasonCalendarRacesDone.unshift(currentRaceLocation);
        
-        seasonData.setSeasonCalendarRacesDoneLigaFR(seasonCalendarRacesDone);
-        seasonData.setCurrentRaceLocationLigaFR(null);
-       
+        await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(anmeldeChannelID).send(`Die Anmeldung für das Rennen in ${currentRaceLocation} wurde beendet`).then(() => {
+            console.log(`Die Anmeldung in ${client.getLigatitel()} wurde beendet`);
+        })
         
+        await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(abmeldeChannelID).send(`Die Abmeldung für das Rennen in ${currentRaceLocation} wurde beendet`).then(() => {
+            console.log(`Die Abmeldung in ${client.getLigatitel()} wurde beendet`);
+        })     
     }
 
-    client.reminderOpenCockpits = async (client, seasonData) => {
+
+
+
+
+
+
+
+
+
+    // HIER WEITERMACHEN
+
+
+
+
+
+
+
+
+
+
+
+
+    client.reminderOpenCockpits = async (client) => {
 
         var freeCars = seasonData.getFreeCarsLigaFR();
         var waitlist = seasonData.getSubPersonListLigaFR();

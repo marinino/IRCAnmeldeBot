@@ -445,4 +445,30 @@ module.exports = (client) => {
         return promUpdateWithdrawnDrivers
     }
 
+    client.updateReinstatedDrivers = async (listOfDriversReinstated, raceID) => {
+        var promUpdateReinstatedDrivers = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET sub_person_list_reinstated_drivers = '${listOfDriversReinstated}' WHERE race_id = ${raceID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateReinstatedDrivers
+    }
+
+    client.updateRegistration = async (valueOfRegistration, raceID) => {
+        var promUpdateRegistration = new Promise(function(resolve, reject){
+            connection.query(`UPDATE bot_sonntag_1 SET registration_active = ${valueOfRegistration} WHERE race_id = ${raceID}`), function(err, res){
+                if(err){
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            }
+        })
+        return promUpdateRegistration
+    }
+
 }
