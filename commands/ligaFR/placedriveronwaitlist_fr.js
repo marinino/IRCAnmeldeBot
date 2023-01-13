@@ -26,9 +26,12 @@ module.exports = {
 
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for placedriveronwaitlist command -- ${new Date().toLocaleString()}`)
-            
-            tempSubPersonList = res[0].sub_person_list.split(',')
-            tempReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            if(res[0].sub_person_list.length > 0){
+                tempSubPersonList = res[0].sub_person_list.split(',')
+            }
+            if(res[0].sub_person_list_reinstated_drivers.length > 0){
+                tempReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            }
             raceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table for placedriveronwaitlist command -- ${new Date().toLocaleString()} \n ${err}`)

@@ -382,182 +382,188 @@ module.exports = (client) => {
 
     client.updateCurrentDriversInDatabase = async(field, value, raceID) => {
         var promUpdateCurrentDriversInDatabase = new Promise(function(resolve, reject){
-            connection.query(`UPDATE bot_sonntag_1 SET ${field} = '${value}' WHERE race_id = ${raceID}`), function(err, res){
+            connection.query(`UPDATE bot_sonntag_1 SET ${field} = '${value}' WHERE race_id = ${raceID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
+                    console.log('Params', field, value, raceID)
+                    console.log('Result in database', res)
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateCurrentDriversInDatabase
     }
 
     client.updateCurrentLineupMsg = async (msgID, raceID) => {
         var promUpdateCurrentLineupMsg = new Promise(function(resolve, reject){
-            connection.query(`UPDATE bot_sonntag_1 SET lineup_msg_id = '${msgID}' WHERE race_id = ${raceID}`), function(err, res){
+            connection.query(`UPDATE bot_sonntag_1 SET lineup_msg_id = '${msgID}' WHERE race_id = ${raceID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateCurrentLineupMsg
     }
 
     client.updateFreeCarsList = async (listOfCars, raceID) => {
         var promUpdateFreeCarsList = new Promise(function(resolve, reject){
-            connection.query(`UPDATE bot_sonntag_1 SET free_cars = '${listOfCars}' WHERE race_id = ${raceID}`), function(err, res){
+            console.log('CRASHPOINT 0')
+            connection.query(`UPDATE bot_sonntag_1 SET free_cars = '${listOfCars}' WHERE race_id = ${raceID}`, function(err, res){
+                console.log('CRASHPOINT 0.5')
                 if(err){
+                    console.log('resolved w/ err')
                     reject(err)
                 } else {
+                    console.log('resolved')
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateFreeCarsList
     }
 
     client.updateSubPersonList = async (listOfSubsReady, raceID) => {
         var promUpdateSubPersonList = new Promise(function(resolve, reject){
-            connection.query(`UPDATE bot_sonntag_1 SET sub_person_list = '${listOfSubsReady}' WHERE race_id = ${raceID}`), function(err, res){
+            connection.query(`UPDATE bot_sonntag_1 SET sub_person_list = '${listOfSubsReady}' WHERE race_id = ${raceID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateSubPersonList
     }
 
     client.updateWithdrawnDrivers = async (listOfDriversWithdrawn, raceID) => {
         var promUpdateWithdrawnDrivers = new Promise(function(resolve, reject){
-            connection.query(`UPDATE bot_sonntag_1 SET withdrawn_drivers = '${listOfDriversWithdrawn}' WHERE race_id = ${raceID}`), function(err, res){
+            connection.query(`UPDATE bot_sonntag_1 SET withdrawn_drivers = '${listOfDriversWithdrawn}' WHERE race_id = ${raceID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateWithdrawnDrivers
     }
 
     client.updateReinstatedDrivers = async (listOfDriversReinstated, raceID) => {
         var promUpdateReinstatedDrivers = new Promise(function(resolve, reject){
-            connection.query(`UPDATE bot_sonntag_1 SET sub_person_list_reinstated_drivers = '${listOfDriversReinstated}' WHERE race_id = ${raceID}`), function(err, res){
+            connection.query(`UPDATE bot_sonntag_1 SET sub_person_list_reinstated_drivers = '${listOfDriversReinstated}' WHERE race_id = ${raceID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateReinstatedDrivers
     }
 
     client.updateRegistration = async (valueOfRegistration, raceID) => {
         var promUpdateRegistration = new Promise(function(resolve, reject){
-            connection.query(`UPDATE bot_sonntag_1 SET registration_active = ${valueOfRegistration} WHERE race_id = ${raceID}`), function(err, res){
+            connection.query(`UPDATE bot_sonntag_1 SET registration_active = ${valueOfRegistration} WHERE race_id = ${raceID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateRegistration
     }
 
     client.updateWithdrawnDriversPerCmd = async (listOfDriversWithdrawn, raceID) => {
         var promUpdateWithdrawnDriversPerCmd = new Promise(function(resolve, reject){
-            connection.query(`UPDATE bot_sonntag_1 SET withdrawn_drivers_per_cmd = '${listOfDriversWithdrawn}' WHERE race_id = ${raceID}`), function(err, res){
+            connection.query(`UPDATE bot_sonntag_1 SET withdrawn_drivers_per_cmd = '${listOfDriversWithdrawn}' WHERE race_id = ${raceID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateWithdrawnDriversPerCmd
     }
 
     client.updateSubInDriversPerCmd = async (listOfDriversSubIn, raceID) => {
         var promUpdateSubInDriversPerCmd = new Promise(function(resolve, reject){
-            connection.query(`UPDATE bot_sonntag_1 SET sub_in_drivers_per_cmd = '${listOfDriversSubIn}' WHERE race_id = ${raceID}`), function(err, res){
+            connection.query(`UPDATE bot_sonntag_1 SET sub_in_drivers_per_cmd = '${listOfDriversSubIn}' WHERE race_id = ${raceID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateSubInDriversPerCmd
     }
 
     client.insertNewRegularDriver = async (gueltigAbDate, teamID, persID, ligaID) => {
         var promInsertNewRegularDriver = new Promise(function(resolve, reject){
-            connectionAdman.query(`INSERT INTO ligateamfahrer (fahrerolle, gueltigab, ligaid, persid, tid) VALUES ('Stammfahrer', ${gueltigAbDate}, ${ligaID}, ${persID}, ${teamID})`), function(err, res){
+            connectionAdman.query(`INSERT INTO ligateamfahrer (fahrerolle, gueltigab, ligaid, persid, tid) VALUES ('Stammfahrer', ${gueltigAbDate}, ${ligaID}, ${persID}, ${teamID})`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promInsertNewRegularDriver
     }
 
     client.getTeamID = async (teamname) => {
         var promGetTeamID = new Promise(function(resolve, reject){
-            connectionAdman.query(`SELECT * FROM team WHERE name = '${teamname}'`), function(err, res){
+            connectionAdman.query(`SELECT * FROM team WHERE name = '${teamname}'`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promGetTeamID
     }
 
     client.getPersID = async (personDiscordID) => {
         var promInsertNewRegularDriver = new Promise(function(resolve, reject){
-            connectionAdman.query(`SELECT * FROM person WHERE dcid = ${personDiscordID}`), function(err, res){
+            connectionAdman.query(`SELECT * FROM person WHERE dcid = ${personDiscordID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promInsertNewRegularDriver
     }
 
     client.getLigaID = async (liganame) => {
         var promInsertNewRegularDriver = new Promise(function(resolve, reject){
-            connection.query(`SELECT * FROM league_ids WHERE name = '${liganame}'`), function(err, res){
+            connection.query(`SELECT * FROM league_ids WHERE name = '${liganame}'`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promInsertNewRegularDriver
     }
 
     client.updateRegularDriver = async (date, teamID, persID, ligaID) => {
         var promUpdateRegularDriver = new Promise(function(resolve, reject){
-            connectionAdman.query(`UPDATE SET gueltigbis = ${date} WHERE gueltigbis = NULL AND tid = ${teamID}, persid = ${persID}, ligaid = ${ligaID}`), function(err, res){
+            connectionAdman.query(`UPDATE SET gueltigbis = ${date} WHERE gueltigbis = NULL AND tid = ${teamID}, persid = ${persID}, ligaid = ${ligaID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
                     resolve(res)
                 }
-            }
+            })
         })
         return promUpdateRegularDriver
     }

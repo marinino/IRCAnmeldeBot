@@ -6,7 +6,7 @@ module.exports = (client) => {
         var currentRaceID = -1
         var databaseFieldNameForTeam = ''
 
-        client.getLastRaceInDatabase().then(function(res){
+        await client.getLastRaceInDatabase().then(function(res){
             console.log(`Successfully got last entry in table for ID -- ${new Date().toLocaleString()}`)
 
             currentRaceID = res[0].race_id
@@ -15,7 +15,7 @@ module.exports = (client) => {
         })
 
         if(teamName == 'Mercedes'){
-            databaseFieldNameForTeam = current_drivers_mercedes
+            databaseFieldNameForTeam = 'current_drivers_mercedes'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('Mercedes')
@@ -30,7 +30,7 @@ module.exports = (client) => {
                              `-- ${new Date().toLocaleString()} \n ${err}`)
             })
         } else if(teamName == 'Red Bull'){
-            databaseFieldNameForTeam = current_drivers_rb
+            databaseFieldNameForTeam = 'current_drivers_rb'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('Red Bull')
@@ -45,7 +45,7 @@ module.exports = (client) => {
                              `-- ${new Date().toLocaleString()} \n ${err}`)
             })
         } else if(teamName == 'Ferrari'){
-            databaseFieldNameForTeam = current_drivers_ferrari
+            databaseFieldNameForTeam = 'current_drivers_ferrari'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('Ferrari')
@@ -60,7 +60,7 @@ module.exports = (client) => {
                              `-- ${new Date().toLocaleString()} \n ${err}`)
             })
         } else if(teamName == 'McLaren'){
-            databaseFieldNameForTeam = current_drivers_mclaren
+            databaseFieldNameForTeam = 'current_drivers_mclaren'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('McLaren')
@@ -75,7 +75,7 @@ module.exports = (client) => {
                              `-- ${new Date().toLocaleString()} \n ${err}`)
             })
         } else if(teamName == 'Aston Martin'){
-            databaseFieldNameForTeam = current_drivers_aston_martin
+            databaseFieldNameForTeam = 'current_drivers_aston_martin'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('Aston Martin')
@@ -90,7 +90,7 @@ module.exports = (client) => {
                              `-- ${new Date().toLocaleString()} \n ${err}`)
             })
         } else if(teamName == 'Alpine'){
-            databaseFieldNameForTeam = current_drivers_alpine
+            databaseFieldNameForTeam = 'current_drivers_alpine'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('Alpine')
@@ -105,7 +105,7 @@ module.exports = (client) => {
                              `-- ${new Date().toLocaleString()} \n ${err}`)
             })
         } else if(teamName == 'Alpha Tauri'){
-            databaseFieldNameForTeam = current_drivers_alpha_tauri
+            databaseFieldNameForTeam = 'current_drivers_alpha_tauri'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('Alpha Tauri')
@@ -120,7 +120,7 @@ module.exports = (client) => {
                              `-- ${new Date().toLocaleString()} \n ${err}`)
             })
         } else if(teamName == 'Alfa Romeo'){
-            databaseFieldNameForTeam = current_drivers_alfa_romeo
+            databaseFieldNameForTeam = 'current_drivers_alfa_romeo'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('Alfa Romeo')
@@ -135,7 +135,7 @@ module.exports = (client) => {
                              `-- ${new Date().toLocaleString()} \n ${err}`)
             })
         } else if(teamName == 'Williams'){
-            databaseFieldNameForTeam = current_drivers_williams
+            databaseFieldNameForTeam = 'current_drivers_williams'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('Williams')
@@ -150,7 +150,7 @@ module.exports = (client) => {
                              `-- ${new Date().toLocaleString()} \n ${err}`)
             })
         } else if(teamName == 'Haas'){
-            databaseFieldNameForTeam = current_drivers_haas
+            databaseFieldNameForTeam = 'current_drivers_haas'
 
             var newValueForDatabaseAsArray = new Array()
             newValueForDatabaseAsArray = currentLineupAsMap.get('Haas')
@@ -337,7 +337,7 @@ module.exports = (client) => {
                 currentLineup.get(teamNameString)[1] = 'nicht besetzt';
                 console.log(`${userToRemove.username} wurde aus dem Lineup entfernt  in ${client.getLigatitel()}-- ${new Date().toLocaleString()}`);
             } else {
-                console.log(`Fehler beim Entfernen ${userToRemove.username} aus dem Lineup  in ${seasonData.getLigatitel()}-- ${new Date().toLocaleString()}`);
+                console.log(`Fehler beim Entfernen ${userToRemove.username} aus dem Lineup  in ${client.getLigatitel()}-- ${new Date().toLocaleString()}`);
             }
             //Change content in object
             await client.setCurrentLineup(teamNameString, currentLineup);
@@ -375,7 +375,7 @@ module.exports = (client) => {
             let mainTeamNameString = await client.guilds.cache.get(client.getDiscordID()).roles.cache.get(mainTeamIDString).name;
             currentLineup.get(mainTeamNameString)[subDriverPosition] = driverToStart;
             console.log(`Method: regularDriverBack => Im ${mainTeamNameString} hat ${driverToStart} sein Cockpit wieder, 
-                        das Cockpit war noch frei in ${seasonData.getLigatitel()} -- ${new Date().toLocaleString()}`);
+                        das Cockpit war noch frei in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
             //Change content in object
            
             await client.setCurrentLineup(mainTeamNameString, currentLineup);
@@ -392,11 +392,11 @@ module.exports = (client) => {
         if(currentLineup.get(carToTakeNameString)[0] == 'nicht besetzt'){
             currentLineup.get(carToTakeNameString)[0] = driverToStart;
             console.log(`Der Tausch im Lineup wurde im Team ${carToTakeNameString} an der ersten Stelle 
-                        durchgeführt; Normal Sub in ${seasonData.getLigatitel()} -- ${new Date().toLocaleString()}`);
+                        durchgeführt; Normal Sub in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
         } else if(currentLineup.get(carToTakeNameString)[1] == 'nicht besetzt'){
             currentLineup.get(carToTakeNameString)[1] = driverToStart;
             console.log(`Der Tausch im Lineup wurde im Team ${carToTakeNameString} an der zweiten Stelle 
-                        durchgeführt; Normal Sub in ${seasonData.getLigatitel()} -- ${new Date().toLocaleString()}`);
+                        durchgeführt; Normal Sub in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
         } else {
             console.log(`Der Tausch im Lineup konnte nicht durchgeführt werden; Normal Sub. EVTL GEWOLLT in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
         }
@@ -496,7 +496,7 @@ module.exports = (client) => {
        
        
         // SQL FOR msgLineupID = client.getLineupMsgLigaFR();
-        client.getLastRaceInDatabase().then(async function(res){
+        await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for lineup message ID -- ${new Date().toLocaleString()}`)
 
             msgLineupID = res[0].lineup_msg_id
@@ -505,7 +505,7 @@ module.exports = (client) => {
         })
 
         // SQL FORcurrentRaceLocation = client.getCurrentRaceLocationLigaFR();
-        client.getLastRaceInDatabase().then(async function(res){
+        await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for current race location -- ${new Date().toLocaleString()}`)
 
             currentRaceLocation = res[0].race_location
@@ -533,7 +533,7 @@ module.exports = (client) => {
 
          //Deletes lineup currently displayed in channel
          if(msgLineupID != null){
-            await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(infoChannelID).messages.fetch(msgLineupID).then(async (msg) => {
+            await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(infoChannelID).messages.fetch(`${msgLineupID}`).then(async (msg) => {
                 await msg.edit({ embeds: [lineupEmbed]});
                 console.log(`Das aktuelle Lineup wurde bearbeitet. In ${client.getLigatitel()} -- ${new Date().toLocaleString()}`)
             })
@@ -588,15 +588,25 @@ module.exports = (client) => {
         var subPersonListReinstatedDrivers = new Array();
         var withdrawnDrivers = new Array();
         var currentLineup = new Map();
+        var raceID = -1
 
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()}`)
 
-            freeCars = res[0].free_cars.split(',')
-            subPersonList = res[0].sub_person_list.split(',')
-            subPersonListReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
-            withdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            if(res[0].free_cars.length > 0){
+                freeCars = res[0].free_cars.split(',')
+            }
+            if(res[0].sub_person_list.length > 0){
+                subPersonList = res[0].sub_person_list.split(',')
+            }
+            if(res[0].sub_person_list_reinstated_drivers.length > 0){
+                subPersonListReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            }
+            if(res[0].withdrawn_drivers.length > 0){
+                withdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            }
             currentLineup = await client.getCurrentLineup();
+            raceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()} \n ${err}`)
         })
@@ -611,11 +621,31 @@ module.exports = (client) => {
             if(subPersonListReinstatedDrivers.length > 0){
                 var driverToStartTemp = subPersonListReinstatedDrivers.shift();
                 driverToStart = await client.guilds.cache.get(client.getDiscordID()).members.fetch(driverToStartTemp);
+
+                var subPersonListReinstatedDriversAsString = await client.convertArrayToString(subPersonListReinstatedDrivers)
+                await client.updateReinstatedDrivers(subPersonListReinstatedDriversAsString, raceID).then(function(res){
+                    console.log(`Successfully updated reinstated drivers list in database -- ${new Date().toLocaleString()}`)
+                }, function(err){
+                    console.log(`Error updating reinstated drivers list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                })
             } else {
                 var driverToStartTemp = subPersonList.shift();
                 driverToStart = await client.guilds.cache.get(client.getDiscordID()).members.fetch(driverToStartTemp);
+
+                var subPersonListAsString = await client.convertArrayToString(subPersonList)
+                await client.updateSubPersonList(subPersonListAsString, raceID).then(function(res){
+                    console.log(`Successfully updated subs list in database -- ${new Date().toLocaleString()}`)
+                }, function(err){
+                    console.log(`Error updating subs list in database -- ${new Date().toLocaleString()} \n ${err}`)
+                })
             }
             let carToTake = freeCars.shift();
+            var freeCarsAsString = await client.convertArrayToString(freeCars)
+            await client.updateFreeCarsList(freeCarsAsString, raceID).then(function(res){
+                console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
+            }, function(err){
+                console.log(`Error updating free cars list in database -- ${new Date().toLocaleString()} \n ${err}`)
+            })
             if(driverToStart == null){
                 console.log(`Wurde checkSubCanBeMade ausgeführt, aber der driverToStart war in irgendeiner Weise falsch. `+
                             `DriverToStart war null. In ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
@@ -624,6 +654,8 @@ module.exports = (client) => {
             console.log(`Prüfsumme für ${client.getLigatitel()}, Methode checkSubCanBeMade. Das Auto was gerade belegt wird hat ID ${carToTake}, der `+
                         `Fahrer der es nimmt hat die ID ${driverToStartTemp}. Beides darf nicht null oder undefined sein in ${client.getLigatitel()}. ` + 
                         `-- ${new Date().toLocaleString()}`);
+
+            
             if(!fromForceRemove && await driverToStart.roles.cache.has(stammfahrerRolleID) && await client.checkIfCarisFree(client, carToTake)){
                 let mainTeamNameString = await client.findMainTeamString(driverToStart);
                 var seatOpen = false;
@@ -676,7 +708,7 @@ module.exports = (client) => {
                         )
                     }else{
                         driverInEmbed.addFields(
-                            {name: `Update im Lineup`, value: `<@${subDriverID}> bekommt den <@&${carToTake}>`}
+                            {name: `Update im Lineup`, value: `<@${subDriverID}>regularDriverBack bekommt den <@&${carToTake}>`}
                         )
                         await client.guilds.cache.get(client.getDiscordID()).members.cache.get(subDriverID).send(`Es ergab sich eine ` +
                         `Verschiebung im Lineup, du fährst am Wochenende den ${client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name}`);
@@ -715,7 +747,7 @@ module.exports = (client) => {
                 console.log(`${driverToStart.nickname} bekommt ` + 
                             `den ${client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name} -- ${date}`);
             } else if(fromForceRemove && driverForForce == null && carForForce == null){
-                await client.changeLineupAfterForceOpen(driverToStart.id, client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name, positionForForce, seasonData);
+                await client.changeLineupAfterForceOpen(driverToStart.id, client.guilds.cache.get(client.getDiscordID()).roles.cache.get(carToTake).name, positionForForce);
                 let subDriverInEmbed = new EmbedBuilder()
                 .setColor('#fff654')
                 .setTitle('➡️')
@@ -748,6 +780,7 @@ module.exports = (client) => {
                             ` den ${carForForce} -- ${new Date().toLocaleString()}`);
             }
         }
+        console.log('CRASHPOINT 0.5')
         await client.setWaitlistMsgContent(client);
         await client.printLineup(client)
     }
@@ -760,18 +793,23 @@ module.exports = (client) => {
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for information to add car to free cars list -- ${new Date().toLocaleString()}`)
 
-            freeCars = res[0].free_cars.split(',')
+            if(res[0].free_cars.length > 0){
+                freeCars = res[0].free_cars.split(',')
+            }
             currentRaceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table for information to add car to free cars list -- ${new Date().toLocaleString()} \n ${err}`)
         })
         
         //Changes locally
-        var member = await client.guilds.cache.get(client.getDiscordID()).members.fetch(memberUser.id);
+        console.log('USER ID', memberUser)
+        var member = await client.guilds.cache.get(await client.getDiscordID()).members.fetch(memberUser);
+        console.log('Got driver')
         if(member.roles.cache.has(client.getMercedesRolleID())){
             freeCars.unshift(client.getMercedesRolleID());
         } else if(member.roles.cache.has(client.getRedBullRolleID())){
             freeCars.unshift(client.getRedBullRolleID());
+            console.log('GOT RB ROLE')
         } else if(member.roles.cache.has(client.getFerrariRolleID())){
             freeCars.unshift(client.getFerrariRolleID());
         } else if(member.roles.cache.has(client.getMcLarenRolleID())){
@@ -792,6 +830,7 @@ module.exports = (client) => {
         //Makes changes globally
         
         var freeCarsAsString = await client.convertArrayToString(freeCars)
+        console.log('free cars', freeCarsAsString, 'race id', currentRaceID)
         await client.updateFreeCarsList(freeCarsAsString, currentRaceID).then(function(res){
             console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
         }, function(err){
@@ -801,7 +840,8 @@ module.exports = (client) => {
        
     }
 
-    client.setWaitlistMsgContent = async (client, seasonData) => {
+    client.setWaitlistMsgContent = async (client) => {
+        console.log('CRASHPOINT 1')
         //Gets all the information
         let subPersonList = new Array();
         let subPersonListReinstatedDrivers = new Array();
@@ -812,9 +852,15 @@ module.exports = (client) => {
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()}`)
 
-            freeCars = res[0].free_cars.split(',')
-            subPersonList = res[0].sub_person_list.split(',')
-            subPersonListReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            if(res[0].free_cars.length > 0){
+                freeCars = res[0].free_cars.split(',')
+            }
+            if(res[0].sub_person_list.length > 0){
+                subPersonList = res[0].sub_person_list.split(',')
+            }
+            if(res[0].sub_person_list_reinstated_drivers.length > 0){
+                subPersonListReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            }
             waitListMsgID = res[0].waitlist_msg_id
             freeCarsMsgID = res[0].free_car_msg_id
         }, function(err){
@@ -1007,8 +1053,12 @@ module.exports = (client) => {
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()}`)
 
-            subPersonList = res[0].sub_person_list.split(',')
-            withdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            if(res[0].sub_person_list.length > 0){
+                subPersonList = res[0].sub_person_list.split(',')
+            }
+            if(res[0].withdrawn_drivers.length > 0){
+                withdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            }
             currentRaceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table for all information for checkSubCanBeMade -- ${new Date().toLocaleString()} \n ${err}`)
@@ -1056,14 +1106,16 @@ module.exports = (client) => {
 
     client.regularDriverWithdraw = async (client, driverObject) => {
         //Get current info
-        var abmeldeChannelID = client.getAbmeldeChannelIDLigaFR();
+        var abmeldeChannelID = await client.getAbmeldeChannelIDLigaFR();
         var withdrawnDrivers = new Array();
         var currentRaceID = -1
         
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table to withdraw drivers -- ${new Date().toLocaleString()}`)
 
-            withdrawnDrivers = res[0].free_cars.split(',')
+            if(res[0].free_cars.length > 0){
+                withdrawnDrivers = res[0].free_cars.split(',')
+            }
             currentRaceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table to withdraw drivers -- ${new Date().toLocaleString()} \n ${err}`)
@@ -1072,7 +1124,7 @@ module.exports = (client) => {
        
         //Do stuff
         withdrawnDrivers.push(driverObject.id);
-        await client.addCarOfWithdrawnDriverToFreeCars(driverObject, client);
+        await client.addCarOfWithdrawnDriverToFreeCars(driverObject.id, client);
         await client.removeFromCurrentLineup(client, driverObject, null);
         let driverWithdrawnEmbed = new EmbedBuilder()
         .setColor('#ff4d4d')
@@ -1080,10 +1132,10 @@ module.exports = (client) => {
         .addFields(
             {name: `Update im Lineup`, value: `<@${driverObject.id}> ist diese Woche nicht dabei`}
         )
-        await client.guilds.cache.get(client.getDiscordID()).channels.cache.get(abmeldeChannelID).send({ embeds : [driverWithdrawnEmbed]}).then(() => {
+        await client.guilds.cache.get(await client.getDiscordID()).channels.cache.get(abmeldeChannelID).send({ embeds : [driverWithdrawnEmbed]}).then(() => {
             client.guilds.cache.get(client.getDiscordID()).channels.cache.get(client.getLogChannelID()).send({ embeds : [driverWithdrawnEmbed]});
         });
-        console.log(`${driverObject.username} hat sich erfolgreich abgemeldet in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`); 
+        console.log(`${driverObject.user.username} hat sich erfolgreich abgemeldet in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`); 
         
         //Make changes global
         var withdrawnDriversAsString = await client.convertArrayToString(withdrawnDrivers)
@@ -1105,7 +1157,9 @@ module.exports = (client) => {
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table to withdraw drivers -- ${new Date().toLocaleString()}`)
 
-            subPersonList = res[0].sub_person_list.split(',')
+            if(res[0].sub_person_list.length > 0){
+                subPersonList = res[0].sub_person_list.split(',')
+            }
             currentRaceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table to withdraw drivers -- ${new Date().toLocaleString()} \n ${err}`)
@@ -1145,7 +1199,9 @@ module.exports = (client) => {
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table to withdraw drivers -- ${new Date().toLocaleString()}`)
 
-            freeCars = res[0].free_cars.split(',')
+            if(res[0].free_cars.length > 0){
+                freeCars = res[0].free_cars.split(',')
+            }
             currentRaceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table to withdraw drivers -- ${new Date().toLocaleString()} \n ${err}`)
@@ -1179,7 +1235,7 @@ module.exports = (client) => {
 
     client.regularDriverRemoveWithdraw = async (client, driverObject) => {
         //Get current info
-        var anmeldeChannelID = await seasonData.getAnmeldeChannelIDLigaFR();
+        var anmeldeChannelID = await client.getAnmeldeChannelIDLigaFR();
         var withdrawnDrivers = new Array();
         var reinstatedDrivers = new Array();
         var currentRaceID = -1
@@ -1187,8 +1243,12 @@ module.exports = (client) => {
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table to withdraw drivers -- ${new Date().toLocaleString()}`)
 
-            withdrawnDrivers = res[0].withdrawn_drivers.split(',')
-            reinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            if(res[0].withdrawn_drivers.length > 0){
+                withdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            }
+            if(res[0].sub_person_list_reinstated_drivers.length > 0){
+                reinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            }
             currentRaceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table to withdraw drivers -- ${new Date().toLocaleString()} \n ${err}`)
@@ -1460,11 +1520,13 @@ module.exports = (client) => {
                 console.log(`Error while getting last race entry in DB to get drivers subbed in per command -- ${new Date().toLocaleString()} \n ${err}`)
             })
 
-            var reactedToSubIn = new Map()
+            var reactedToSubIn = new Array()
             await client.getLastRaceInDatabase().then(async function(res){
                 console.log(`Successfully got last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()}`)
-               
-                reactedToSubIn = await client.convertStringToMap(res[0].reacted_to_sub_in)
+                if(res[0].reacted_to_sub_in.length > 0){
+                    reactedToSubIn = await res[0].reacted_to_sub_in.split(',')
+                }
+                
             }, async function(err){
                 console.log(`Error while getting last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()} \n ${err}`)
             })       
@@ -1487,11 +1549,11 @@ module.exports = (client) => {
                 if(anmeldungActive == true){
                     // insert reaction into reacted to sub in list
                     
-                    if(reactedToSubIn.has(user.id)){
+                    if(reactedToSubIn.includes(user.id)){
                         console.log(`${user.username} hat auf Anmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${client.getLigatitel()} ` + 
                                     `-- ${new Date().toLocaleString()}`);
                     } else {
-                        reactedToSubIn.set(user.id, reaction.id)
+                        reactedToSubIn.push(user.id)
 
                         //await seasonData.setReactedToSubInLigaFR(reactedToSubIn);
                         var IDofCurrentRaceEvent = -1
@@ -1499,7 +1561,7 @@ module.exports = (client) => {
                             console.log(`Successfully got last race entry in DB to get ID -- ${new Date().toLocaleString()}`)
                             IDofCurrentRaceEvent = res[0].race_id
 
-                            var stringForDatabase = await client.convertMapToString(reactedToSubIn)
+                            var stringForDatabase = await client.convertArrayToString(reactedToSubIn)
 
                             await client.setReactedToSubIn(stringForDatabase, IDofCurrentRaceEvent).then(async function(res){
                                 console.log(`Successfully set reacted_to_sub_in to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
@@ -1565,10 +1627,12 @@ module.exports = (client) => {
                 console.log(`Error while getting last race entry in DB to get drivers withdrawn per command -- ${new Date().toLocaleString()} \n ${err}`)
             })
 
-            var reactedToSignOut = new Map()
+            var reactedToSignOut = new Array()
             await client.getLastRaceInDatabase().then(async function(res){
                 console.log(`Successfully got last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()}`)
-                reactedToSignOut = await client.convertStringToMap(res[0].reacted_to_sign_out)
+                if(res[0].reacted_to_sign_out.length > 0){
+                    reactedToSignOut = await res[0].reacted_to_sign_out.split(',')
+                }
             }, async function(err){
                 console.log(`Error while getting last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()} \n ${err}`)
             })       
@@ -1593,19 +1657,19 @@ module.exports = (client) => {
                         reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleID)){
                         //Local change 
                         
-                        if(reactedToSignOut.has(user.id)){
+                        if(reactedToSignOut.includes(user.id)){
                             let date = new Date().toLocaleString();
                             console.log(`${user.username} hat auf Abmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${client.getLigatitel()} -- ${date}`);
                         } else {
-                            reactedToSignOut.set(user.id, reaction.id)
-                            console.log('Map ', reactedToSignOut)
+                            reactedToSignOut.push(user.id)
+                            console.log('Array ', reactedToSignOut)
                             //await seasonData.setReactedToSignOutLigaFR(reactedToSubIn);
                             var IDofCurrentRaceEvent = -1
                             await client.getLastRaceInDatabase().then(async function(res){
                                 console.log(`Successfully got last race entry in DB to get ID -- ${new Date().toLocaleString()}`)
                                 IDofCurrentRaceEvent = res[0].race_id
 
-                                var stringForDatabase = await client.convertMapToString(reactedToSignOut)
+                                var stringForDatabase = await client.convertArrayToString(reactedToSignOut)
 
                                 await client.setReactedToSignOut(stringForDatabase, IDofCurrentRaceEvent).then(async function(res){
                                     console.log(`Successfully set reacted_to_sign_out to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
@@ -1672,11 +1736,12 @@ module.exports = (client) => {
                 console.log(`Error while getting last race entry in DB to get drivers subbed in per command -- ${new Date().toLocaleString()} \n ${err}`)
             })
 
-            var reactedToSubIn = new Map()
+            var reactedToSubIn = new Array()
             await client.getLastRaceInDatabase().then(async function(res){
                 console.log(`Successfully got last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()}`)
-               
-                reactedToSubIn = client.convertStringToMap(res[0].reacted_to_sub_in)
+                if(res[0].reacted_to_sub_in.length > 0){
+                    reactedToSubIn = res[0].reacted_to_sub_in.split(',')
+                }
             }, async function(err){
                 console.log(`Error while getting last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()} \n ${err}`)
             })       
@@ -1699,14 +1764,14 @@ module.exports = (client) => {
                 if(anmeldungActive == true){
                     if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleID)){
                         if(reaction.emoji.name == client.getAnmeldeEmoji()){
-                            reactedToSubIn.delete(user.id);
+                            reactedToSubIn.splice(reactedToSubIn.indexOf(user.id), 1);
                             
                             var IDofCurrentRaceEvent = -1
                             await client.getLastRaceInDatabase().then(async function(res){
                                 console.log(`Successfully got last race entry in DB to get ID -- ${new Date().toLocaleString()}`)
                                 IDofCurrentRaceEvent = res[0].race_id
 
-                                var stringForDatabase = await client.convertMapToString(reactedToSubIn)
+                                var stringForDatabase = await client.convertArrayToString(reactedToSubIn)
 
                                 await client.setReactedToSubIn(stringForDatabase, IDofCurrentRaceEvent).then(async function(res){
                                     console.log(`Successfully set reacted_to_sub_in to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
@@ -1783,10 +1848,13 @@ module.exports = (client) => {
                 console.log(`Error while getting last race entry in DB to get drivers withdrawn per command -- ${new Date().toLocaleString()} \n ${err}`)
             })
 
-            var reactedToSignOut = new Map()
+            var reactedToSignOut = new Array()
             await client.getLastRaceInDatabase().then(async function(res){
                 console.log(`Successfully got last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()}`)
-                reactedToSignOut = client.convertStringToMap(res[0].reacted_to_sign_out)
+                if(res[0].reacted_to_sign_out.length > 0){
+                    reactedToSignOut = await res[0].reacted_to_sign_out.split(',')
+                }
+                
             }, async function(err){
                 console.log(`Error while getting last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()} \n ${err}`)
             })                       
@@ -1807,18 +1875,18 @@ module.exports = (client) => {
             if(reaction.message.channel.id == abmeldeChannelID){
                 if(anmeldungActive == true){
                     let date = new Date();
-                    console.log(`In ${seasonData.getLigatitel()} hat ${user.username} mit ID ${user.id} seine Abmeldung zurückgenommen. Prüfsumme(darf niemals undefined sein): 
+                    console.log(`In ${client.getLigatitel()} hat ${user.username} mit ID ${user.id} seine Abmeldung zurückgenommen. Prüfsumme(darf niemals undefined sein): 
                                 ID: ${reaction.message.guild.members.cache.get(user.id).id}, DC-Name: ${reaction.message.guild.members.cache.get(user.id).nickname} -- ${date}`)
                     if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleID)){
                         if(reaction.emoji.name == client.getAbmeldeEmoji()){
-                            reactedToSignOut.delete(user.id);
+                            reactedToSignOut.splice(reactedToSignOut.indexOf(user.id), 1);
                             
                             var IDofCurrentRaceEvent = -1
                             await client.getLastRaceInDatabase().then(async function(res){
                                 console.log(`Successfully got last race entry in DB to get ID -- ${new Date().toLocaleString()}`)
                                 IDofCurrentRaceEvent = res[0].race_id
 
-                                var stringForDatabase = await client.convertMapToString(reactedToSubIn)
+                                var stringForDatabase = await client.convertArrayToString(reactedToSignOut)
 
                                 await client.setReactedToSignOut(stringForDatabase, IDofCurrentRaceEvent).then(async function(res){
                                     console.log(`Successfully set reacted_to_sign_out to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
@@ -1906,9 +1974,13 @@ module.exports = (client) => {
 
         await client.getLastRaceInDatabase().then(function(res){
             console.log(`Successfully got last entry in table for ID of current race -- ${new Date().toLocaleString()}`)
-
-            freeCars = res[0].free_cars
-            waitlist = res[0].sub_person_list
+            if(res[0].free_cars.length > 0){
+                freeCars = res[0].free_cars.split(',')
+            }
+            if(res[0].sub_person_list.length > 0){
+                waitlist = res[0].sub_person_list.split(',')
+            }
+            w
         }, function(err){
             console.log(`Error getting last entry in table for ID of current race -- ${new Date().toLocaleString()} \n ${err}`)
         })
@@ -2618,8 +2690,8 @@ module.exports = (client) => {
         var mapToReturn = new Map()
 
         if(stringToConvert.length > 0){
-            var reactedToSubInArray = stringToConvert.split(',');
-            reactedToSubInArray.forEach((entry) => {
+            var arrayFromString = stringToConvert.split(',');
+            arrayFromString.forEach((entry) => {
                 var entryTrimmedEnd = entry.slice(0, -1);
                 var entryTrimmedEndAndStart = entryTrimmedEnd.slice(1)
                 var entryKeyValueArray = entryTrimmedEndAndStart.split(':')
@@ -2634,10 +2706,12 @@ module.exports = (client) => {
         var stringToReturn = '';
 
         arrayToConvert.forEach(entry => {
-            stringToReturn.concat(`${entry},`)
+            stringToReturn = stringToReturn.concat(`${entry},`)
         })
-        stringToReturn = stringToReturn.slice(0, -1)
-
+        if(arrayToConvert.length > 0){
+            stringToReturn = stringToReturn.slice(0, -1)
+        }
+        
         return stringToReturn
     }
 }

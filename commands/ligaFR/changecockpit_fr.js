@@ -33,7 +33,7 @@ module.exports = {
         var messageEmbededAnmelden = -1
         var raceID = -1
         var tempCurrentLineup = new Map();
-        var tempReactedToSubIn = new Map();
+        var tempReactedToSubIn = new Array();
         var tempSubPersonList = new Array();
         var tempSubInPerCmd = new Array();
         var tempFreeCars = new Array();
@@ -46,13 +46,24 @@ module.exports = {
             messageEmbededAnmelden = res[0].register_msg_id
             raceID = res[0].race_id
             tempCurrentLineup = await client.getCurrentLineup();
-            var reactedToSubInString = res[0].reacted_to_sub_in
-            tempReactedToSubIn = await client.convertStringToMap(reactedToSubInString)
-            tempSubPersonList = res[0].sub_person_list.split(',')
-            tempSubInPerCmd = res[0].sub_in_drivers_per_cmd.split(',')
-            tempFreeCars = res[0].free_cars.split(',')
-            tempWithdrawnDrivers = res[0].withdrawn_drivers.split(',')
-            tempReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            if(res[0].reacted_to_sub_in.length > 0){
+                tempReactedToSubIn = res[0].reacted_to_sub_in.split(',')
+            }
+            if(res[0].sub_person_list.length > 0){
+                tempSubPersonList = res[0].sub_person_list.split(',')
+            }
+            if(res[0].sub_in_drivers_per_cmd.length > 0){
+                tempSubInPerCmd = res[0].sub_in_drivers_per_cmd.split(',')
+            }
+            if(res[0].free_cars.length > 0){
+                tempFreeCars = res[0].free_cars.split(',')
+            }
+            if(res[0].withdrawn_drivers.length > 0){
+                tempWithdrawnDrivers = res[0].withdrawn_drivers.split(',')
+            }
+            if(res[0].sub_person_list_reinstated_drivers.length > 0){
+                tempReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            }
         }, function(err){
             console.log(`Error getting last entry in table for changecockpit command -- ${new Date().toLocaleString()} \n ${err}`)
         })
@@ -158,18 +169,21 @@ module.exports = {
                         tempFreeCars.unshift(teamObject.id);
                     }
 
-                    if(tempReactedToSubIn.has(preCmdDriver)){
-                        messageEmbededAnmelden.reactions.resolve(tempReactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver);
-                        tempReactedToSubIn.delete(preCmdDriver);
+                    if(tempReactedToSubIn.includes(preCmdDriver)){
+                       var userReactions = await client.guilds.cache.get(await client.getDiscordID()).channels.cache.get(await client.getAnmeldeChannelIDLigaFR()).messages.fetch(`${messageEmbededAnmelden}`).
+                                    reactions.cache.filter(reaction => reaction.users.cache.has(preCmdDriver));
+                        for (const reaction of userReactions.values()) {
+                            await reaction.users.remove(preCmdDriver);
+                        }
+                        tempReactedToSubIn.splice(tempReactedToSubIn.indexOf(preCmdDriver), 1);
 
-                        var reactedToSubInAsString = await client.convertMapToString(tempReactedToSubIn)
+                        var reactedToSubInAsString = await client.convertArrayToString(tempReactedToSubIn)
                         await client.setReactedToSubIn(reactedToSubInAsString, raceID).then(function(res){
                             console.log(`Successfully updated reacted to sub in list in database -- ${new Date().toLocaleString()}`)
                         }, function(err){
                             console.log(`Error updating reacted to sub in list in database -- ${new Date().toLocaleString()} \n ${err}`)
                         })
 
-                        CurrentSeason.seasonData.setReactedToSubInLigaFR(tempReactedToSubIn);
                     }
 
                     var freeCarsAsString = await client.convertArrayToString(tempFreeCars)
@@ -284,7 +298,7 @@ module.exports = {
                         })
 
                         console.log(`changecockpitFR wurde verwendet und der Fahrer` +
-                            `${client.guilds.cache.get(CurrentSeason.seasonData.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${new Date().toLocaleString()}`);
+                            `${client.guilds.cache.get(await client.getDiscordID()).members.cache.get(preCmdDriver).nickname} wurde entfernt -- ${new Date().toLocaleString()}`);
                     }
 
                     tempSubInPerCmd.push(driverIn.id)
@@ -315,9 +329,14 @@ module.exports = {
                     }
 
                     if(tempReactedToSubIn.has(preCmdDriver)){
-                        messageEmbededAnmelden.reactions.resolve(tempReactedToSubIn.get(preCmdDriver)).users.remove(preCmdDriver);
-                        tempReactedToSubIn.delete(preCmdDriver);
-                        var reactedToSubInAsString = await client.convertMapToString(tempReactedToSubIn)
+                        var userReactions = await client.guilds.cache.get(await client.getDiscordID()).channels.cache.get(await client.getAnmeldeChannelIDLigaFR()).messages.fetch(`${messageEmbededAnmelden}`).
+                                            reactions.cache.filter(reaction => reaction.users.cache.has(preCmdDriver));
+                        for (const reaction of userReactions.values()) {
+                            await reaction.users.remove(preCmdDriver);
+                        }
+                        tempReactedToSubIn.splice(tempReactedToSubIn.indexOf(preCmdDriver), 1);
+
+                        var reactedToSubInAsString = await client.convertArrayToString(tempReactedToSubIn)
                         await client.setReactedToSubIn(reactedToSubInAsString, raceID).then(function(res){
                             console.log(`Successfully updated reacted to sub in list in database -- ${new Date().toLocaleString()}`)
                         }, function(err){

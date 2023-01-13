@@ -26,9 +26,13 @@ module.exports = {
 
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for removeanmeldung command -- ${new Date().toLocaleString()}`)
+            if(res[0].sub_in_drivers_per_cmd.length > 0){
+                subInDriversPerCmd = res[0].sub_in_drivers_per_cmd.split(',')
+            }
+            if(res[0].sub_person_list.length > 0){
+                subPersonList = res[0].sub_person_list.split(',')
+            }
             
-            subInDriversPerCmd = res[0].sub_in_drivers_per_cmd.split(',')
-            subPersonList = res[0].sub_person_list
             raceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table for removeanmeldung command -- ${new Date().toLocaleString()} \n ${err}`)

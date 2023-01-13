@@ -111,7 +111,7 @@ module.exports = {
         })
 
         try{
-            cron.schedule(`40 22 * * 5`, async () => {
+            cron.schedule(`32 21 * * 5`, async () => {
 
                 if(racesPlanned.size > 0){
                     var [nextRaceKey] = racesPlanned.keys()

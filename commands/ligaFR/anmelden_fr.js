@@ -26,8 +26,9 @@ module.exports = {
         
         await client.getLastRaceInDatabase().then(function(res){
             console.log(`Successfully got last entry in table for anmelden command -- ${new Date().toLocaleString()}`)
-
-            tempSubDriversInPerCommand = res[0].sub_in_drivers_per_cmd.split(',')
+            if(res[0].sub_in_drivers_per_cmd.length > 0){
+                tempSubDriversInPerCommand = res[0].sub_in_drivers_per_cmd.split(',')
+            }
             raceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table for anmelden command -- ${new Date().toLocaleString()} \n ${err}`)

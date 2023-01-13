@@ -29,8 +29,9 @@ module.exports = {
 
         await client.getLastRaceInDatabase().then(function(res){
             console.log(`Successfully got last entry in table for forcefree command -- ${new Date().toLocaleString()}`)
-
-            tempFreeCars = res[0].free_cars.split(',')
+            if(res[0].free_cars.length > 0){
+                tempFreeCars = res[0].free_cars.split(',')
+            }
         }, function(err){
             console.log(`Error getting last entry in table for forcefree command -- ${new Date().toLocaleString()} \n ${err}`)
         })

@@ -30,11 +30,16 @@ module.exports = {
 
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for removefromwaitlist command -- ${new Date().toLocaleString()}`)
-            
-            tempReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
-            tempSubDrivers = res[0].sub_person_list
+            if(res[0].sub_person_list_reinstated_drivers.length > 0){
+                tempReinstatedDrivers = res[0].sub_person_list_reinstated_drivers.split(',')
+            }
+            if(res[0].sub_person_list.length > 0){
+                tempSubDrivers = res[0].sub_person_list.split(',')
+            } 
             messageEmbededAnmelden = res[0].register_msg_id
-            tempReactedToSubIn = res[0].reacted_to_sub_in
+            if(res[0].reacted_to_sub_in.length > 0){
+                tempReactedToSubIn = res[0].reacted_to_sub_in.split(',')
+            }
             raceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table for removefromwaitlist command -- ${new Date().toLocaleString()} \n ${err}`)
@@ -59,12 +64,17 @@ module.exports = {
                 console.log(`Error updating sub in drivers list in database -- ${new Date().toLocaleString()} \n ${err}`)
             })
 
-            if(tempReactedToSubIn.has(driverRemove.id)){
-                await client.guilds.cache.get(await client.getDiscordID()).channels.cache.get(await client.getAnmeldeChannelIDLigaFR()).messages.fetch(`${messageEmbededAnmelden}`).
-                    reactions.resolve(tempReactedToSubIn.get(driverRemove.id)).users.remove(driverRemove.id);
-                tempReactedToSubIn.delete(driverRemove.id);
+            if(tempReactedToSubIn.includes(driverRemove.id)){
+                var userReactions = await client.guilds.cache.get(await client.getDiscordID()).channels.cache.get(await client.getAnmeldeChannelIDLigaFR()).messages.fetch(`${messageEmbededAnmelden}`).
+                                    reactions.cache.filter(reaction => reaction.users.cache.has(driverRemove.id));
 
-                var reactedToSubInAsString = await client.convertMapToString(tempReactedToSubIn)
+                for (const reaction of userReactions.values()) {
+                    await reaction.users.remove(driverRemove.id);
+                }
+
+                tempReactedToSubIn.splice(tempReactedToSubIn.indexOf(driverRemove.id), 1);
+
+                var reactedToSubInAsString = await client.convertArrayToString(tempReactedToSubIn)
                 await client.setReactedToSubIn(reactedToSubInAsString, raceID).then(function(res){
                     console.log(`Successfully updated reacted to sub in list in database -- ${new Date().toLocaleString()}`)
                 }, function(err){

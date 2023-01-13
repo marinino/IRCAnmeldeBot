@@ -34,8 +34,9 @@ module.exports = {
 
         await client.getLastRaceInDatabase().then(async function(res){
             console.log(`Successfully got last entry in table for forcein command -- ${new Date().toLocaleString()}`)
-
-            tempSubPersonList = res[0].sub_person_list.split(',')
+            if(res[0].sub_person_list.length > 0){
+                tempSubPersonList = res[0].sub_person_list.split(',')
+            }
             raceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table for forcein command -- ${new Date().toLocaleString()} \n ${err}`)
