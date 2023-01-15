@@ -106,7 +106,7 @@ module.exports = {
     
 
         try{
-            cron.schedule(`57 18 * * 6`, async () => {
+            cron.schedule(`56 17 * * 7`, async () => {
 
                 if(racesPlanned.size > 0){
                     var [nextRaceKey] = racesPlanned.keys()
@@ -118,8 +118,6 @@ module.exports = {
                     // 604800000 is one week in ms
                     if(nextRaceDate - new Date() < 604800000){
                         
-                        
-                    
                         await client.startFunction(client, interaction, nextRaceDate, nextRaceKey.grandprixname);
                         console.log('RACEEEEEEEEEEEEEEEEEEEEE')
                     } else {

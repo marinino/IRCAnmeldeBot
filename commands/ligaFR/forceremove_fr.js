@@ -1,4 +1,4 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder, CommandInteractionOptionResolver } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -353,6 +353,7 @@ module.exports = {
                 var teamID = -1
                 var ligaID = -1
                 var persID = -1
+                console.log('ROLENAME', roleGiven.name)
     
                 await client.getTeamID(roleGiven.name).then(function(res){
                     console.log(`Successfully got teamID of team ${roleGiven.name} -- ${new Date().toLocaleString()}`)
@@ -362,24 +363,29 @@ module.exports = {
                     console.log(`Error getting teamID of team ${roleGiven.name} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
-                await client.getPersID(driverToRemove.id).then(function(res){
+                await client.getPersID(driverToRemove).then(function(res){
                     console.log(`Successfully got persID of ${driverToRemove} -- ${new Date().toLocaleString()}`)
     
                     persID = res[0].id
+                    console.log('PERSON ID', persID)
                 }, function(err){
-                    console.log(`Error getting teamID of ${roleGiven.name} -- ${new Date().toLocaleString()} \n ${err}`)
+                    console.log(`Error getting persID of ${driverToRemove} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
                 await client.getLigaID(await client.getLigatitel()).then(async function(res){
                     console.log(`Successfully got ligaID of ${await client.getLigatitel()} -- ${new Date().toLocaleString()}`)
     
-                    ligaID = res[0].id
+                    ligaID = res[0].league_id
+                    console.log('LIGA ID', ligaID)
                 }, async function(err){
                     console.log(`Error getting ligaID of team ${await client.getLigatitel()} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
                 var dateGueltigAb = new Date()
-                var dateGueltigAbYear = dateGueltigAb.getFullYear()
+
+                /**
+                 * 
+                 *  var dateGueltigAbYear = dateGueltigAb.getFullYear()
                 var dateGueltigAbMonth = dateGueltigAb.getMonth() + 1
                 var dateGueltigAbMonthFormatted = -1
                 if(dateGueltigAbMonth < 10){
@@ -418,9 +424,12 @@ module.exports = {
     
                 var finalDateString = `${dateGueltigAbYear}-${dateGueltigAbMonthFormatted}-${dateGueltigAbDayFormatted} `+
                                         `${dateGueltigAbHoursFormatted}:${dateGueltigAbMinutesFormatted}:${dateGueltigAbSecondsFormatted}`
+                 * 
+                 */
+               
                 
-                await client.updateRegularDriver(finalDateString, teamID, persID, ligaID).then(function(res){
-                    console.log(`Successfully updated new regular driver -- ${new Date().toLocaleString()}`)
+                await client.updateRegularDriver(dateGueltigAb, teamID, persID, ligaID).then(function(res){
+                    console.log(`Successfully updated new regular driver -- ${new Date().toLocaleString()} \n ${res.affectedRows}`)
                 }, function(err){
                     console.log(`Error updating new regular driver -- ${new Date().toLocaleString()} \n ${err}`)
                 })

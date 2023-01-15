@@ -505,8 +505,9 @@ module.exports = (client) => {
 
     client.insertNewRegularDriver = async (gueltigAbDate, teamID, persID, ligaID) => {
         var promInsertNewRegularDriver = new Promise(function(resolve, reject){
-            connectionAdman.query(`INSERT INTO ligateamfahrer (fahrerolle, gueltigab, ligaid, persid, tid) VALUES ('Stammfahrer', ${gueltigAbDate}, ${ligaID}, ${persID}, ${teamID})`, function(err, res){
+            connectionAdman.query(`INSERT INTO ligateamfahrer (ltfid, fahrerrolle, gueltigab, ligaid, persid, tid) VALUES (8, 'Stammfahrer', CAST('${gueltigAbDate}' AS DATETIME), ${ligaID}, ${persID}, ${teamID})`, function(err, res){
                 if(err){
+                    console.log('VALUES', gueltigAbDate, ligaID, persID, teamID)
                     reject(err)
                 } else {
                     resolve(res)
@@ -518,6 +519,7 @@ module.exports = (client) => {
 
     client.getTeamID = async (teamname) => {
         var promGetTeamID = new Promise(function(resolve, reject){
+            console.log('SEARCHING FOR TEAM ID', teamname)
             connectionAdman.query(`SELECT * FROM team WHERE name = '${teamname}'`, function(err, res){
                 if(err){
                     reject(err)
@@ -557,10 +559,11 @@ module.exports = (client) => {
 
     client.updateRegularDriver = async (date, teamID, persID, ligaID) => {
         var promUpdateRegularDriver = new Promise(function(resolve, reject){
-            connectionAdman.query(`UPDATE SET gueltigbis = ${date} WHERE gueltigbis = NULL AND tid = ${teamID}, persid = ${persID}, ligaid = ${ligaID}`, function(err, res){
+            connectionAdman.query(`UPDATE ligateamfahrer SET gueltigbis = CAST('${date}' AS DATETIME) WHERE gueltigbis IS NULL AND tid = ${teamID} AND persid = ${persID} AND ligaid = ${ligaID}`, function(err, res){
                 if(err){
                     reject(err)
                 } else {
+                    console.log('VALUES', teamID, persID, ligaID)
                     resolve(res)
                 }
             })

@@ -2031,7 +2031,7 @@ module.exports = (client) => {
 
                     var mercDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis == 'NULL'){
+                        if(entry.gueltigbis.toString().includes(':')){
                             mercDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2101,7 +2101,7 @@ module.exports = (client) => {
 
                     var redBullDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis == 'NULL'){
+                        if(entry.gueltigbis.toString().includes(':')){
                             redBullDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2168,7 +2168,7 @@ module.exports = (client) => {
  
                      var ferrariDriversPersID = new Array()
                      res.forEach(entry => {
-                         if(entry.gueltigbis == 'NULL'){
+                         if(entry.gueltigbis.toString().includes(':')){
                             ferrariDriversPersID.push(entry.persid)
                          } else {
                              var currentDate = new Date();
@@ -2235,7 +2235,7 @@ module.exports = (client) => {
         
                             var mcLarenDriversPersID = new Array()
                             res.forEach(entry => {
-                                if(entry.gueltigbis == 'NULL'){
+                                if(entry.gueltigbis.toString().includes(':')){
                                     mcLarenDriversPersID.push(entry.persid)
                                 } else {
                                     var currentDate = new Date();
@@ -2302,7 +2302,7 @@ module.exports = (client) => {
  
                      var astonMartinDriversPersID = new Array()
                      res.forEach(entry => {
-                         if(entry.gueltigbis == 'NULL'){
+                         if(entry.gueltigbis.toString().includes(':')){
                             astonMartinDriversPersID.push(entry.persid)
                          } else {
                              var currentDate = new Date();
@@ -2369,7 +2369,7 @@ module.exports = (client) => {
 
                     var alpineDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis == 'NULL'){
+                        if(entry.gueltigbis.toString().includes(':')){
                             alpineDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2436,7 +2436,7 @@ module.exports = (client) => {
 
                     var alphaTauriDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis == 'NULL'){
+                        if(entry.gueltigbis.toString().includes(':')){
                             alphaTauriDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2503,7 +2503,7 @@ module.exports = (client) => {
 
                     var alfaRomeoDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis == 'NULL'){
+                        if(entry.gueltigbis.toString().includes(':')){
                             alfaRomeoDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2570,7 +2570,7 @@ module.exports = (client) => {
 
                     var williamsDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis == 'NULL'){
+                        if(entry.gueltigbis.toString().includes(':')){
                             williamsDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2637,7 +2637,7 @@ module.exports = (client) => {
 
                     var haasDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis == 'NULL'){
+                        if(entry.gueltigbis.toString().includes(':')){
                             haasDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
