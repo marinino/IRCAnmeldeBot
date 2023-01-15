@@ -417,7 +417,7 @@ module.exports = (client) => {
                     console.log('resolved w/ err')
                     reject(err)
                 } else {
-                    console.log('resolved')
+                    console.log('resolved', res, listOfCars, raceID)
                     resolve(res)
                 }
             })

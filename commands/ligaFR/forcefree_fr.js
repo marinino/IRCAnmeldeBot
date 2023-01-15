@@ -25,6 +25,7 @@ module.exports = {
         const teamRole = interaction.options.getRole('team');
 
         var tempFreeCars = new Array();
+        var raceID = -1
         var tempCurrentLineup = await client.getCurrentLineup();
 
         await client.getLastRaceInDatabase().then(function(res){
@@ -32,15 +33,18 @@ module.exports = {
             if(res[0].free_cars.length > 0){
                 tempFreeCars = res[0].free_cars.split(',')
             }
+            raceID = res[0].race_id
         }, function(err){
             console.log(`Error getting last entry in table for forcefree command -- ${new Date().toLocaleString()} \n ${err}`)
         })
         
         tempFreeCars.push(teamRole.id);
+        console.log('FREE CARS ARRAY', tempFreeCars)
 
         var freeCarsAsString = await client.convertArrayToString(tempFreeCars)
-        await client.updateReinstatedDrivers(freeCarsAsString, raceID).then(function(res){
-            console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()}`)
+        console.log('FREE CARS AS STRING', freeCarsAsString)
+        await client.updateFreeCarsList(freeCarsAsString, raceID).then(function(res){
+            console.log(`Successfully updated free cars list in database -- ${new Date().toLocaleString()} \n ${res}`)
         }, function(err){
             console.log(`Error updating free cars list in database -- ${new Date().toLocaleString()} \n ${err}`)
         })

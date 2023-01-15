@@ -99,6 +99,36 @@ client.once("ready", () => {
         console.log('Registered locally')
       }
       console.log('Successfully reloaded application (/) commands.');
+
+      // CONNECT TO OTHER DB
+      await client.connectToLeagueDB().then(async function(res){
+        console.log(`Connection to league DB established -- ${new Date().toLocaleString()}`)
+      }, function(err){
+        console.log(`Error connecting to league DB \n ${err} \n ${new Date().toLocaleString()}`)  
+      })
+
+      // CREATE DB BOT
+      client.connectToBotDatabase().then(async function(res){
+        console.log(`Connection to Bot DB established -- ${new Date().toLocaleString()}`)
+
+        // CONNECT DB BOT
+        client.createBotDataBase().then(async function(res){
+          console.log(`Created Bot DB -- ${new Date().toLocaleString()}`)
+
+          // CREATE TABLE LEAGUE IDS BOT
+          client.createLeagueIdsTable().then(async function(res){
+            console.log(`Created league ID table in Bot DB -- ${new Date().toLocaleString()}`)
+          }, async function(err){
+            console.log(`Error creating league ID table in Bot DB \n ${err} \n ${new Date().toLocaleString()}`)
+          });
+        }, async function(err){
+          console.log(`Error creating Bot DB \n ${err} \n ${new Date().toLocaleString()}`)  
+        })
+      }, async function(err){
+        console.log(`Error connecting to Bot DB \n ${err} \n ${new Date().toLocaleString()}`)
+      });
+
+
     } catch (error) {
       console.error(error);
     }
@@ -107,27 +137,6 @@ client.once("ready", () => {
 })
 
 client.login(process.env.TOKEN);
-
-// CREATE DB BOT
-client.connectToBotDatabase().then(async function(res){
-  console.log(`Connection to Bot DB established -- ${new Date().toLocaleString()}`)
-
-  // CONNECT DB BOT
-  client.createBotDataBase().then(async function(res){
-    console.log(`Created Bot DB -- ${new Date().toLocaleString()}`)
-
-    // CREATE TABLE LEAGUE IDS BOT
-    client.createLeagueIdsTable().then(async function(res){
-      console.log(`Created league ID table in Bot DB -- ${new Date().toLocaleString()}`)
-    }, async function(err){
-      console.log(`Error creating league ID table in Bot DB \n ${err} \n ${new Date().toLocaleString()}`)
-    });
-  }, async function(err){
-    console.log(`Error creating Bot DB \n ${err} \n ${new Date().toLocaleString()}`)  
-  })
-}, async function(err){
-  console.log(`Error connecting to Bot DB \n ${err} \n ${new Date().toLocaleString()}`)
-});
 
 
 

@@ -11,8 +11,8 @@ module.exports = {
 
     async execute(client, interaction, command){
 
-        if(!interaction.member.roles.cache.has(CurrentSeason.seasonData.getRennleiterRolleID()) &&
-            !interaction.member.roles.cache.has(CurrentSeason.seasonData.getLigaleiterRolleID())){
+        if(!interaction.member.roles.cache.has(client.getRennleiterRolleID()) &&
+            !interaction.member.roles.cache.has(client.getLigaleiterRolleID())){
             interaction.reply('Du hast keine Berechtigung diesen Command auszuführen')
             return;
         }else{
@@ -108,8 +108,8 @@ module.exports = {
                     console.log(`Error getting teamID of team ${teamRole.name} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
-                await client.getPersID(driverIn.id).then(function(res){
-                    console.log(`Successfully got persID of ${driverIn.username} -- ${new Date().toLocaleString()}`)
+                await client.getPersID(driverToRemove.id).then(function(res){
+                    console.log(`Successfully got persID of ${driverToRemove} -- ${new Date().toLocaleString()}`)
     
                     persID = res[0].id
                 }, function(err){
@@ -354,20 +354,20 @@ module.exports = {
                 var ligaID = -1
                 var persID = -1
     
-                await client.getTeamID(teamRole.name).then(function(res){
-                    console.log(`Successfully got teamID of team ${teamRole.name} -- ${new Date().toLocaleString()}`)
+                await client.getTeamID(roleGiven.name).then(function(res){
+                    console.log(`Successfully got teamID of team ${roleGiven.name} -- ${new Date().toLocaleString()}`)
     
                     teamID = res[0].id
                 }, function(err){
-                    console.log(`Error getting teamID of team ${teamRole.name} -- ${new Date().toLocaleString()} \n ${err}`)
+                    console.log(`Error getting teamID of team ${roleGiven.name} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
-                await client.getPersID(driverIn.id).then(function(res){
-                    console.log(`Successfully got persID of ${driverIn.username} -- ${new Date().toLocaleString()}`)
+                await client.getPersID(driverToRemove.id).then(function(res){
+                    console.log(`Successfully got persID of ${driverToRemove} -- ${new Date().toLocaleString()}`)
     
                     persID = res[0].id
                 }, function(err){
-                    console.log(`Error getting teamID of ${teamRole.name} -- ${new Date().toLocaleString()} \n ${err}`)
+                    console.log(`Error getting teamID of ${roleGiven.name} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
                 await client.getLigaID(await client.getLigatitel()).then(async function(res){

@@ -1458,7 +1458,7 @@ module.exports = (client) => {
         return returnValue
     }
 
-    client.startFunction = async (client, message, timeTillClose, currentRaceLocation) => {
+    client.startFunction = async (client, message, nextRaceDate, currentRaceLocation) => {
        
         //Init
         console.log('STARTFUNCTION')
@@ -1744,7 +1744,17 @@ module.exports = (client) => {
                 }
             }, async function(err){
                 console.log(`Error while getting last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()} \n ${err}`)
-            })       
+            })   
+            
+            var subPersonList = new Array()
+            await client.getLastRaceInDatabase().then(async function(res){
+                console.log(`Successfully got last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()}`)
+                if(res[0].sub_person_list.length > 0){
+                    subPersonList = res[0].sub_person_list.split(',')
+                }
+            }, async function(err){
+                console.log(`Error while getting last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()} \n ${err}`)
+            })     
            
             //Do stuff
             if(reaction.message.partial){
@@ -1928,9 +1938,10 @@ module.exports = (client) => {
             
             }
         });
+        var timeTillClose = nextRaceDate - new Date()
         var timeTillReminder = timeTillClose - (20 * 1000)
-        setTimeout(() => client.reminderOpenCockpits(client), timeTillReminder)
-        setTimeout(() => client.endFunction(client), timeTillClose)
+        setTimeout(async () => await client.reminderOpenCockpits(client), timeTillReminder)
+        setTimeout(async () => await client.endFunction(client, currentRaceLocation), timeTillClose)
     }
 
     client.endFunction = async (client, currentRaceLocation) => {
@@ -1980,7 +1991,7 @@ module.exports = (client) => {
             if(res[0].sub_person_list.length > 0){
                 waitlist = res[0].sub_person_list.split(',')
             }
-            w
+            
         }, function(err){
             console.log(`Error getting last entry in table for ID of current race -- ${new Date().toLocaleString()} \n ${err}`)
         })
