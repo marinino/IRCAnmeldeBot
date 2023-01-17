@@ -41,7 +41,7 @@ module.exports = {
         await interaction.reply(`Hinzufügen wurde gestartet`);
 
         if(!(tempSubPersonList.includes(driver.id)) && !(tempReinstatedDrivers.includes(driver.id)) && 
-            !(await client.checkDriverInLineup(driver.id))){
+            !(await client.checkDriverInLineup(driver.id, client))){
             tempSubPersonList.push(driver.id);
             var subPersonListAsString = await client.convertArrayToString(tempSubPersonList)
             await client.updateSubPersonList(subPersonListAsString, raceID).then(function(res){

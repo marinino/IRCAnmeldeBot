@@ -57,8 +57,8 @@ module.exports = {
 
         if(tempLineup.get(teamRole.name)[0] == 'entfernt'){
             
-            let subInRole = await interaction.guild.roles.cache.find(role => role.id === client.getErsatzfahrerRolleIDLigaFR());
-            let regularDriverRole = await interaction.guild.roles.cache.find(role => role.id === client.getStammfahrerRolleIDLigaFR());
+            let subInRole = await interaction.guild.roles.cache.get(client.getErsatzfahrerRolleIDLigaFR());
+            let regularDriverRole = await interaction.guild.roles.cache.get(client.getStammfahrerRolleIDLigaFR());
 
             driverIn.roles.remove(subInRole);
             driverIn.roles.add(regularDriverRole);
@@ -106,48 +106,9 @@ module.exports = {
                 console.log(`Error getting ligaID of team ${await client.getLigatitel()} -- ${new Date().toLocaleString()} \n ${err}`)
             })
 
-            var dateGueltigAb = new Date()
-            var dateGueltigAbYear = dateGueltigAb.getFullYear()
-            var dateGueltigAbMonth = dateGueltigAb.getMonth() + 1
-            var dateGueltigAbMonthFormatted = -1
-            if(dateGueltigAbMonth < 10){
-                dateGueltigAbMonthFormatted = dateGueltigAbMonth.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbMonthFormatted = dateGueltigAbMonth
-            }
-            var dateGueltigAbDay = dateGueltigAb.getDay() + 1
-            var dateGueltigAbDayFormatted = -1
-            if(dateGueltigAbDay < 10){
-                dateGueltigAbDayFormatted = dateGueltigAbDay.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbDayFormatted = dateGueltigAbDay
-            }
-            var dateGueltigAbHours = dateGueltigAb.getHours()
-            var dateGueltigAbHoursFormatted = -1
-            if(dateGueltigAbHours < 10){
-                dateGueltigAbHoursFormatted = dateGueltigAbHours.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbHoursFormatted = dateGueltigAbHours
-            }
-            var dateGueltigAbMinutes = dateGueltigAb.getMinutes()
-            var dateGueltigAbMinutesFormatted = -1
-            if(dateGueltigAbMinutes < 10){
-                dateGueltigAbMinutesFormatted = dateGueltigAbMinutes.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbMinutesFormatted = dateGueltigAbMinutes
-            }
-            var dateGueltigAbSeconds = dateGueltigAb.getSeconds()
-            var dateGueltigAbSecondsFormatted = -1
-            if(dateGueltigAbSeconds < 10){
-                dateGueltigAbSecondsFormatted = dateGueltigAbSeconds.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbSecondsFormatted = dateGueltigAbSeconds
-            } 
-
-            var finalDateString = `${dateGueltigAbYear}-${dateGueltigAbMonthFormatted}-${dateGueltigAbDayFormatted} `+
-                                    `${dateGueltigAbHoursFormatted}:${dateGueltigAbMinutesFormatted}:${dateGueltigAbSecondsFormatted}`
-
-            await client.insertNewRegularDriver(dateGueltigAb, teamID, persID, ligaID).then(function(res){
+            var finalDateString = await client.getDatetimeForDatabase(null)
+            
+            await client.insertNewRegularDriver(finalDateString, teamID, persID, ligaID).then(function(res){
                 console.log(`Successfully inserted new regular driver -- ${new Date().toLocaleString()}`)
             }, function(err){
                 console.log(`Error inserting new regular driver -- ${new Date().toLocaleString()} \n ${err}`)
@@ -157,8 +118,8 @@ module.exports = {
         } else if(tempLineup.get(teamRole.name)[1] == 'entfernt'){
             
 
-            let subInRole = await interaction.guild.roles.cache.find(role => role.id === client.getErsatzfahrerRolleIDLigaFR());
-            let regularDriverRole = await interaction.guild.roles.cache.find(role => role.id === client.getStammfahrerRolleIDLigaFR());
+            let subInRole = await interaction.guild.roles.cache.get(client.getErsatzfahrerRolleIDLigaFR());
+            let regularDriverRole = await interaction.guild.roles.cache.get(client.getStammfahrerRolleIDLigaFR());
 
             driverIn.roles.remove(subInRole);
             driverIn.roles.add(regularDriverRole);
@@ -182,51 +143,8 @@ module.exports = {
             var ligaID = -1
             var persID = -1
 
-
-           var dateGueltigAb = new Date()
-            /**
-             *   
-            var dateGueltigAbYear = dateGueltigAb.getFullYear()
-            var dateGueltigAbMonth = dateGueltigAb.getMonth() + 1
-            var dateGueltigAbMonthFormatted = -1
-            if(dateGueltigAbMonth < 10){
-                dateGueltigAbMonthFormatted = dateGueltigAbMonth.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbMonthFormatted = dateGueltigAbMonth
-            }
-            var dateGueltigAbDay = dateGueltigAb.getDay() + 1
-            var dateGueltigAbDayFormatted = -1
-            if(dateGueltigAbDay < 10){
-                dateGueltigAbDayFormatted = dateGueltigAbDay.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbDayFormatted = dateGueltigAbDay
-            }
-            var dateGueltigAbHours = dateGueltigAb.getHours()
-            var dateGueltigAbHoursFormatted = -1
-            if(dateGueltigAbHours < 10){
-                dateGueltigAbHoursFormatted = dateGueltigAbHours.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbHoursFormatted = dateGueltigAbHours
-            }
-            var dateGueltigAbMinutes = dateGueltigAb.getMinutes()
-            var dateGueltigAbMinutesFormatted = -1
-            if(dateGueltigAbMinutes < 10){
-                dateGueltigAbMinutesFormatted = dateGueltigAbMinutes.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbMinutesFormatted = dateGueltigAbMinutes
-            }
-            var dateGueltigAbSeconds = dateGueltigAb.getSeconds()
-            var dateGueltigAbSecondsFormatted = -1
-            if(dateGueltigAbSeconds < 10){
-                dateGueltigAbSecondsFormatted = dateGueltigAbSeconds.toString().padStart(2, '0')
-            } else {
-                dateGueltigAbSecondsFormatted = dateGueltigAbSeconds
-            } 
-
-            var finalDateString = `${dateGueltigAbYear}-${dateGueltigAbMonthFormatted}-${dateGueltigAbDayFormatted} `+
-                                    `${dateGueltigAbHoursFormatted}:${dateGueltigAbMinutesFormatted}:${dateGueltigAbSecondsFormatted}`
-             */
-
+            var finalDateString = await client.getDatetimeForDatabase(null)
+                
             await client.getTeamID(teamRole.name).then(function(res){
                 console.log(`Successfully got teamID of team ${teamRole.name} -- ${new Date().toLocaleString()}`)
 
@@ -246,14 +164,14 @@ module.exports = {
             await client.getLigaID(await client.getLigatitel()).then(async function(res){
                 console.log(`Successfully got ligaID of ${await client.getLigatitel()} -- ${new Date().toLocaleString()}`)
 
-                ligaID = res[0].id
+                ligaID = res[0].league_id
             }, async function(err){
                 console.log(`Error getting ligaID of team ${await client.getLigatitel()} -- ${new Date().toLocaleString()} \n ${err}`)
             })
 
           
 
-            await client.insertNewRegularDriver(dateGueltigAb, teamID, persID, ligaID).then(function(res){
+            await client.insertNewRegularDriver(finalDateString, teamID, persID, ligaID).then(function(res){
                 console.log(`Successfully inserted new regular driver -- ${new Date().toLocaleString()}`)
             }, function(err){
                 console.log(`Error inserting new regular driver -- ${new Date().toLocaleString()} \n ${err}`)

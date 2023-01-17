@@ -53,6 +53,7 @@ module.exports = (client) => {
                 deregister_msg_id MEDIUMTEXT,
                 lineup_msg_id MEDIUMTEXT,
                 registration_active BOOL,
+                event_end_time DATETIME,
                 PRIMARY KEY(race_id)
                 )`, function(error, result, fields) {
                     if(error){
@@ -314,7 +315,8 @@ module.exports = (client) => {
     }
 
     client.insertNewRace = async (mercedesDrivers, redBullDrivers, ferrariDrivers, mcLarenDrivers, astonMartinDrivers, alpineDrivers, alphaTauriDrivers, alfaRomeoDrivers, 
-                                    williamsDrivers, haasDrivers, waitlistMsgID, freeCarsMsgID, regularDriversMsgID, registerMsgID, deregisterMsgID, raceLocation, lineupMsgID) => {
+                                    williamsDrivers, haasDrivers, waitlistMsgID, freeCarsMsgID, regularDriversMsgID, registerMsgID, deregisterMsgID, raceLocation, lineupMsgID,
+                                    endDate) => {
         console.log('CRASHPOINT 1')
         var promInsertNewRace = new Promise(function(resolve, reject){
             console.log('CRASHPOINT 2')
@@ -323,10 +325,11 @@ module.exports = (client) => {
                             current_drivers_mercedes, current_drivers_rb, current_drivers_ferrari, current_drivers_mclaren, 
                             current_drivers_aston_martin, current_drivers_alpine, current_drivers_alpha_tauri, current_drivers_alfa_romeo,
                             current_drivers_williams, current_drivers_haas, free_car_msg_id, waitlist_msg_id, regular_drivers_msg_id,
-                            register_msg_id, deregister_msg_id, lineup_msg_id, registration_active) VALUES ('', '', '', '', '', '', '${raceLocation}', '', '', '${mercedesDrivers}',
+                            register_msg_id, deregister_msg_id, lineup_msg_id, registration_active, event_end_time) VALUES ('', '', '', 
+                            '', '', '', '${raceLocation}', '', '', '${mercedesDrivers}',
                             '${redBullDrivers}', '${ferrariDrivers}', '${mcLarenDrivers}', '${astonMartinDrivers}', '${alpineDrivers}', 
                             '${alphaTauriDrivers}', '${alfaRomeoDrivers}', '${williamsDrivers}', '${haasDrivers}', '${freeCarsMsgID}', '${waitlistMsgID}',
-                            '${regularDriversMsgID}', '${registerMsgID}', '${deregisterMsgID}', '${lineupMsgID}', 1)`, function(err, res){
+                            '${regularDriversMsgID}', '${registerMsgID}', '${deregisterMsgID}', '${lineupMsgID}', 1, '${endDate}')`, function(err, res){
                 console.log('CRASHPOINT 3')
                 if(err){
                     reject(err)
@@ -505,7 +508,7 @@ module.exports = (client) => {
 
     client.insertNewRegularDriver = async (gueltigAbDate, teamID, persID, ligaID) => {
         var promInsertNewRegularDriver = new Promise(function(resolve, reject){
-            connectionAdman.query(`INSERT INTO ligateamfahrer (ltfid, fahrerrolle, gueltigab, ligaid, persid, tid) VALUES (8, 'Stammfahrer', CAST('${gueltigAbDate}' AS DATETIME), ${ligaID}, ${persID}, ${teamID})`, function(err, res){
+            connectionAdman.query(`INSERT INTO ligateamfahrer (ltfid, fahrerrolle, gueltigab, ligaid, persid, tid) VALUES (10, 'Stammfahrer', '${gueltigAbDate}', ${ligaID}, ${persID}, ${teamID})`, function(err, res){
                 if(err){
                     console.log('VALUES', gueltigAbDate, ligaID, persID, teamID)
                     reject(err)

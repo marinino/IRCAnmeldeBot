@@ -16,6 +16,8 @@ for(const file of fileFolder){
   require(`./handlers/${file}`)(client, Discord)
 }
 
+
+
 client.on('messageCreate', message => {
   if(/<@!901473425078497360>|<@901473425078497360>/.test(message.content)) {
 

@@ -71,7 +71,7 @@ module.exports = {
                     await client.regularDriverRemoveWithdraw(client, userToRemoveWithdraw);
                     // Changes content of list
                     
-                    withdrawnDriversPerCommand.splice(tempArray.indexOf(userToRemoveWithdraw.id), 1);
+                    withdrawnDriversPerCommand.splice(withdrawnDriversPerCommand.indexOf(userToRemoveWithdraw.id), 1);
                     var withdrawnDriversPerCmdAsString = await client.convertArrayToString(withdrawnDriversPerCommand)
                     await client.updateWithdrawnDriversPerCmd(withdrawnDriversPerCmdAsString, raceID).then(function(res){
                         console.log(`Successfully updated withdrawn drivers per cmd list in database -- ${new Date().toLocaleString()}`)
@@ -90,7 +90,7 @@ module.exports = {
                 } else {
                     await confirmMessage.reply('Es wurde mit dem falschen Emoji reagiert').then(async () => {
                       console.log(`removeabmeldungFR wurde gestartet aber es wurde mit dem falschen Emoji `+
-                                    `reagiert in ${CurrentSeason.seasonData.getLigatitel()} -- ${new Date().toLocaleString()}`)
+                                    `reagiert in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`)
                       await reaction.users.remove(user.id);
                     })
                   }

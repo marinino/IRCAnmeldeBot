@@ -50,8 +50,8 @@ module.exports = {
             }
             await interaction.reply(`Bei ${userToRemoveSubIn.username} wird die Anmeldung zurück genommen `)
             let confirmMessage = await interaction.channel.send(`Bist du sicher, dass du die Anmeldung von ${userToRemoveSubIn.username} zurück nehmen möchtest?`);
-            await confirmMessage.react(CurrentSeason.seasonData.getAnmeldeEmoji());
-            await confirmMessage.react(CurrentSeason.seasonData.getAbmeldeEmoji());
+            await confirmMessage.react(client.getAnmeldeEmoji());
+            await confirmMessage.react(client.getAbmeldeEmoji());
 
             const collectorConfirm = confirmMessage.createReactionCollector({ dispose: true});
 
@@ -108,7 +108,7 @@ module.exports = {
                 } else {
                     await confirmMessage.reply('Es wurde mit dem falschen Emoji reagiert').then(async () => {
                       console.log(`removeanmeldungFR wurde gestartet aber es wurde mit dem falschen Emoji `+
-                                    `reagiert in ${CurrentSeason.seasonData.getLigatitel()} -- ${new Date().toLocaleString()}`)
+                                    `reagiert in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`)
                       await reaction.users.remove(user.id);
                     })
                   }

@@ -1,12 +1,12 @@
-const {SlashCommandBuilder, EmbedBuilder, Embed} = require('discord.js');
-const cron = require('node-cron');
+const {SlashCommandBuilder, EmbedBuilder} = require('discord.js');
+
 
 var racesPlanned = new Map();
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('startseasonliga_fr')
-        .setDescription('Starts season and sets calendar')
+        .setName('checkforrace_fr')
+        .setDescription('Looks for race within the next week and starts enrolment')
         .addNumberOption(option => 
             option.setName('id')
                 .setDescription('ID der Liga in der Datenbank')
@@ -105,33 +105,26 @@ module.exports = {
         })
     
 
-        try{
+        if(racesPlanned.size > 0){
+            var [nextRaceKey] = racesPlanned.keys()
+            console.log(nextRaceKey)
 
-            cron.schedule(`18 11 * * 2`, async () => {
+            var nextRaceDate = new Date(racesPlanned.get(nextRaceKey))
+            console.log(nextRaceDate)
 
-                if(racesPlanned.size > 0){
-                    var [nextRaceKey] = racesPlanned.keys()
-                    console.log(nextRaceKey)
-
-                    var nextRaceDate = new Date(racesPlanned.get(nextRaceKey))
-                    console.log(nextRaceDate)
-
-                    // 604800000 is one week in ms
-                    if(nextRaceDate - new Date() < 604800000){
-                        
-                        await client.startFunction(client, interaction, nextRaceDate, nextRaceKey.grandprixname);
-                        console.log('RACEEEEEEEEEEEEEEEEEEEEE')
-                    } else {
-                        console.log(`Checked for planned races but none found in the next week. -- ${new Date().toLocaleString()}`)
-                    }
-
-                } else {
-                    console.log(`Checked for planned races, none where found. -- ${new Date().toLocaleString()}`)
-                }
+            // 604800000 is one week in ms
+            if(nextRaceDate - new Date() < 604800000){
                 
-            })
-        }catch{
-            console.log(`Seasonstart konnte nicht durchgeführt werden in Liga FR`)
+                await client.startFunction(client, interaction, nextRaceDate, nextRaceKey.grandprixname);
+                console.log('RACEEEEEEEEEEEEEEEEEEEEE')
+            } else {
+                console.log(`Checked for planned races but none found in the next week. -- ${new Date().toLocaleString()}`)
+            }
+
+        } else {
+            console.log(`Checked for planned race, none was found. -- ${new Date().toLocaleString()}`)
         }
+        
+      
     }
 }

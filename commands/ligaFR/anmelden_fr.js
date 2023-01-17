@@ -42,8 +42,8 @@ module.exports = {
            
             let confirmMessage = await interaction.channel.send(`Bist du sicher, dass du ${userToSubIn.username} anmelden möchtest?`);
 
-            await confirmMessage.react(CurrentSeason.seasonData.getAnmeldeEmoji());
-            await confirmMessage.react(CurrentSeason.seasonData.getAbmeldeEmoji());
+            await confirmMessage.react(client.getAnmeldeEmoji());
+            await confirmMessage.react(client.getAbmeldeEmoji());
 
         
             await interaction.reply(`${userToSubIn.username} wird per Command angemeldet`)
@@ -90,7 +90,7 @@ module.exports = {
                         
                     }
                     await confirmMessage.delete();
-                } else if(reaction.emoji.name == CurrentSeason.seasonData.getAbmeldeEmoji()){
+                } else if(reaction.emoji.name == client.getAbmeldeEmoji()){
                     await confirmMessage.reply('Der Vorgang wurde erfolgreich abgebrochen!').then(() => {
                         console.log(`anmeldenFR wurde gestartet und abgebrochen -- ${new Date().toLocaleString()}`)
                     });

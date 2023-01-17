@@ -494,6 +494,7 @@ module.exports = (client) => {
         var currentRaceLocation = 'k.A.';
         var currentLineup = await client.getCurrentLineup()
        
+        console.log('FIRST CAR IN ALPINE', currentLineup.get('Alpine')[0])
        
         // SQL FOR msgLineupID = client.getLineupMsgLigaFR();
         await client.getLastRaceInDatabase().then(async function(res){
@@ -574,6 +575,8 @@ module.exports = (client) => {
                 return `<@${cockpitValue}> <:steam:1032252108772229142>`;
             } else if(driverInSeat.roles.cache.has(client.getOriginRolleID())){
                 return `<@${cockpitValue}> <:origin:1032252076169900082>`;
+            } else {
+                return `<@${cockpitValue}>`
             }
             // if XBox
             // if PS
@@ -931,7 +934,7 @@ module.exports = (client) => {
         }
     }
 
-    client.createRaceInDatabase = async (currentRaceLocation, client) => {
+    client.createRaceInDatabase = async (currentRaceLocation, client, raceEndDatetime) => {
 
         var mercedesDrivers = await client.getMercedesDrivers(client);
         var redBullDrivers = await client.getRedBullDrivers(client);
@@ -985,10 +988,12 @@ module.exports = (client) => {
         console.log(`Das Standard Lineup wurde gesendet in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`);
         console.log('Lineup: ' + lineupMsgID)
 
+        var datetimeForEnd = await client.getDatetimeForDatabase(raceEndDatetime)
+
         await client.insertNewRace(mercedesDriversAsString, redBullDriversAsString, ferrariDriversAsString,
             mcLarenDriversAsString, astonMartinDriversAsString, alpineDriversAsString, alphaTauriDriversAsString,
             alfaRomeoDriversAsString, williamsDriversAsString, haasDriversAsString, waitlistMsgID, freeCarsMsgID,
-            regularDriversMsgID, registerMsgID, deregisterMsgID, currentRaceLocation, lineupMsgID).then(async function(res){
+            regularDriversMsgID, registerMsgID, deregisterMsgID, currentRaceLocation, lineupMsgID, datetimeForEnd).then(async function(res){
             console.log(`New race in ${currentRaceLocation} inserted -- ${new Date().toLocaleString()}`)
         }, async function(err){
             console.log(`New race could not be inserted -- ${new Date().toLocaleString()} \n ${err}`)
@@ -1135,7 +1140,7 @@ module.exports = (client) => {
         await client.guilds.cache.get(await client.getDiscordID()).channels.cache.get(abmeldeChannelID).send({ embeds : [driverWithdrawnEmbed]}).then(() => {
             client.guilds.cache.get(client.getDiscordID()).channels.cache.get(client.getLogChannelID()).send({ embeds : [driverWithdrawnEmbed]});
         });
-        console.log(`${driverObject.user.username} hat sich erfolgreich abgemeldet in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`); 
+        console.log(`${driverObject} \n ${driverObject.username} hat sich erfolgreich abgemeldet in ${client.getLigatitel()} -- ${new Date().toLocaleString()}`); 
         
         //Make changes global
         var withdrawnDriversAsString = await client.convertArrayToString(withdrawnDrivers)
@@ -1462,14 +1467,10 @@ module.exports = (client) => {
        
         //Init
         console.log('STARTFUNCTION')
-        await client.createRaceInDatabase(currentRaceLocation, client);
+        await client.createRaceInDatabase(currentRaceLocation, client, nextRaceDate);
         //Get information
         //Only check at begining
         
-        var anmeldeChannelID = await client.getAnmeldeChannelIDLigaFR();
-        var abmeldeChannelID = await client.getAbmeldeChannelIDLigaFR();
-        var ersatzfahrerRolleID = await client.getErsatzfahrerRolleIDLigaFR();
-        var stammfahrerRolleID = await client.getStammfahrerRolleIDLigaFR();
       
         //Do stuff
        
@@ -1495,449 +1496,6 @@ module.exports = (client) => {
         collectorWithdraw = deregisterMsg.createReactionCollector({ dispose: true});
        
     
-        // Hinzufügen von Rolle
-        collectorSubIn.on('collect', async (reaction, user) => {
-            //Get information
-            //Check new for every reaction
-
-            var anmeldungActive = true
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to check if registration is active -- ${new Date().toLocaleString()}`)
-                if(res[0].registration_active == 0){
-                    anmeldungActive = false;
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to check if registration is active -- ${new Date().toLocaleString()} \n ${err}`)
-            })
-                 
-            var subDriverInPerCommand = new Array()
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to get drivers subbed in per command -- ${new Date().toLocaleString()}`)
-                if(res[0].sub_in_drivers_per_cmd.length > 0){
-                    subDriverInPerCommand = res[0].sub_in_drivers_per_cmd.split(',');
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to get drivers subbed in per command -- ${new Date().toLocaleString()} \n ${err}`)
-            })
-
-            var reactedToSubIn = new Array()
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()}`)
-                if(res[0].reacted_to_sub_in.length > 0){
-                    reactedToSubIn = await res[0].reacted_to_sub_in.split(',')
-                }
-                
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()} \n ${err}`)
-            })       
-           
-            //Do stuff
-            if(reaction.message.partial){
-                await reaction.message.fetch();
-            }
-            if(reaction.partial){
-                await reaction.fetch();
-            }
-            if(user.bot){
-                return;
-            }
-            if(!(reaction.message.guild)){
-                return;
-            }
-            // Anmeldevorgang
-            if(reaction.message.channel.id == anmeldeChannelID){
-                if(anmeldungActive == true){
-                    // insert reaction into reacted to sub in list
-                    
-                    if(reactedToSubIn.includes(user.id)){
-                        console.log(`${user.username} hat auf Anmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${client.getLigatitel()} ` + 
-                                    `-- ${new Date().toLocaleString()}`);
-                    } else {
-                        reactedToSubIn.push(user.id)
-
-                        //await seasonData.setReactedToSubInLigaFR(reactedToSubIn);
-                        var IDofCurrentRaceEvent = -1
-                        await client.getLastRaceInDatabase().then(async function(res){
-                            console.log(`Successfully got last race entry in DB to get ID -- ${new Date().toLocaleString()}`)
-                            IDofCurrentRaceEvent = res[0].race_id
-
-                            var stringForDatabase = await client.convertArrayToString(reactedToSubIn)
-
-                            await client.setReactedToSubIn(stringForDatabase, IDofCurrentRaceEvent).then(async function(res){
-                                console.log(`Successfully set reacted_to_sub_in to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
-                                            `-- ${new Date().toLocaleString()}`)
-                            }, async function(err){
-                                console.log(`Error while setting reacted_to_sub_in to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
-                                `-- ${new Date().toLocaleString()} \n ${err}`)
-                            })
-
-                        }, function(err){
-                            console.log(`Error while getting last race entry in DB to get ID -- ${new Date().toLocaleString()} \n ${err}`)
-                        })
-                    }
-                    
-
-                    if(reaction.emoji.name === client.getAnmeldeEmoji() && !subDriverInPerCommand.includes(user.id) &&
-                        reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleID)){                          
-                            client.subDriverIn(client, reaction.message.guild.members.cache.get(user.id));
-                    } else if(reaction.emoji.name != client.getAnmeldeEmoji()) {
-                        await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                        let date = new Date().toLocaleString();
-                        console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert in ${client.getLigatitel()}-- ${date}`);
-                    } else if(!(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleID))) {
-                        await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                        let date = new Date().toLocaleString();
-                        console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat probiert sich anzumelden, hat aber die Stammfahrer ` + 
-                        `Rolle in ${client.getLigatitel()} nicht -- ${date}`);
-                    } else {
-                        await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                        let date = new Date().toLocaleString();
-                        console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wurde schon per Befehl angemeldet in ${client.getLigatitel()} -- ${date}`);
-                    }             
-                }else{
-                    await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                    let date = new Date().toLocaleString();
-                    console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wollte sich abmelden, aber Anmeldung war schon beendet ${client.getLigatitel()} -- ${date}`);
-                }
-            
-            }
-        });
-        // Abmeldevorgang
-        collectorWithdraw.on('collect', async (reaction, user) => {
-            //Get information
-            //Check new for every reaction
-            
-            var anmeldungActive = true
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to check if registration is active -- ${new Date().toLocaleString()}`)
-                if(res[0].registration_active == 0){
-                    anmeldungActive = false;
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to check if registration is active -- ${new Date().toLocaleString()} \n ${err}`)
-            })
-                 
-            var withdrawnDriversPerCommand = new Array()
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to get drivers withdrawn per command -- ${new Date().toLocaleString()}`)
-                if(res[0].withdrawn_drivers_per_cmd.length > 0){
-                    withdrawnDriversPerCommand = res[0].withdrawn_drivers_per_cmd.split(',');
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to get drivers withdrawn per command -- ${new Date().toLocaleString()} \n ${err}`)
-            })
-
-            var reactedToSignOut = new Array()
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()}`)
-                if(res[0].reacted_to_sign_out.length > 0){
-                    reactedToSignOut = await res[0].reacted_to_sign_out.split(',')
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()} \n ${err}`)
-            })       
-           
-            //Do stuff
-            if(reaction.message.channel.id == abmeldeChannelID){
-                if(anmeldungActive == true){
-                    
-                    if(reaction.message.partial){
-                        await reaction.message.fetch();
-                    }
-                    if(reaction.partial){
-                        await reaction.fetch();
-                    }
-                    if(user.bot){
-                        return;
-                    }
-                    if(!(reaction.message.guild)){
-                        return;
-                    }
-                    if(reaction.emoji.name === client.getAbmeldeEmoji() && !(withdrawnDriversPerCommand.includes(user.id)) &&
-                        reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleID)){
-                        //Local change 
-                        
-                        if(reactedToSignOut.includes(user.id)){
-                            let date = new Date().toLocaleString();
-                            console.log(`${user.username} hat auf Abmelden reagiert, wurde aber nicht in die Liste hinzugefügt  ${client.getLigatitel()} -- ${date}`);
-                        } else {
-                            reactedToSignOut.push(user.id)
-                            console.log('Array ', reactedToSignOut)
-                            //await seasonData.setReactedToSignOutLigaFR(reactedToSubIn);
-                            var IDofCurrentRaceEvent = -1
-                            await client.getLastRaceInDatabase().then(async function(res){
-                                console.log(`Successfully got last race entry in DB to get ID -- ${new Date().toLocaleString()}`)
-                                IDofCurrentRaceEvent = res[0].race_id
-
-                                var stringForDatabase = await client.convertArrayToString(reactedToSignOut)
-
-                                await client.setReactedToSignOut(stringForDatabase, IDofCurrentRaceEvent).then(async function(res){
-                                    console.log(`Successfully set reacted_to_sign_out to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
-                                                `-- ${new Date().toLocaleString()}`)
-                                }, async function(err){
-                                    console.log(`Error while setting reacted_to_sign_out to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
-                                    `-- ${new Date().toLocaleString()} \n ${err}`)
-                                })
-
-                            }, function(err){
-                                console.log(`Error while getting last race entry in DB to get ID -- ${new Date().toLocaleString()} \n ${err}`)
-                            })
-                           
-                        }
-                      
-                        //Do stuff
-                        client.regularDriverWithdraw(client, reaction.message.guild.members.cache.get(user.id));                          
-                    } else if(reaction.emoji.name !== client.getAbmeldeEmoji()) {
-                        await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                        let date = new Date().toLocaleString();
-                        console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert in ${client.getLigatitel()} -- ${date}`);
-                    } else if(!(reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleID))) {
-                        await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                        let date = new Date().toLocaleString();
-                        console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat probiert sich abzumelden, hat aber die Stammfahrer ` + 
-                        `Rolle in ${client.getLigatitel()} nicht -- ${date}`);
-                    } else {
-                        await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                        let date = new Date().toLocaleString();
-                        console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wurde schon per Befehl abgemeldet in ${client.getLigatitel()} -- ${date}`);
-                    }
-                } else {
-                    await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                    let date = new Date().toLocaleString();
-                    console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wollte sich abmelden, aber Anmeldung war schon beendet ${client.getLigatitel()} -- ${date}`);
-                }
-                
-                                    
-            }
-        });
-        
-        // Entfernen von Rollen
-        collectorSubIn.on('remove', async (reaction, user) => {
-            //Get information
-            //Check new for every reaction
-            
-            var anmeldungActive = true
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to check if registration is active -- ${new Date().toLocaleString()}`)
-                if(res[0].registration_active == 0){
-                    anmeldungActive = false;
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to check if registration is active -- ${new Date().toLocaleString()} \n ${err}`)
-            })
-                 
-            var subDriverInPerCommand = new Array()
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to get drivers subbed in per command -- ${new Date().toLocaleString()}`)
-                if(res[0].sub_in_drivers_per_cmd.length > 0){
-                    subDriverInPerCommand = res[0].sub_in_drivers_per_cmd.split(',');
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to get drivers subbed in per command -- ${new Date().toLocaleString()} \n ${err}`)
-            })
-
-            var reactedToSubIn = new Array()
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()}`)
-                if(res[0].reacted_to_sub_in.length > 0){
-                    reactedToSubIn = res[0].reacted_to_sub_in.split(',')
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()} \n ${err}`)
-            })   
-            
-            var subPersonList = new Array()
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()}`)
-                if(res[0].sub_person_list.length > 0){
-                    subPersonList = res[0].sub_person_list.split(',')
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to get drivers reacted to sub in -- ${new Date().toLocaleString()} \n ${err}`)
-            })     
-           
-            //Do stuff
-            if(reaction.message.partial){
-                await reaction.message.fetch();
-            }
-            if(reaction.partial){
-                await reaction.fetch();
-            }
-            if(user.bot){
-                return;
-            }
-            if(!(reaction.message.guild)){
-                return;
-            }
-            // Entfernen von Anmeldung 
-            if(reaction.message.channel.id == anmeldeChannelID){
-                if(anmeldungActive == true){
-                    if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(ersatzfahrerRolleID)){
-                        if(reaction.emoji.name == client.getAnmeldeEmoji()){
-                            reactedToSubIn.splice(reactedToSubIn.indexOf(user.id), 1);
-                            
-                            var IDofCurrentRaceEvent = -1
-                            await client.getLastRaceInDatabase().then(async function(res){
-                                console.log(`Successfully got last race entry in DB to get ID -- ${new Date().toLocaleString()}`)
-                                IDofCurrentRaceEvent = res[0].race_id
-
-                                var stringForDatabase = await client.convertArrayToString(reactedToSubIn)
-
-                                await client.setReactedToSubIn(stringForDatabase, IDofCurrentRaceEvent).then(async function(res){
-                                    console.log(`Successfully set reacted_to_sub_in to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
-                                                `-- ${new Date().toLocaleString()}`)
-                                }, async function(err){
-                                    console.log(`Error while setting reacted_to_sub_in to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
-                                    `-- ${new Date().toLocaleString()} \n ${err}`)
-                                })
-
-                            }, function(err){
-                                console.log(`Error while getting last race entry in DB to get ID -- ${new Date().toLocaleString()} \n ${err}`)
-                            })
-                           
-                            // Checkt ob Fahrer mit Command abgemeldet wurde
-                            if(subDriverInPerCommand.includes(user.id)){
-                                await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                                let date = new Date().toLocaleString();
-                                console.log(`${user.username} wurde die Reaktion verweigert, da er per Command abgemeldet ist in ${client.getLigatitel()} -- ${date}`);
-                            } else {    
-                                // Fahrer ist noch auf Warteliste
-                                if(subPersonList.includes(reaction.message.guild.members.cache.get(user.id).user.id)){
-                                    client.subDriverRemoveSubInOnWaitlist(client, reaction.message.guild.members.cache.get(user.id));
-                                }
-                                // Fahrer ist nicht mehr auf Warteliste
-                                else if(await client.checkDriverInLineup(user.id, client)) {
-                                    client.subDriverRemoveSubInInLineup(client, reaction.message.guild.members.cache.get(user.id));
-                                } else {
-                                    let date = new Date().toLocaleString();
-                                    console.log(`Der entfernte Fahrer war weder im Lineup noch auf der Warteliste in ${client.getLigatitel()} -- ${date}`)
-                                }
-                            }                  
-                        } else {
-                            await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                            let date = new Date().toLocaleString();
-                            console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert in ${client.getLigatitel()} -- ${date}`);              
-                        }
-                    } else {
-                        let date = new Date().toLocaleString();
-                        console.log(`Die Reaktion von ${user.username} wurde entfernt, allerdings hat er nicht die richtige Rolle gehabt in ${client.getLigatitel()} ` + 
-                        `beim Entfernen -- ${date}`)
-                    }
-                } else {
-                    await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                    let date = new Date().toLocaleString();
-                    console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wollte seine Anmeldung entfernen, aber Anmeldung` + 
-                    ` war schon beendet in ${client.getLigatitel()} -- ${date}`);
-                }
-            
-                
-            }
-        });  
-        // Entfernen von Abmeldung
-        collectorWithdraw.on('remove', async (reaction, user) => {
-            //Get information
-            //Check new for every reaction
-                     
-            var anmeldungActive = true
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to check if registration is active -- ${new Date().toLocaleString()}`)
-                if(res[0].registration_active == 0){
-                    anmeldungActive = false;
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to check if registration is active -- ${new Date().toLocaleString()} \n ${err}`)
-            })
-                 
-            var withdrawnDriversPerCommand = new Array()
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to get drivers withdrawn per command -- ${new Date().toLocaleString()}`)
-                if(res[0].withdrawn_drivers_per_cmd.length > 0){
-                    withdrawnDriversPerCommand = res[0].withdrawn_drivers_per_cmd.split(',');
-                }
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to get drivers withdrawn per command -- ${new Date().toLocaleString()} \n ${err}`)
-            })
-
-            var reactedToSignOut = new Array()
-            await client.getLastRaceInDatabase().then(async function(res){
-                console.log(`Successfully got last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()}`)
-                if(res[0].reacted_to_sign_out.length > 0){
-                    reactedToSignOut = await res[0].reacted_to_sign_out.split(',')
-                }
-                
-            }, async function(err){
-                console.log(`Error while getting last race entry in DB to get drivers reacted to sign out -- ${new Date().toLocaleString()} \n ${err}`)
-            })                       
-           
-            //Do stuff
-            if(reaction.message.partial){
-                await reaction.message.fetch();
-            }
-            if(reaction.partial){
-                await reaction.fetch();
-            }
-            if(user.bot){
-                return;
-            }
-            if(!(reaction.message.guild)){
-                return;
-            }
-            if(reaction.message.channel.id == abmeldeChannelID){
-                if(anmeldungActive == true){
-                    let date = new Date();
-                    console.log(`In ${client.getLigatitel()} hat ${user.username} mit ID ${user.id} seine Abmeldung zurückgenommen. Prüfsumme(darf niemals undefined sein): 
-                                ID: ${reaction.message.guild.members.cache.get(user.id).id}, DC-Name: ${reaction.message.guild.members.cache.get(user.id).nickname} -- ${date}`)
-                    if(reaction.message.guild.members.cache.get(user.id).roles.cache.has(stammfahrerRolleID)){
-                        if(reaction.emoji.name == client.getAbmeldeEmoji()){
-                            reactedToSignOut.splice(reactedToSignOut.indexOf(user.id), 1);
-                            
-                            var IDofCurrentRaceEvent = -1
-                            await client.getLastRaceInDatabase().then(async function(res){
-                                console.log(`Successfully got last race entry in DB to get ID -- ${new Date().toLocaleString()}`)
-                                IDofCurrentRaceEvent = res[0].race_id
-
-                                var stringForDatabase = await client.convertArrayToString(reactedToSignOut)
-
-                                await client.setReactedToSignOut(stringForDatabase, IDofCurrentRaceEvent).then(async function(res){
-                                    console.log(`Successfully set reacted_to_sign_out to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
-                                                `-- ${new Date().toLocaleString()}`)
-                                }, async function(err){
-                                    console.log(`Error while setting reacted_to_sign_out to ${stringForDatabase} for event with race_id ${IDofCurrentRaceEvent} ` + 
-                                    `-- ${new Date().toLocaleString()} \n ${err}`)
-                                })
-
-                            }, function(err){
-                                console.log(`Error while getting last race entry in DB to get ID -- ${new Date().toLocaleString()} \n ${err}`)
-                            })
-                            
-                            if(!(withdrawnDriversPerCommand.includes(user.id))){
-                                client.regularDriverRemoveWithdraw(client, reaction.message.guild.members.cache.get(user.id));
-                                let date = new Date();
-                                console.log(`Die Reaktion von ${reaction.message.guild.members.cache.get(user.id).username} zum Abmelden wurde erfolgreich` + 
-                                ` entfernt in ${client.getLigatitel()}. -- ${date}`);
-                            } else {
-                                await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                                let date = new Date().toLocaleString();
-                                console.log(`${user.username} wurde die Reaktion verweigert, da er schon per Command abgemeldet wurde in ${client.getLigatitel()} -- ${date}`);
-                            }
-                        }else {
-                            await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                            let date = new Date().toLocaleString();
-                            console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} hat mit falschen Emoji reagiert in ${client.getLigatitel()} -- ${date}`);   
-                        }      
-                    } else {
-                        let date = new Date().toLocaleString();
-                        console.log(`Die Reaktion von ${user.username} wurde entfernt, allerdings hat er nicht die richtige Rolle gehabt in ${client.getLigatitel()} -- ${date}`)
-                    }
-                } else {
-                    await reaction.users.remove(reaction.message.guild.members.cache.get(user.id).user.id);
-                    let date = new Date().toLocaleString();
-                    console.log(`${reaction.message.guild.members.cache.get(user.id).user.username} wollte seine Anmeldung entfernen, aber Anmeldung` + 
-                    ` war schon beendet in ${client.getLigatitel()} -- ${date}`);
-                }
-            
-            }
-        });
         var timeTillClose = nextRaceDate - new Date()
         var timeTillReminder = timeTillClose - (20 * 1000)
         setTimeout(async () => await client.reminderOpenCockpits(client), timeTillReminder)
@@ -2031,7 +1589,7 @@ module.exports = (client) => {
 
                     var mercDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis.toString().includes(':')){
+                        if(entry.gueltigbis == null || entry.gueltigbis.toString().includes(':')){
                             mercDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2101,7 +1659,7 @@ module.exports = (client) => {
 
                     var redBullDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis.toString().includes(':')){
+                        if(entry.gueltigbis == null || entry.gueltigbis.toString().includes('0000-00-00 00:00:00')){
                             redBullDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2168,7 +1726,7 @@ module.exports = (client) => {
  
                      var ferrariDriversPersID = new Array()
                      res.forEach(entry => {
-                         if(entry.gueltigbis.toString().includes(':')){
+                         if(entry.gueltigbis == null || entry.gueltigbis.toString().includes(':')){
                             ferrariDriversPersID.push(entry.persid)
                          } else {
                              var currentDate = new Date();
@@ -2235,7 +1793,7 @@ module.exports = (client) => {
         
                             var mcLarenDriversPersID = new Array()
                             res.forEach(entry => {
-                                if(entry.gueltigbis.toString().includes(':')){
+                                if(entry.gueltigbis == null || entry.gueltigbis.toString().includes(':')){
                                     mcLarenDriversPersID.push(entry.persid)
                                 } else {
                                     var currentDate = new Date();
@@ -2302,7 +1860,7 @@ module.exports = (client) => {
  
                      var astonMartinDriversPersID = new Array()
                      res.forEach(entry => {
-                         if(entry.gueltigbis.toString().includes(':')){
+                         if(entry.gueltigbis == null || entry.gueltigbis.toString().includes(':')){
                             astonMartinDriversPersID.push(entry.persid)
                          } else {
                              var currentDate = new Date();
@@ -2368,9 +1926,11 @@ module.exports = (client) => {
                     console.log(`Query for drivers from team Alpine was successful -- ${new Date().toLocaleString()}`)
 
                     var alpineDriversPersID = new Array()
+                    console.log('DRIVERS ACCORDING TO QUERY', res)
                     res.forEach(entry => {
-                        if(entry.gueltigbis.toString().includes(':')){
+                        if(entry.gueltigbis == null || entry.gueltigbis.toString().includes(':')){
                             alpineDriversPersID.push(entry.persid)
+                            console.log('ALPINE DRIVER', entry.persid)
                         } else {
                             var currentDate = new Date();
                             var gueltigBisDriver = new Date(entry.gueltigbis)
@@ -2378,6 +1938,7 @@ module.exports = (client) => {
 
                             if(currentDate - gueltigBisDriver < 0){
                                 alpineDriversPersID.push(entry.persid)
+                                console.log('ALPINE DRIVER NOT NULL', entry.persid)
                             } else {
                                 console.log('Kein Stamm mehr')
                             }
@@ -2436,7 +1997,7 @@ module.exports = (client) => {
 
                     var alphaTauriDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis.toString().includes(':')){
+                        if(entry.gueltigbis == null || entry.gueltigbis.toString().includes(':')){
                             alphaTauriDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2503,7 +2064,7 @@ module.exports = (client) => {
 
                     var alfaRomeoDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis.toString().includes(':')){
+                        if(entry.gueltigbis == null || entry.gueltigbis.toString().includes(':')){
                             alfaRomeoDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2570,7 +2131,7 @@ module.exports = (client) => {
 
                     var williamsDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis.toString().includes(':')){
+                        if(entry.gueltigbis == null || entry.gueltigbis.toString().includes(':')){
                             williamsDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2637,7 +2198,7 @@ module.exports = (client) => {
 
                     var haasDriversPersID = new Array()
                     res.forEach(entry => {
-                        if(entry.gueltigbis.toString().includes(':')){
+                        if(entry.gueltigbis == null || entry.gueltigbis.toString().includes(':')){
                             haasDriversPersID.push(entry.persid)
                         } else {
                             var currentDate = new Date();
@@ -2724,5 +2285,57 @@ module.exports = (client) => {
         }
         
         return stringToReturn
+    }
+
+    client.getDatetimeForDatabase = async(givenDate) => {
+
+        var finalDateString = ''
+        var dateGueltigAb = new Date()
+
+        if(givenDate != null){
+            dateGueltigAb = new Date(givenDate)
+        } 
+
+        var dateGueltigAbYear = dateGueltigAb.getFullYear()
+        var dateGueltigAbMonth = dateGueltigAb.getMonth() + 1
+        var dateGueltigAbMonthFormatted = -1
+        if(dateGueltigAbMonth < 10){
+            dateGueltigAbMonthFormatted = dateGueltigAbMonth.toString().padStart(2, '0')
+        } else {
+            dateGueltigAbMonthFormatted = dateGueltigAbMonth
+        }
+        var dateGueltigAbDay = dateGueltigAb.getDate()
+        var dateGueltigAbDayFormatted = -1
+        if(dateGueltigAbDay < 10){
+            dateGueltigAbDayFormatted = dateGueltigAbDay.toString().padStart(2, '0')
+        } else {
+            dateGueltigAbDayFormatted = dateGueltigAbDay
+        }
+        var dateGueltigAbHours = dateGueltigAb.getHours()
+        var dateGueltigAbHoursFormatted = -1
+        if(dateGueltigAbHours < 10){
+            dateGueltigAbHoursFormatted = dateGueltigAbHours.toString().padStart(2, '0')
+        } else {
+            dateGueltigAbHoursFormatted = dateGueltigAbHours
+        }
+        var dateGueltigAbMinutes = dateGueltigAb.getMinutes()
+        var dateGueltigAbMinutesFormatted = -1
+        if(dateGueltigAbMinutes < 10){
+            dateGueltigAbMinutesFormatted = dateGueltigAbMinutes.toString().padStart(2, '0')
+        } else {
+            dateGueltigAbMinutesFormatted = dateGueltigAbMinutes
+        }
+        var dateGueltigAbSeconds = dateGueltigAb.getSeconds()
+        var dateGueltigAbSecondsFormatted = -1
+        if(dateGueltigAbSeconds < 10){
+            dateGueltigAbSecondsFormatted = dateGueltigAbSeconds.toString().padStart(2, '0')
+        } else {
+            dateGueltigAbSecondsFormatted = dateGueltigAbSeconds
+        } 
+
+        finalDateString = `${dateGueltigAbYear}-${dateGueltigAbMonthFormatted}-${dateGueltigAbDayFormatted} `+
+                            `${dateGueltigAbHoursFormatted}:${dateGueltigAbMinutesFormatted}:${dateGueltigAbSecondsFormatted}`
+
+        return finalDateString;
     }
 }

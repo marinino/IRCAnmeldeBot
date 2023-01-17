@@ -90,9 +90,11 @@ module.exports = {
 
                 // Set new lineup
                 if(currentLineup.get(roleGiven.name).includes(driverToRemove)){
+                    console.log('DRIVER IS IN LINEUP')
+                    console.log('POSITION OF DRIVER', currentLineup.get(roleGiven.name).indexOf(`${driverToRemove}`))
                     currentLineup.get(roleGiven.name)[currentLineup.get(roleGiven.name).indexOf(`${driverToRemove}`)] = 'entfernt'
                 }
-                await client.setCurrentLineup(roleGiven, currentLineup)
+                await client.setCurrentLineup(roleGiven.name, currentLineup)
                 await client.printLineup(client)
 
                 // SQL STATEMENT
@@ -100,70 +102,31 @@ module.exports = {
                 var ligaID = -1
                 var persID = -1
     
-                await client.getTeamID(teamRole.name).then(function(res){
-                    console.log(`Successfully got teamID of team ${teamRole.name} -- ${new Date().toLocaleString()}`)
+                await client.getTeamID(roleGiven.name).then(function(res){
+                    console.log(`Successfully got teamID of team ${roleGiven.name} -- ${new Date().toLocaleString()}`)
     
                     teamID = res[0].id
                 }, function(err){
-                    console.log(`Error getting teamID of team ${teamRole.name} -- ${new Date().toLocaleString()} \n ${err}`)
+                    console.log(`Error getting teamID of team ${roleGiven.name} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
-                await client.getPersID(driverToRemove.id).then(function(res){
+                await client.getPersID(driverToRemove).then(function(res){
                     console.log(`Successfully got persID of ${driverToRemove} -- ${new Date().toLocaleString()}`)
     
                     persID = res[0].id
                 }, function(err){
-                    console.log(`Error getting teamID of ${teamRole.name} -- ${new Date().toLocaleString()} \n ${err}`)
+                    console.log(`Error getting teamID of ${driverToRemove} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
                 await client.getLigaID(await client.getLigatitel()).then(async function(res){
                     console.log(`Successfully got ligaID of ${await client.getLigatitel()} -- ${new Date().toLocaleString()}`)
     
-                    ligaID = res[0].id
+                    ligaID = res[0].league_id
                 }, async function(err){
                     console.log(`Error getting ligaID of team ${await client.getLigatitel()} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
-                var dateGueltigAb = new Date()
-                var dateGueltigAbYear = dateGueltigAb.getFullYear()
-                var dateGueltigAbMonth = dateGueltigAb.getMonth() + 1
-                var dateGueltigAbMonthFormatted = -1
-                if(dateGueltigAbMonth < 10){
-                    dateGueltigAbMonthFormatted = dateGueltigAbMonth.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbMonthFormatted = dateGueltigAbMonth
-                }
-                var dateGueltigAbDay = dateGueltigAb.getDay() + 1
-                var dateGueltigAbDayFormatted = -1
-                if(dateGueltigAbDay < 10){
-                    dateGueltigAbDayFormatted = dateGueltigAbDay.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbDayFormatted = dateGueltigAbDay
-                }
-                var dateGueltigAbHours = dateGueltigAb.getHours()
-                var dateGueltigAbHoursFormatted = -1
-                if(dateGueltigAbHours < 10){
-                    dateGueltigAbHoursFormatted = dateGueltigAbHours.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbHoursFormatted = dateGueltigAbHours
-                }
-                var dateGueltigAbMinutes = dateGueltigAb.getMinutes()
-                var dateGueltigAbMinutesFormatted = -1
-                if(dateGueltigAbMinutes < 10){
-                    dateGueltigAbMinutesFormatted = dateGueltigAbMinutes.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbMinutesFormatted = dateGueltigAbMinutes
-                }
-                var dateGueltigAbSeconds = dateGueltigAb.getSeconds()
-                var dateGueltigAbSecondsFormatted = -1
-                if(dateGueltigAbSeconds < 10){
-                    dateGueltigAbSecondsFormatted = dateGueltigAbSeconds.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbSecondsFormatted = dateGueltigAbSeconds
-                } 
-    
-                var finalDateString = `${dateGueltigAbYear}-${dateGueltigAbMonthFormatted}-${dateGueltigAbDayFormatted} `+
-                                        `${dateGueltigAbHoursFormatted}:${dateGueltigAbMinutesFormatted}:${dateGueltigAbSecondsFormatted}`
+                var finalDateString = await client.getDatetimeForDatabase(null)
                 
                 await client.updateRegularDriver(finalDateString, teamID, persID, ligaID).then(function(res){
                     console.log(`Successfully updated new regular driver -- ${new Date().toLocaleString()}`)
@@ -220,12 +183,15 @@ module.exports = {
                      */
                     if(reaction.emoji.name == '1️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getEhemaligerFahrerRolleID());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
-                        let fahrerF1Role = await interaction.guild.roles.cache.find(async role => role.id === await client.getFahrerF1RolleID());
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getEhemaligerFahrerRolleID());
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(await roleGiven.id);
+                        let fahrerF1Role = await interaction.guild.roles.cache.get(await client.getFahrerF1RolleID());
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
+                        console.log('REMOVED MEMBER', roleRemoveMember)
+                        console.log('EHEMALIGER ROLE', futureRole)
+                        console.log('TEAMROLLE', teamRole)
         
                         await roleRemoveMember.roles.remove(regDriverRole);
                         await roleRemoveMember.roles.remove(teamRole);
@@ -240,9 +206,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '2️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSO1());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getErsatzfahrerRolleIDLigaSO1());
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -257,9 +223,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '3️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSO2());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getErsatzfahrerRolleIDLigaSO2());
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -275,9 +241,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '4️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSA1());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getErsatzfahrerRolleIDLigaSA1());
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -293,9 +259,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '5️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSA2());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getErsatzfahrerRolleIDLigaSA2());
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -311,8 +277,8 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '6️⃣'){
 
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => await role.id === roleGiven.id);
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -381,54 +347,10 @@ module.exports = {
                     console.log(`Error getting ligaID of team ${await client.getLigatitel()} -- ${new Date().toLocaleString()} \n ${err}`)
                 })
     
-                var dateGueltigAb = new Date()
-
-                /**
-                 * 
-                 *  var dateGueltigAbYear = dateGueltigAb.getFullYear()
-                var dateGueltigAbMonth = dateGueltigAb.getMonth() + 1
-                var dateGueltigAbMonthFormatted = -1
-                if(dateGueltigAbMonth < 10){
-                    dateGueltigAbMonthFormatted = dateGueltigAbMonth.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbMonthFormatted = dateGueltigAbMonth
-                }
-                var dateGueltigAbDay = dateGueltigAb.getDay() + 1
-                var dateGueltigAbDayFormatted = -1
-                if(dateGueltigAbDay < 10){
-                    dateGueltigAbDayFormatted = dateGueltigAbDay.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbDayFormatted = dateGueltigAbDay
-                }
-                var dateGueltigAbHours = dateGueltigAb.getHours()
-                var dateGueltigAbHoursFormatted = -1
-                if(dateGueltigAbHours < 10){
-                    dateGueltigAbHoursFormatted = dateGueltigAbHours.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbHoursFormatted = dateGueltigAbHours
-                }
-                var dateGueltigAbMinutes = dateGueltigAb.getMinutes()
-                var dateGueltigAbMinutesFormatted = -1
-                if(dateGueltigAbMinutes < 10){
-                    dateGueltigAbMinutesFormatted = dateGueltigAbMinutes.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbMinutesFormatted = dateGueltigAbMinutes
-                }
-                var dateGueltigAbSeconds = dateGueltigAb.getSeconds()
-                var dateGueltigAbSecondsFormatted = -1
-                if(dateGueltigAbSeconds < 10){
-                    dateGueltigAbSecondsFormatted = dateGueltigAbSeconds.toString().padStart(2, '0')
-                } else {
-                    dateGueltigAbSecondsFormatted = dateGueltigAbSeconds
-                } 
-    
-                var finalDateString = `${dateGueltigAbYear}-${dateGueltigAbMonthFormatted}-${dateGueltigAbDayFormatted} `+
-                                        `${dateGueltigAbHoursFormatted}:${dateGueltigAbMinutesFormatted}:${dateGueltigAbSecondsFormatted}`
-                 * 
-                 */
-               
+                var finalDateString = await client.getDatetimeForDatabase(null)
                 
-                await client.updateRegularDriver(dateGueltigAb, teamID, persID, ligaID).then(function(res){
+                
+                await client.updateRegularDriver(finalDateString, teamID, persID, ligaID).then(function(res){
                     console.log(`Successfully updated new regular driver -- ${new Date().toLocaleString()} \n ${res.affectedRows}`)
                 }, function(err){
                     console.log(`Error updating new regular driver -- ${new Date().toLocaleString()} \n ${err}`)
@@ -483,10 +405,10 @@ module.exports = {
                      */
                      if(reaction.emoji.name == '1️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getEhemaligerFahrerRolleID());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
-                        let fahrerF1Role = await interaction.guild.roles.cache.find(async role => role.id === await client.getFahrerF1RolleID());
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getEhemaligerFahrerRolleID());
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
+                        let fahrerF1Role = await interaction.guild.roles.cache.get(await client.getFahrerF1RolleID());
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -503,9 +425,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '2️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSO1());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getErsatzfahrerRolleIDLigaSO1());
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -520,9 +442,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '3️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSO2());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getErsatzfahrerRolleIDLigaSO2());
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -538,9 +460,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '4️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSA1());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getErsatzfahrerRolleIDLigaSA1());
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -556,9 +478,9 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '5️⃣'){
         
-                        let futureRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getErsatzfahrerRolleIDLigaSA2());
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let futureRole = await interaction.guild.roles.cache.get(await client.getErsatzfahrerRolleIDLigaSA2());
+                        let regDriverRole = await interaction.guild.roles.cache.get( await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         
@@ -574,8 +496,8 @@ module.exports = {
                      */
                     else if(reaction.emoji.name == '6️⃣'){
 
-                        let regDriverRole = await interaction.guild.roles.cache.find(async role => role.id === await client.getStammfahrerRolleIDLigaFR());
-                        let teamRole = await interaction.guild.roles.cache.find(async role => role.id === await roleGiven.id);
+                        let regDriverRole = await interaction.guild.roles.cache.get(await client.getStammfahrerRolleIDLigaFR());
+                        let teamRole = await interaction.guild.roles.cache.get(roleGiven.id);
                 
                         let roleRemoveMember = await interaction.guild.members.fetch(driverToRemove);
         

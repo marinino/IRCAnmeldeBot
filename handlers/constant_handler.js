@@ -137,7 +137,7 @@ module.exports = (client) => {
     // LIGA FR
 
     client.getErsatzfahrerRolleIDLigaSO1 = () => {
-        return 0
+        return '947229969686335531'
     }
 
     client.getErsatzfahrerRolleIDLigaSO2 = () => {
